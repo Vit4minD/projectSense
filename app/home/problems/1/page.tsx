@@ -3,11 +3,12 @@
 import Image from 'next/image';
 import projectSenseLogo from '../../images/projectSenseLogo.png';
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { auth, db } from '@/firebase/config';
 import { doc, documentId, getDoc, updateDoc } from 'firebase/firestore';
+import { User } from 'firebase/auth';
 
-function timeCompare(time1, time2) {
+function timeCompare(time1: string, time2: string): boolean {
     if (time1 === "00:00:00") return true;
     const [minutes1, seconds1, milliseconds1] = time1.split(':').map(Number);
     const [minutes2, seconds2, milliseconds2] = time2.split(':').map(Number);
@@ -23,14 +24,14 @@ const Home = () => {
     const [milliseconds, setMilliseconds] = useState(0);
     const [seconds, setSeconds] = useState(0);
     const [minutes, setMinutes] = useState(0);
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<null | User>(null);
     const [num, setNum] = useState(0);
     const [ans, setAns] = useState(0);
     const [userAns, setUserAns] = useState('');
     const [problems, setProblems] = useState(0);
     const [isCorrect, setIsCorrect] = useState(false); // New state for tracking correctness
     const [submit, setSubmit] = useState(0);
-    const audioRef = React.createRef();
+    const audioRef = useRef<HTMLAudioElement>(null);
     const [bestTime, setBestTime] = useState('test');
     useEffect(() => {
         generateRandomNumbers();
@@ -38,7 +39,7 @@ const Home = () => {
     useEffect(() => {
         const fetchUserData = async () => {
             if (user) {
-                const userDocumentRef = doc(db, 'users', user.email);
+                const userDocumentRef = doc(db, 'users', user?.email ?? '');
                 const docSnapshot = await getDoc(userDocumentRef);
 
                 if (docSnapshot.exists()) {
@@ -62,17 +63,22 @@ const Home = () => {
         e.preventDefault();
         setSubmit(submit + 1);
         if (userAns === ("" + ans)) {
-            audioRef.current.play();
+            if (audioRef.current) {
+                (audioRef.current as HTMLAudioElement).play().catch(error => {
+                    // Handle the error, e.g., log it or show a user-friendly message
+                    console.error("Error playing audio:", error);
+                });
+            }
             setSubmit(0);
             generateRandomNumbers();
             setUserAns('');
             setProblems(problems + 1);
             setIsCorrect(true); // Set correctness indicator to true
             if (problems == 4) {
-                const userDocumentRef = doc(db, 'users', user?.email);
+                const userDocumentRef = doc(db, 'users', user?.email ?? '');
                 const docSnapshot = await getDoc(userDocumentRef);
                 const data = docSnapshot.data();
-                const oldtime = data[1] + "";
+                const oldtime = data ? (data[1] + "") : '';
                 const newData = {
                     1: time
                 };

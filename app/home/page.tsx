@@ -2,14 +2,14 @@
 import Image from 'next/image';
 import projectSenseLogo from '../../images/projectSenseLogo.png';
 import { useRouter } from "next/navigation";
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { User, getAuth, onAuthStateChanged } from 'firebase/auth';
 import Firebase, { auth } from '@/firebase/config';
 import firebase from 'firebase/compat/app';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
     const router = useRouter();
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState<null | User>(null);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {

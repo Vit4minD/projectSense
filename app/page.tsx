@@ -27,7 +27,7 @@ const Home = () => {
           <div className="p-5">
             <input className="w-5/6 h-16 text-2xl border-b border-black focus:outline-none" type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}></input>
           </div>
-          <a href='/register' className="text-blue-700 underline">Don't have an account?</a>
+          <a href='/register' className="text-blue-700 underline">{"Don't have an account?"}</a>
           <div className="p-3 text-center">
             <input className="hover:cursor-pointer hover:bg-orange-800 bg-orange-600 p-3 rounded-2xl text-white text-2xl" type="submit" value="Login" placeholder=""></input>
           </div>
