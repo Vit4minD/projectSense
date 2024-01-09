@@ -28,6 +28,9 @@ const Register = () => {
         9: '00:00:00',
         10: '00:00:00',
         11: '00:00:00',
+        12: '00:00:00',
+        13: '00:00:00',
+        14: '00:00:00',
       })
         .then(() => {
           console.log('Document successfully written!');
