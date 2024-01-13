@@ -1,19 +1,19 @@
 'use client'
 import { useRouter } from "next/navigation";
-import { useState } from "react"
-import { auth } from "../../firebase/config"
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { useState } from "react";
+import { auth } from "../../firebase/config";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc } from "firebase/firestore";
 
 const Register = () => {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
-  const colRef = collection(db, 'users')
+  const colRef = collection(db, 'users');
   
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     createUserWithEmailAndPassword(auth, email, password).then((user) => {
       const docRef = doc(colRef, email);
       setDoc(docRef, {
@@ -50,10 +50,10 @@ const Register = () => {
       <div className="flex items-center justify-center p-5 bg-white rounded-2xl shadow-2xl h-1/2 w-1/3">
         <form className="p-5 text-center" onSubmit={onSubmit}>
           <div className="p-5">
-            <input className="w-5/6 h-16 text-2xl border-b border-black focus:outline-none" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}></input>
+            <input className="w-full h-16 text-2xl border-b border-black focus:outline-none" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}></input>
           </div>
           <div className="p-5">
-            <input className="w-5/6 h-16 text-2xl border-b border-black focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password"></input>
+            <input className="w-full h-16 text-2xl border-b border-black focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password"></input>
           </div>
           <div className="p-3 text-center">
             <input className="hover:cursor-pointer hover:bg-orange-800 bg-orange-600 p-3 rounded-2xl text-white text-2xl" type="submit" value="Register" placeholder=""></input>
@@ -61,12 +61,13 @@ const Register = () => {
         </form>
       </div>
     </main>
-  )
-}
+  );
+};
+
 export default function Home() {
   return (
     <>
       <Register />
     </>
-  )
+  );
 }
