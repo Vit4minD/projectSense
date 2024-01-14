@@ -51,28 +51,27 @@ export default function Home() {
     }, []);
 
     return (
-        <main className="h-screen overflow-auto w-screen bg-orange-300 flex flex-col items-center">
-            <div className="bg-white text-4xl p-4 text-orange-300 font-bold flex justify-center items-center w-full">
-                <div className="text-center mx-auto">Number Sense</div>
-            </div>
-
-
-            <div className="font-bold p-2 text-white text-center">Note: Timer starts once a bubble is pressed. Solve 5 questions as fast as you can.</div>
-
-            {/* Your image component goes here */}
-
-            <div className="text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((value) => (
-                    <button
-                        key={value}
-                        value={value}
-                        onClick={() => router.push(`/home/problems/${value}`)}
-                        className={`bg-white font-bold text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-orange-300 rounded-2xl p-3 m-2 hover:text-white hover:bg-orange-500 hover:p-4 ${animations[Math.floor(Math.random() * animations.length)]} duration-300 ease-in-out`}>
-                        {`${topic[value]} ${value}`}
-                    </button>
-                ))}
-            </div>
-            <div className="mt-auto mb-4 text-3xl font-semibold text-white">{user ? user.email : 'Not logged in'}</div>
+<main className="absolute bg-orange-300 h-screen overflow-auto w-screen flex flex-col items-center">          <div className="bg-white text-orange-300 font-bold p-4 text-4xl flex justify-center items-center w-full">
+            <div className="text-center mx-auto">Number Sense</div>
+          </div>
+      
+          <div className="font-bold p-2 text-white text-center">Note: Timer starts once a bubble is pressed. Solve 5 questions as fast as you can.</div>
+      
+          {/* Your image component goes here */}
+      
+          <div className="text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((value) => (
+              <button
+                key={value}
+                value={value}
+                onClick={() => router.push(`/home/problems/${value}`)}
+                className={`bg-white font-bold text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-orange-300 rounded-2xl p-3 m-2 hover:text-white hover:bg-orange-500 hover:p-4 ${animations[Math.floor(Math.random() * animations.length)]} duration-300 ease-in-out`}>
+                {`${topic[value]}`}
+              </button>
+            ))}
+          </div>
+          <div className="animate-bounce mt-auto ml-auto mb-4 text-3xl p-2 rounded-2xl mr-4 font-semibold text-orange-300 bg-white">{user ? user.email : 'Not logged in'}</div>
         </main>
-    );
+      );
+      
 }

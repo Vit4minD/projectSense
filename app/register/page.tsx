@@ -5,6 +5,7 @@ import { auth } from "../../firebase/config";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc } from "firebase/firestore";
+import Image from 'next/image';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -46,17 +47,35 @@ const Register = () => {
   }
 
   return (
-    <main className="h-screen flex items-center justify-center align-center bg-orange-300">
-      <div className="flex items-center justify-center p-5 bg-white rounded-2xl shadow-2xl h-1/2 w-1/3">
+    <main className="min-h-screen flex items-center justify-center bg-orange-300">
+      <div className="flex flex-col items-center justify-center p-5 bg-white rounded-2xl shadow-2xl md:w-1/3 sm:w-5/6">
+      <Image src="/projectSenseLogo.png" width={95} height={95} alt="yeah" />
         <form className="p-5 text-center" onSubmit={onSubmit}>
           <div className="p-5">
-            <input className="w-full h-16 text-2xl border-b border-black focus:outline-none" type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}></input>
+            <input
+              className="w-full md:w-5/6 h-16 text-2xl md:text-3xl border-b border-black focus:outline-none"
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            ></input>
           </div>
           <div className="p-5">
-            <input className="w-full h-16 text-2xl border-b border-black focus:outline-none" value={password} onChange={(e) => setPassword(e.target.value)} type="password" placeholder="Password"></input>
+            <input
+              className="w-full md:w-5/6 h-16 text-2xl md:text-3xl border-b border-black focus:outline-none"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            ></input>
           </div>
           <div className="p-3 text-center">
-            <input className="hover:cursor-pointer hover:bg-orange-800 bg-orange-600 p-3 rounded-2xl text-white text-2xl" type="submit" value="Register" placeholder=""></input>
+            <input
+              className="hover:cursor-pointer hover:bg-orange-800 bg-orange-600 p-3 rounded-2xl text-white text-2xl md:text-3xl w-full"
+              type="submit"
+              value="Register"
+              placeholder=""
+            ></input>
           </div>
         </form>
       </div>
