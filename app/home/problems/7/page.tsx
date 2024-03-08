@@ -137,7 +137,7 @@ const Home = () => {
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
                 <div className="bg-white text-5xl p-10 text-orange-300 flex font-bold justify-center items-center">
                     <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 pb-3 pl-4 pr-4 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl flex items-center">{'⌂'}</button>
-                    <div className="absolute text-2xl md:text-3xl">Number Sense: n*11</div>
+                    <div className="absolute text-2xl md:text-3xl">Number Sense: n+x</div>
                     <div className="md:text-2xl text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
                 </div>
                 <div className="text-white font-semibold">Personal Best: {bestTime}</div>
@@ -165,7 +165,7 @@ const Home = () => {
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
                 <div className="bg-white text-5xl p-10 text-orange-300 flex font-bold justify-center items-center">
                     <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 pb-3 pl-4 pr-4 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl flex items-center">{'⌂'}</button>
-                    <div className="absolute text-2xl md:text-3xl">Number Sense: n*11</div>
+                    <div className="absolute text-2xl md:text-3xl">Number Sense: n+x</div>
                     <div className="md:text-2xl text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
                 </div>
                 <div className="text-white font-semibold">Personal Best: {timeCompare(bestTime, time) ? time : bestTime}</div>
