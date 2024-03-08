@@ -132,10 +132,10 @@ const Home = () => {
     if (problems < 5) {
         return (
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
-                <div className="bg-white text-5xl p-8 text-orange-300 flex font-bold justify-center items-center">
-                    <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl">{'<-'}</button>
-                    <div className="absolute ">Number Sense: n/101</div>
-                    <div className="text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
+                <div className="bg-white text-5xl p-10 text-orange-300 flex font-bold justify-center items-center">
+                    <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 pb-3 pl-4 pr-4 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl flex items-center">{'⌂'}</button>
+                    <div className="absolute text-2xl md:text-3xl">Number Sense: n*11</div>
+                    <div className="md:text-2xl text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
                 </div>
                 <div className="text-white font-semibold">Personal Best: {bestTime}</div>
                 <div className={`text-2xl rounded-2xl p-3 w-fit text-center mx-auto ${submit > 0 ? isCorrect ? 'bg-green-500' : 'bg-red-500' : 'bg-white'}`}>
@@ -143,12 +143,12 @@ const Home = () => {
                 </div>
                 <audio ref={audioRef} src='/correctSound.mp3' />
                 <form onSubmit={onSubmit}>
-                    <div className="flex items-center text-9xl font-semibold text-white font-sans mt-64 w-full justify-center">
-                        <div>
+                    <div className="flex items-center text-9xl font-semibold text-white font-sans w-full justify-center">
+                        <div className="text-4xl md:text-8xl mt-48">
                             {num} / 101 =
                             <input
                                 autoFocus
-                                className={`focus:cursor-auto ml-12 text-center text-9xl text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-96`}
+                                className={`focus:cursor-auto ml-12 text-center text-4xl md:text-8xl   text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-24 md:w-80`}
                                 type="text"
                                 value={userAns} onChange={(e) => setUserAns(e.target.value)}
                             />
@@ -160,10 +160,10 @@ const Home = () => {
     } else {
         return (
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
-                <div className="bg-white text-5xl p-8 text-orange-300 flex font-bold justify-center items-center">
-                    <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl">{'<-'}</button>
-                    <div className="absolute ">Number Sense: Remainder</div>
-                    <div className="text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
+                <div className="bg-white text-5xl p-10 text-orange-300 flex font-bold justify-center items-center">
+                    <button onClick={() => router.push('/home')} className="absolute left-1 ml-2 pb-3 pl-4 pr-4 bg-orange-300 hover:cursor-pointer hover:bg-orange-500 text-white rounded-2xl flex items-center">{'⌂'}</button>
+                    <div className="absolute text-2xl md:text-3xl">Number Sense: n*11</div>
+                    <div className="md:text-2xl text-xl absolute right-8">{user ? user.email : 'Not logged in'}</div>
                 </div>
                 <div className="text-white font-semibold">Personal Best: {timeCompare(bestTime, time) ? time : bestTime}</div>
                 <audio ref={audioRef} src='/correctSound.mp3' />
@@ -172,7 +172,6 @@ const Home = () => {
                         {time}
                     </div>
                 </div>
-
             </main>
         );
     }
