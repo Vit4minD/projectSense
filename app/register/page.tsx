@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth } from "../../firebase/config";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from "../../firebase/config";
@@ -12,6 +12,18 @@ const Register = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
   const colRef = collection(db, 'users');
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        router.push('/home'); // Redirect to home page if user is signed in
+      }
+    });
+
+    // Clean up function
+    return () => unsubscribe();
+  }, [router]);
   
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -39,7 +51,7 @@ const Register = () => {
         .catch((error) => {
           console.error('Error writing document: ', error);
         });
-      router.push('/');
+      router.push('/home');
     })
       .catch((error) => {
         alert('An account with this email has already been created.')

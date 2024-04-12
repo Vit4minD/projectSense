@@ -2,7 +2,7 @@
 import { auth } from "@/firebase/config";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from 'next/image';
 
 const Home = () => {
@@ -10,6 +10,18 @@ const Home = () => {
   const [password, setPassword] = useState('');
   const router = useRouter();
 
+  useEffect(() => {
+    // Check if user is authenticated
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        router.push('/home'); // Redirect to home page if user is signed in
+      }
+    });
+
+    // Clean up function
+    return () => unsubscribe();
+  }, [router]);
+  
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
