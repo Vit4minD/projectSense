@@ -88,8 +88,22 @@ const Home = () => {
                 };
                 if (timeCompare(oldtime, time)) {
                     updateDoc(userDocumentRef, newData)
+                    const userDocumentRef2 = doc(db, 'leaderboard', '5' ?? '');
+                    const docSnapshot2 = await getDoc(userDocumentRef2);
+                    const data2 = docSnapshot2.data();
+                    const scores = data2 ? (data2['scores']) : [];
+                    const index = scores.indexOf(oldtime+" "+user?.email)
+                    if (index >= 0) {
+                        scores.splice(index, 1);
+                    }
+                    scores.push(time + " " + user?.email); 
+                    try {
+                        await updateDoc(userDocumentRef2, { 'scores': scores });
+                        console.log('Document updated successfully!');
+                    } catch (error) {
+                        console.error('Error updating document: ', error);
+                    }
                 }
-                console.log(oldtime);
             }
         } else {
             setIsCorrect(false); // Reset correctness indicator

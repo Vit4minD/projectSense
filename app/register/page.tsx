@@ -2,17 +2,18 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { auth } from "../../firebase/config";
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { db } from "../../firebase/config";
 import { collection, doc, setDoc } from "firebase/firestore";
 import Image from 'next/image';
+import GoogleButton from "react-google-button";
 
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
   const colRef = collection(db, 'users');
-
+  const provider = new GoogleAuthProvider();
   useEffect(() => {
     // Check if user is authenticated
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -24,7 +25,15 @@ const Register = () => {
     // Clean up function
     return () => unsubscribe();
   }, [router]);
-  
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, provider)
+      .then(() => {
+        router.push('/home');
+      })
+      .catch(() => {
+        alert('Failed to sign in with Google');
+      });
+  };
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     createUserWithEmailAndPassword(auth, email, password).then((user) => {
@@ -89,6 +98,7 @@ const Register = () => {
               placeholder=""
             ></input>
           </div>
+          <GoogleButton className='mx-auto' onClick={handleGoogleSignIn}/>
         </form>
       </div>
     </main>

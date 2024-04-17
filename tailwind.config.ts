@@ -11,6 +11,9 @@ const config: Config = {
       backgroundImage: {
         
       },
+      height: {
+        '70' : '70%',
+      }
     },
   },
   plugins: [],

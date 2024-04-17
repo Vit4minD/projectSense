@@ -1,15 +1,16 @@
 'use client'
 import { auth } from "@/firebase/config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from 'next/image';
+import GoogleButton from 'react-google-button'
 
 const Home = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const router = useRouter();
-
+  const provider = new GoogleAuthProvider();
   useEffect(() => {
     // Check if user is authenticated
     const unsubscribe = auth.onAuthStateChanged(user => {
@@ -21,7 +22,7 @@ const Home = () => {
     // Clean up function
     return () => unsubscribe();
   }, [router]);
-  
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
@@ -33,10 +34,20 @@ const Home = () => {
       });
   };
 
+  const handleGoogleSignIn = () => {
+    signInWithPopup(auth, provider)
+      .then(() => {
+        router.push('/home');
+      })
+      .catch(() => {
+        alert('Failed to sign in with Google');
+      });
+  };
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-orange-300">
       <div className="flex flex-col items-center justify-center p-5 bg-white rounded-2xl shadow-2xl md:w-1/3 sm:w-5/6">
-      <Image src="/projectSenseLogo.png" width={95} height={95} alt="yeah" />
+        <Image src="/projectSenseLogo.png" width={95} height={95} alt="yeah" />
         <form className="p-5 text-center" onSubmit={onSubmit}>
           <div className="p-5">
             <input
@@ -65,11 +76,11 @@ const Home = () => {
               placeholder=""
             ></input>
           </div>
+          <GoogleButton className='mx-auto' onClick={handleGoogleSignIn}/>
         </form>
       </div>
     </main>
   );
-  
 };
 
 export default Home;
