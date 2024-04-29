@@ -50,60 +50,61 @@ const Home = () => {
                 <div className="   shadow-2xl w-1/5 h-full max-h-screen overflow-y-auto flex flex-col flex-grow bg-purple-50">
                     <div className="bg-orange-400 text-center text-white font-bold text-5xl p-4">Trick:</div>
                     <div className='overflow-y-auto'>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(1)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n * 11</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(1)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n * 11</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(2)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n * 25</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(2)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n * 25</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(3)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n / 101</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(3)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n / 101</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(4)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n / 111</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(4)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n / 111</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(5)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>REMAINDER</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(5)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>REMAINDER</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(6)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n - x</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(6)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n - x</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(7)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>n + x</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(7)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>n + x</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(8)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Foil</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(8)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Foil</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(9)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Squares 10-35</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(9)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Squares 10-35</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(10)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Squares 41-59</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(10)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Squares 41-59</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(11)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Tens Trick</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(11)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Tens Trick</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(12)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Σ:n(n+1)/2</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(12)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Σ:n(n+1)/2</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(13)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>Estimation</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(13)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>Estimation</button>
                         </div>
-                        <div className=' my-2 text-center text-orange-200 font-bold text-4xl p-4'>
-                            <button onClick={(e) => setTopicNum(14)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out'>* 90-110</button>
+                        <div className='my-2 text-center text-orange-200 font-bold text-4xl p-4'>
+                            <button onClick={(e) => setTopicNum(14)} className='bg-gray-200 hover:bg-gray-400 hover:p-5 hover:text-5xl shadow-xl rounded-2xl w-3/4 p-4 duration-100 ease-in-out overflow-x-hidden'>* 90-110</button>
                         </div>
+                        <hr className=" mt-28"></hr>
                     </div>
                 </div>
                 <div className='w-4/5 text-center overflow-y-auto'>
-                    
+
                     <div className='bg-orange-300  my-6 p-4 font-bold text-9xl rounded-3xl text-white'>
                         <FaTrophy className='mx-auto' />
                     </div>
                     {sortedTimes.map((item, index) => (
                         <div key={index} className="flex justify-between text-orange-300 mx-auto w-4/5 my-6  font-bold">
-                            <div  className='bg-white p-4 text-5xl rounded-3xl'>{index+1}</div>
-                            <div  className='bg-white p-4 text-5xl rounded-3xl w-3/5'>{item.substring(9,item.indexOf("@"))}</div>
-                            <div  className='bg-white p-4 text-5xl rounded-3xl'>
+                            <div className='bg-white p-4 text-5xl rounded-3xl'>{index + 1}</div>
+                            <div className='bg-white p-4 text-5xl rounded-3xl w-3/5'>{item.substring(9, item.indexOf("@"))}</div>
+                            <div className='bg-white p-4 text-5xl rounded-3xl'>
                                 {item.substring(0, 8)}
                             </div>
                         </div>

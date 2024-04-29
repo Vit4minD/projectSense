@@ -8,7 +8,7 @@ import { auth, db } from '@/firebase/config';
 import { doc, documentId, getDoc, updateDoc } from 'firebase/firestore';
 import { User } from 'firebase/auth';
 
-function timeCompare(time1: string, time2: string): boolean  {
+function timeCompare(time1: string, time2: string): boolean {
     if (time1 === "00:00:00") return true;
     const [minutes1, seconds1, milliseconds1] = time1.split(':').map(Number);
     const [minutes2, seconds2, milliseconds2] = time2.split(':').map(Number);
@@ -55,60 +55,58 @@ const Home = () => {
     }, [db, user]);
 
     const generateRandomNumbers = () => {
-        const onesPlace = Math.floor(Math.random()*9+1)
-        const otherOnes = 10-onesPlace;
-        const num1 = Math.floor(Math.random() *15+1);
-        setNum(Number(""+num1+onesPlace));
-        setRemainder(Number(""+num1+otherOnes))
-        setAns(Number(""+num1+onesPlace)*Number(""+num1+otherOnes))
+        const onesPlace = Math.floor(Math.random() * 9 + 1)
+        const otherOnes = 10 - onesPlace;
+        const num1 = Math.floor(Math.random() * 15 + 1);
+        setNum(Number("" + num1 + onesPlace));
+        setRemainder(Number("" + num1 + otherOnes))
+        setAns(Number("" + num1 + onesPlace) * Number("" + num1 + otherOnes))
     };
-
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSubmit(submit + 1);
-        if (userAns === ("" + ans)) {
-            if (audioRef.current) {
-                (audioRef.current as HTMLAudioElement).play().catch(error => {
-                    // Handle the error, e.g., log it or show a user-friendly message
-                    console.error("Error playing audio:", error);
-                });
-            }
-            setSubmit(0);
-            generateRandomNumbers();
-            setUserAns('');
-            setProblems(problems + 1);
-            setIsCorrect(true); // Set correctness indicator to true
-            if (problems == 4) {
-                const userDocumentRef = doc(db, 'users', user?.email ?? '');
-                const docSnapshot = await getDoc(userDocumentRef);
-                const data = docSnapshot.data();
-                const oldtime = data ? (data[11] + "") : '';
-                const newData = {
-                    11: String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0') + ":" + String(milliseconds+1).substring(0, 2).padStart(2, '0')
-                };
-                if (timeCompare(oldtime, time)) {
-                    updateDoc(userDocumentRef, newData)
-                    const userDocumentRef2 = doc(db, 'leaderboard', '11' ?? '');
-                    const docSnapshot2 = await getDoc(userDocumentRef2);
-                    const data2 = docSnapshot2.data();
-                    const scores = data2 ? (data2['scores']) : [];
-                    const index = scores.indexOf(oldtime+" "+user?.email)
-                    if (index >= 0) {
-                        scores.splice(index, 1);
-                    }
-                    scores.push(time + " " + user?.email); 
-                    try {
-                        await updateDoc(userDocumentRef2, { 'scores': scores });
-                        console.log('Document updated successfully!');
-                    } catch (error) {
-                        console.error('Error updating document: ', error);
+    useEffect(() => {
+        const fetchData = async () => {
+            if (userAns === ("" + ans)) {
+                if (audioRef.current) {
+                    (audioRef.current as HTMLAudioElement).play().catch(error => {
+                        // Handle the error, e.g., log it or show a user-friendly message
+                        console.error("Error playing audio:", error);
+                    });
+                }
+                setSubmit(0);
+                generateRandomNumbers();
+                setUserAns('');
+                setProblems(problems + 1);
+                setIsCorrect(true); // Set correctness indicator to true
+                if (problems == 4) {
+                    const userDocumentRef = doc(db, 'users', user?.email ?? '');
+                    const docSnapshot = await getDoc(userDocumentRef);
+                    const data = docSnapshot.data();
+                    const oldtime = data ? (data[11] + "") : '';
+                    const newData = {
+                        11: String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0') + ":" + String(milliseconds + 1).substring(0, 2).padStart(2, '0')
+                    };
+                    if (timeCompare(oldtime, time)) {
+                        updateDoc(userDocumentRef, newData)
+                        const userDocumentRef2 = doc(db, 'leaderboard', '11' ?? '');
+                        const docSnapshot2 = await getDoc(userDocumentRef2);
+                        const data2 = docSnapshot2.data();
+                        const scores = data2 ? (data2['scores']) : [];
+                        const index = scores.indexOf(oldtime + " " + user?.email)
+                        if (index >= 0) {
+                            scores.splice(index, 1);
+                        }
+                        scores.push(time + " " + user?.email);
+                        try {
+                            await updateDoc(userDocumentRef2, { 'scores': scores });
+                            console.log('Document updated successfully!');
+                        } catch (error) {
+                            console.error('Error updating document: ', error);
+                        }
                     }
                 }
             }
-        } else {
-            setIsCorrect(false); // Reset correctness indicator
         }
-    }
+        fetchData();
+    }, [userAns]);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -141,12 +139,12 @@ const Home = () => {
                 }
             }
         }, 10);
-        
+
 
         return () => clearInterval(intervalId);
     }, [milliseconds, seconds, minutes]);
 
-    let time = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0') + ":" + String(milliseconds+1).substring(0, 2).padStart(2, '0')
+    let time = String(minutes).padStart(2, '0') + ":" + String(seconds).padStart(2, '0') + ":" + String(milliseconds + 1).substring(0, 2).padStart(2, '0')
     if (problems < 5) {
         return (
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
@@ -160,22 +158,22 @@ const Home = () => {
                     {time + " " + problems + "/5"}
                 </div>
                 <audio ref={audioRef} src='/correctSound.mp3' />
-                <form onSubmit={onSubmit}>
+
                 <div className="flex items-center text-9xl font-semibold text-white font-sans w-full justify-center">
-                        <div className="text-4xl md:text-8xl mt-48">
-                            {remainder+ " * "+num} =
-                            <input
-                                autoFocus
-                                className={`focus:cursor-auto ml-12 text-center text-4xl md:text-8xl   text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-24 md:w-80`}
-                                type="text"
-                                value={userAns} onChange={(e) => setUserAns(e.target.value)}
-                            />
-                        </div>
+                    <div className="text-4xl md:text-8xl mt-48">
+                        {remainder + " * " + num} =
+                        <input
+                            autoFocus
+                            className={`focus:cursor-auto ml-12 text-center text-4xl md:text-8xl   text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-24 md:w-80`}
+                            type="text"
+                            value={userAns} onChange={(e) => setUserAns(e.target.value)}
+                        />
                     </div>
-                </form>
+                </div>
+
             </main>
         );
-    }  else {
+    } else {
         return (
             <main className="h-screen overflow-auto w-screen  bg-orange-300">
                 <div className="bg-white text-5xl p-10 text-orange-300 flex font-bold justify-center items-center">

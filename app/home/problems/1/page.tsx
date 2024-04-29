@@ -58,55 +58,52 @@ const Home = () => {
         setNum(num1)
         setAns(num1 * 11)
     };
-
-    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setSubmit(submit + 1);
-        if (userAns === ("" + ans)) {
-            if (audioRef.current) {
-                (audioRef.current as HTMLAudioElement).play().catch(error => {
-                    // Handle the error, e.g., log it or show a user-friendly message
-                    console.error("Error playing audio:", error);
-                });
-            }
-            setSubmit(0);
-            generateRandomNumbers();
-            setUserAns('');
-            setProblems(problems + 1);
-            setIsCorrect(true); // Set correctness indicator to true
-            if (problems == 4) {
-                const userDocumentRef = doc(db, 'users', user?.email ?? '');
-                const docSnapshot = await getDoc(userDocumentRef);
-                const data = docSnapshot.data();
-                const oldtime = data ? (data[1] + "") : '';
-                const newData = {
-                    1: time
-                };
-                if (timeCompare(oldtime, time)) {
-                    updateDoc(userDocumentRef, newData)
-                    const userDocumentRef2 = doc(db, 'leaderboard', '1' ?? '');
-                    const docSnapshot2 = await getDoc(userDocumentRef2);
-                    const data2 = docSnapshot2.data();
-                    const scores = data2 ? (data2['scores']) : [];
-                    const index = scores.indexOf(oldtime+" "+user?.email)
-                    if (index >= 0) {
-                        scores.splice(index, 1);
-                    }
-                    scores.push(time + " " + user?.email); 
-                    try {
-                        await updateDoc(userDocumentRef2, { 'scores': scores });
-                        console.log('Document updated successfully!');
-                    } catch (error) {
-                        console.error('Error updating document: ', error);
+    useEffect(() => {
+        const fetchData = async () => {
+            if (userAns === ("" + ans)) {
+                if (audioRef.current) {
+                    (audioRef.current as HTMLAudioElement).play().catch(error => {
+                        // Handle the error, e.g., log it or show a user-friendly message
+                        console.error("Error playing audio:", error);
+                    });
+                }
+                setSubmit(0);
+                generateRandomNumbers();
+                setUserAns('');
+                setProblems(problems + 1);
+                setIsCorrect(true); // Set correctness indicator to true
+                if (problems === 4) {
+                    const userDocumentRef = doc(db, 'users', user?.email ?? '');
+                    const docSnapshot = await getDoc(userDocumentRef);
+                    const data = docSnapshot.data();
+                    const oldtime = data ? (data[1] + "") : '';
+                    const newData = {
+                        1: time
+                    };
+                    if (timeCompare(oldtime, time)) {
+                        updateDoc(userDocumentRef, newData)
+                        const userDocumentRef2 = doc(db, 'leaderboard', '1' ?? '');
+                        const docSnapshot2 = await getDoc(userDocumentRef2);
+                        const data2 = docSnapshot2.data();
+                        const scores = data2 ? (data2['scores']) : [];
+                        const index = scores.indexOf(oldtime + " " + user?.email)
+                        if (index >= 0) {
+                            scores.splice(index, 1);
+                        }
+                        scores.push(time + " " + user?.email);
+                        try {
+                            await updateDoc(userDocumentRef2, { 'scores': scores });
+                            console.log('Document updated successfully!');
+                        } catch (error) {
+                            console.error('Error updating document: ', error);
+                        }
                     }
                 }
-
-
             }
-        } else {
-            setIsCorrect(false); // Reset correctness indicator
-        }
-    }
+        };
+
+        fetchData();
+    }, [userAns]);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((authUser) => {
@@ -158,19 +155,19 @@ const Home = () => {
                     {time + " " + problems + "/5"}
                 </div>
                 <audio ref={audioRef} src='/correctSound.mp3' />
-                <form onSubmit={onSubmit} className="">
-                    <div className="flex  items-center text-9xl font-semibold text-white font-sans  w-full justify-center">
-                        <div className=" text-4xl md:text-8xl mt-48">
-                            {num} * 11 =
-                            <input
-                                autoFocus
-                                className={`focus:cursor-auto ml-12 text-center text-4xl md:text-8xl   text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-24 md:w-80`}
-                                type="text"
-                                value={userAns} onChange={(e) => setUserAns(e.target.value)}
-                            />
-                        </div>
+
+                <div className="flex  items-center text-9xl font-semibold text-white font-sans  w-full justify-center">
+                    <div className=" text-4xl md:text-8xl mt-48">
+                        {num} * 11 =
+                        <input
+                            autoFocus
+                            className={`focus:cursor-auto ml-12 text-center text-4xl md:text-8xl   text-white bg-orange-300 border-b border-white focus:outline-none overflow-auto w-24 md:w-80`}
+                            type="text"
+                            value={userAns} onChange={(e) => setUserAns(e.target.value)}
+                        />
                     </div>
-                </form>
+                </div>
+
             </main>
         );
     } else {

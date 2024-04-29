@@ -27,12 +27,35 @@ const Register = () => {
   }, [router]);
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, provider)
-      .then(() => {
+      .then((user) => {
+        const docRef = doc(colRef, email);
+        setDoc(docRef, {
+          1: '00:00:00',
+          2: '00:00:00',
+          3: '00:00:00',
+          4: '00:00:00',
+          5: '00:00:00',
+          6: '00:00:00',
+          7: '00:00:00',
+          8: '00:00:00',
+          9: '00:00:00',
+          10: '00:00:00',
+          11: '00:00:00',
+          12: '00:00:00',
+          13: '00:00:00',
+          14: '00:00:00',
+        })
+          .then(() => {
+            console.log('Document successfully written!');
+          })
+          .catch((error) => {
+            console.error('Error writing document: ', error);
+          });
         router.push('/home');
       })
-      .catch(() => {
-        alert('Failed to sign in with Google');
-      });
+      .catch((error) => {
+        alert('An account with this email has already been created.')
+      })
   };
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,7 +93,7 @@ const Register = () => {
   return (
     <main className="min-h-screen flex items-center justify-center bg-orange-300">
       <div className="flex flex-col items-center justify-center p-5 bg-white rounded-2xl shadow-2xl md:w-1/3 sm:w-5/6">
-      <Image src="/projectSenseLogo.png" width={95} height={95} alt="yeah" />
+        <Image src="/projectSenseLogo.png" width={95} height={95} alt="yeah" />
         <form className="p-5 text-center" onSubmit={onSubmit}>
           <div className="p-5">
             <input
@@ -98,7 +121,7 @@ const Register = () => {
               placeholder=""
             ></input>
           </div>
-          <GoogleButton className='mx-auto' onClick={handleGoogleSignIn}/>
+          <GoogleButton className='mx-auto' onClick={handleGoogleSignIn} />
         </form>
       </div>
     </main>

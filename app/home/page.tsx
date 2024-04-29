@@ -1,6 +1,5 @@
 'use client'
-import Image from 'next/image';
-import projectSenseLogo from '../../images/projectSenseLogo.png';
+import { ChakraProvider } from '@chakra-ui/react';
 import { useRouter } from "next/navigation";
 import { User, signOut } from 'firebase/auth';
 import Firebase, { auth } from '@/firebase/config';
@@ -8,6 +7,19 @@ import firebase from 'firebase/compat/app';
 import { useState, useEffect } from 'react';
 import { TbLogout2 } from "react-icons/tb";
 import { FaTrophy } from "react-icons/fa";
+import { BsMailbox2Flag } from "react-icons/bs";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Button,
+} from '@chakra-ui/react';
+import { IoIosStar } from "react-icons/io";
 
 const topic: { [key: number]: string } = {
   1: "n * 11",
@@ -34,6 +46,7 @@ const animations = [
 
 export default function Home() {
   const router = useRouter();
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [user, setUser] = useState<null | User>(null);
   const logout = async () => {
     try {
@@ -57,19 +70,48 @@ export default function Home() {
     // Cleanup the subscription when the component unmounts
     return () => unsubscribe();
   }, []);
+
   return (
+
     <main className="absolute bg-orange-300 h-screen overflow-auto w-screen flex flex-col items-center">
       <div className="bg-white text-orange-300 font-bold p-4 text-4xl   w-full">
         <div className="bg-white text-5xl p-7 text-orange-300 flex font-bold justify-center items-center">
           <button onClick={() => router.push(`/leaderboard`)} className=" hover:text-6xl hover:p-3 duration-300 ease-in-out absolute left-1 m-3 bg-orange-300 hover:cursor-pointer
            hover:bg-orange-500 p-2 rounded-3xl text-white text-4xl flex items-center"><FaTrophy /></button>
           <div className="absolute text-2xl md:text-3xl">Number Sense</div>
+          <div className='absolute right-1 mr-3'>
+            <span className="relative flex h-3 w-3 pt-1">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-300 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
+            </span>
+            <Button onClick={onOpen} className="hover:text-orange-400 "><BsMailbox2Flag /></Button>
+            <ChakraProvider >
+              <Modal size={'4xl'} isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalHeader fontSize='5xl' className='underline text-orange-400 text-center' ><IoIosStar />Changelog</ModalHeader>
+                  <ModalCloseButton fontSize='xl' className='text-orange-400' />
+                  <ModalBody fontSize='3xl'>
+                    <div className='p-2'>
+                      Patch 2.1: Auto-Enter on Questions added
+                    </div>
+                    <hr className=' h-1 bg-slate-300'></hr>
+                    <div className='p-2'>Update 2.0: LEADERBOARDS + Google Auth</div>
+                    <hr className=' h-1 bg-slate-300'></hr>
+                    <div className='p-2'>Version 1.0: Project Sense Release!
+                      <div className='pl-16'>- Practice TMSCA/UIL Number Sense Questions using Project Sense </div>
+                      <div className='pl-16'>- Solve 5 Questions as Fast as Possible</div>
+                      <div className='pl-16'>- 14 Different Numbersense Styled Problems with Tricks and more to come</div>
+                    </div>
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </ChakraProvider>
+          </div>
         </div>
       </div>
 
       <div className="font-bold p-2 text-white text-center">Note: Timer starts once a bubble is pressed. Solve 5 questions as fast as you can.</div>
-
-      {/* Your image component goes here */}
 
       <div className="text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map((value) => (
