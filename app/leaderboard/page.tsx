@@ -101,10 +101,10 @@ const Home = () => {
                         <FaTrophy className='mx-auto' />
                     </div>
                     {sortedTimes.map((item, index) => (
-                        <div key={index} className="flex justify-between text-orange-300 mx-auto w-4/5 my-6  font-bold">
-                            <div className='bg-white p-4 text-5xl rounded-3xl'>{index + 1}</div>
+                        <div key={index} className="flex justify-between gap-3 text-orange-300 mx-auto w-4/5 my-6  font-bold">
+                            <div className='bg-white p-4 text-5xl rounded-3xl w-1/5'>{index + 1}</div>
                             <div className='bg-white p-4 text-5xl rounded-3xl w-3/5'>{item.substring(9, item.indexOf("@"))}</div>
-                            <div className='bg-white p-4 text-5xl rounded-3xl'>
+                            <div className='bg-white p-4 text-5xl rounded-3xl w-1/5'>
                                 {item.substring(0, 8)}
                             </div>
                         </div>

@@ -126,11 +126,11 @@ export default function Home() {
             onClick={() => router.push(`/home/problems/${value}`)}
             className='h-24'
           >
-            <div className={`${animations[Math.floor(Math.random() * animations.length)]} my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-5xl font-semibold shadow-xl hover:shadow-2xl hover:scale-105 hover:bg-gray-200 transition`}>
+            <div className={`${animations[Math.floor(Math.random() * animations.length)]} my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold shadow-xl hover:shadow-2xl hover:scale-105 hover:bg-gray-200 transition`}>
               <div className='flex w-full justify-center text-center items-center h-full duration-200 ease-in-out overflow-y-auto overflow-x-hidden rounded-l-2xl bg-white p-4'>
                 {`${topic[value]}`}
               </div>
-              <div className='mt-auto h-full duration-200 ease-in-out inline-block align-baseline text-white w-full rounded-r-2xl font-thin bg-orange-400 p-4'>
+              <div className='flex justify-center text-center items-center mt-auto h-full duration-200 ease-in-out  text-4xl align-baseline text-white w-full rounded-r-2xl font-thin bg-orange-400 p-4'>
                 _______
               </div>
             </div>
