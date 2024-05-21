@@ -22,9 +22,10 @@ const Home = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    signInWithEmailAndPassword(auth, email, password)
+    router.prefetch("/home");
+    await signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         router.push('/home');
       })
@@ -37,7 +38,6 @@ const Home = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      await router.prefetch("/home");
       if (user) {
         const email = user.email;
         if (email) {
@@ -68,6 +68,7 @@ const Home = () => {
           layout="responsive"
           width={512}
           height={512}
+          priority={true}
         />
       </div>
       {visible ?
@@ -76,9 +77,9 @@ const Home = () => {
           <div className="shadow-2xl bg-white w-72 h-[21.7rem] font-sans rounded-2xl text-center animate-slideUp">
             <div className="text-center w-full font-semibold pt-8 pb-4 text-2xl">Login</div>
             <form onSubmit={onSubmit}>
-              <input type='text' onChange={(e) => setEmail(e.target.value)} placeholder={'Email'} className="shadow-lg rounded-lg focus:outline-none border-gray-300 p-3 border-b-2 mx-auto w-10/12 h-fit text-xl" />
+              <input type='text' onChange={(e) => setEmail(e.target.value)} placeholder='Email' className="shadow-lg rounded-lg focus:outline-none border-gray-300 p-3 border-b-2 mx-auto w-10/12 h-fit text-xl" />
               <input type='password' onChange={(e) => setPassword(e.target.value)} placeholder='Password' className="shadow-lg rounded-lg mt-2 focus:outline-none border-gray-300 p-3 border-b-2 w-10/12 h-fit text-xl" />
-              <div className="text-sm italic mx-auto my-1 underline text-center w-10/12 "><a href='/register'>Don't have an account?</a></div>
+              <div className="text-sm italic mx-auto my-1 underline text-center w-10/12 "><a href='/register'>Don&apos;t have an account?</a></div>
               <div className="mt-1 hover:bg-slate-800 bg-black text-white w-fit mx-auto px-3 py-2 rounded-2xl">
                 <button type='submit'>Login</button>
               </div>
