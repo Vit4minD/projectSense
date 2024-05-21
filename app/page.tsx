@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from 'next/image';
 import { FcGoogle } from "react-icons/fc";
-import { auth } from "@/firebase/config";
+import { auth, db } from "@/firebase/config";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 
 const Home = () => {
   const [email, setEmail] = useState('');
@@ -12,9 +13,9 @@ const Home = () => {
   const [visible, setVisible] = useState(false);
   const router = useRouter();
   const provider = new GoogleAuthProvider();
+  const colRef = collection(db, 'users');
 
   useEffect(() => {
-    router.prefetch('/home');
     const timer = setTimeout(() => {
       setVisible(true);
     }, 1550);
@@ -23,7 +24,6 @@ const Home = () => {
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    
     signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         router.push('/home');
@@ -33,14 +33,30 @@ const Home = () => {
       });
   };
 
-  const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
-      .then(() => {
-        router.push('/home');
-      })
-      .catch(() => {
-        alert('Failed to sign in with Google');
-      });
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      await router.prefetch("/home");
+      if (user) {
+        const email = user.email;
+        if (email) {
+          const docRef = doc(colRef, email);
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            await setDoc(docRef, {});
+          }
+          router.push("/home");
+        } else {
+          console.error("Email is null or undefined");
+        }
+      } else {
+        console.error("User is null or undefined");
+      }
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      alert("An error occurred during sign-in. Please try again.");
+    }
   };
 
   return (
@@ -56,7 +72,7 @@ const Home = () => {
       </div>
       {visible ?
         <>
-          <h1 className="animate-slideUp absolute top-12 font-serif text-orange-300 p-4 rounded-xl bg-white italic text-4xl">Project Sense</h1>
+          <h1 className="animate-slideUp absolute top-12 font-sans text-orange-300 p-4 rounded-xl bg-white font-bold text-4xl">Project Sense</h1>
           <div className="shadow-2xl bg-white w-72 h-[21.7rem] font-sans rounded-2xl text-center animate-slideUp">
             <div className="text-center w-full font-semibold pt-8 pb-4 text-2xl">Login</div>
             <form onSubmit={onSubmit}>
@@ -73,7 +89,7 @@ const Home = () => {
               className="hover:bg-gray-200 bg-white mt-4 items-center w-10/12 mx-auto text-xl flex py-2 rounded-2xl gap-x-2 justify-center font-serif border-[1px] border-black"
             >
               <FcGoogle className="" />
-              <span>Sign up with Google</span>
+              <span className='font-sans'>Sign up with Google</span>
             </button>
           </div>
         </> : <></>}

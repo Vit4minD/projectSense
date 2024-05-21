@@ -4,7 +4,7 @@ import { useState } from "react";
 import { auth } from "../../firebase/config";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { db } from "../../firebase/config";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { FcGoogle } from "react-icons/fc";
 
 const Register = () => {
@@ -14,74 +14,61 @@ const Register = () => {
   const colRef = collection(db, 'users');
   const provider = new GoogleAuthProvider();
 
-  const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
-      .then((user) => {
-        const docRef = doc(colRef, email);
-        setDoc(docRef, {
-          1: '00:00:00',
-          2: '00:00:00',
-          3: '00:00:00',
-          4: '00:00:00',
-          5: '00:00:00',
-          6: '00:00:00',
-          7: '00:00:00',
-          8: '00:00:00',
-          9: '00:00:00',
-          10: '00:00:00',
-          11: '00:00:00',
-          12: '00:00:00',
-          13: '00:00:00',
-          14: '00:00:00',
-        })
-          .then(() => {
-            console.log('Document successfully written!');
-          })
-          .catch((error) => {
-            console.error('Error writing document: ', error);
-          });
-        router.push('/home');
-      })
-      .catch((error) => {
-        alert(error)
-      })
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      await router.prefetch("/home");
+      if (user) {
+        const email = user.email;
+        if (email) {
+          const docRef = doc(colRef, email);
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            await setDoc(docRef, {});
+          }
+          router.push("/home");
+        } else {
+          console.error("Email is null or undefined");
+        }
+      } else {
+        console.error("User is null or undefined");
+      }
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      alert("An error occurred during sign-in. Please try again.");
+    }
   };
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(auth, email, password).then((user) => {
-      const docRef = doc(colRef, email);
-      setDoc(docRef, {
-        1: '00:00:00',
-        2: '00:00:00',
-        3: '00:00:00',
-        4: '00:00:00',
-        5: '00:00:00',
-        6: '00:00:00',
-        7: '00:00:00',
-        8: '00:00:00',
-        9: '00:00:00',
-        10: '00:00:00',
-        11: '00:00:00',
-        12: '00:00:00',
-        13: '00:00:00',
-        14: '00:00:00',
-      })
-        .then(() => {
-          console.log('Document successfully written!');
-        })
-        .catch((error) => {
-          console.error('Error writing document: ', error);
-        });
-      router.push('/home');
-    })
-      .catch((error) => {
-        alert('An account with this email has already been created.')
-      })
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+      await router.prefetch("/home");
+      if (user) {
+        const email = user.email;
+        if (email) {
+          const docRef = doc(colRef, email);
+          const docSnap = await getDoc(docRef);
+          if (!docSnap.exists()) {
+            await setDoc(docRef, {});
+          }
+          router.push("/home");
+        } else {
+          console.error("Email is null or undefined");
+        }
+      } else {
+        console.error("User is null or undefined");
+      }
+    } catch (error) {
+      console.error("Error during sign-in:", error);
+      alert("An error occurred during sign-in. Please try again.");
+    }
   }
 
   return (
     <main className="flex-col w-screen h-screen flex items-center justify-center bg-orange-300">
-      <h1 className="absolute top-12 font-serif text-orange-300 p-4 rounded-xl bg-white italic text-4xl">Project Sense</h1>
+      <h1 className="absolute top-12 text-orange-300 p-4 rounded-xl bg-white font-sans font-bold text-4xl">Project Sense</h1>
       <div className="shadow-2xl bg-white w-72 h-[21.7rem] font-sans rounded-2xl text-center">
         <div className="text-center w-full font-semibold pt-8 pb-4 text-2xl">Register</div>
         <form onSubmit={onSubmit}>
@@ -97,7 +84,7 @@ const Register = () => {
           className="hover:bg-gray-200 bg-white mt-4 items-center w-10/12 mx-auto text-xl flex py-2 rounded-2xl gap-x-2 justify-center font-serif border-[1px] border-black"
         >
           <FcGoogle className="" />
-          <span>Sign up with Google</span>
+          <span className='font-sans'>Sign up with Google</span>
         </button>
       </div>
 
