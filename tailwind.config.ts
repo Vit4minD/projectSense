@@ -21,7 +21,7 @@ const config: Config = {
         },
       },
       animation: {
-        fadeIn: 'fadeInShrink 2s ease-in-out forwards ',
+        fadeIn: 'fadeInShrink 1500ms ease-in-out forwards ',
         slideUp: 'slideUp .8s ease-in-out forwards ',
       },
       
