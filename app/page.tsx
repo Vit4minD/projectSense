@@ -24,7 +24,6 @@ const Home = () => {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    router.prefetch("/home");
     await signInWithEmailAndPassword(auth, email, password)
       .then(() => {
         router.push('/home');
@@ -44,7 +43,10 @@ const Home = () => {
           const docRef = doc(colRef, email);
           const docSnap = await getDoc(docRef);
           if (!docSnap.exists()) {
-            await setDoc(docRef, {});
+            await setDoc(docRef, {
+              questionLimited: true,
+              rightLeft: false,
+            });
           }
           router.push("/home");
         } else {
