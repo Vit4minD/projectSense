@@ -36,7 +36,8 @@ export default function Home() {
   const [questionLimited, setQuestionLimited] = useState(true);
   const [autoEnter, setAutoEnter] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [mjloading, setmjLoading] = useState(true);
+  const [mjloading, setmjLoading] = useState(false);
+
   const updateUser = async (userId: string, newData: any) => {
     const userRef = doc(db, "users", userId);
     try {
@@ -58,8 +59,6 @@ export default function Home() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
-      await MathJaxLoader();
-      setmjLoading(false);
       if (authUser) {
         setUser(authUser);
         if (user) {
@@ -202,6 +201,7 @@ export default function Home() {
 
   return (
     <main className="absolute bg-orange-300 h-screen overflow-auto w-screen flex flex-col items-center">
+      <MathJaxLoader />
       <div className="bg-white text-orange-300 font-bold p-4 text-4xl   w-full">
         <div className="bg-white text-5xl p-7 text-orange-300 flex font-bold justify-center items-center">
           <button
@@ -305,14 +305,14 @@ export default function Home() {
       ) : (
         <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
           {keys.map((value) => (
-            <div key={value} className=" animate-slideUp h-24 w-[26rem]">
+            <div key={value} className=" animate-slideUp h-24 ">
               <div
-                className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold shadow-xl`}
+                className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
               >
                 <button
                   value={value}
                   onClick={() => router.push(`/home/practice/${value}`)}
-                  className="hover:scale-105  hover:bg-gray-200  flex w-3/4 justify-center text-center items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white p-4 text-2xl"
+                  className="p-4  hover:scale-105 hover:bg-gray-200  flex  items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white text-2xl"
                 >
                   \( {`${problemSet[value]}`}\)
                 </button>
