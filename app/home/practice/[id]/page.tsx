@@ -17,16 +17,26 @@ const Home = ({ params }: { params: { id: string } }) => {
   const [questionLimited, setQuestionLimited] = useState(true);
   const [autoEnter, setAutoEnter] = useState(true);
   const colRef = collection(db, "users");
-  const [questions, setQuestions] = useState(1);
-  useEffect(() => {
-    const timerId = setInterval(() => {
-      setElapsedTime(Date.now() - startTime);
-    }, 10);
+  const [questions, setQuestions] = useState(0);
+  const [stopTimer, setStopTimer] = useState(false);
 
+  useEffect(() => {
+    let timerId: string | number | NodeJS.Timeout | undefined;
+    if (!stopTimer) {
+      timerId = setInterval(() => {
+        setElapsedTime(Date.now() - startTime);
+      }, 10);
+    }
     return () => {
       clearInterval(timerId);
     };
-  }, [startTime]);
+  }, [startTime, stopTimer]);
+
+  useEffect(() => {
+    if (questions == 5) {
+      setStopTimer(!stopTimer);
+    }
+  }, [questions, stopTimer]);
 
   const formatTime = (time: number) => {
     const milliseconds = Math.floor((time % 1000) / 10);
@@ -96,6 +106,7 @@ const Home = ({ params }: { params: { id: string } }) => {
         trick={params.id}
         question={questions}
         setQuestion={setQuestions}
+        questionLimited={questionLimited}
       />
     </main>
   );
