@@ -22,23 +22,10 @@ import { IoIosStar } from "react-icons/io";
 import { useState, useEffect } from "react";
 import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
+import { problemSet } from "../utils/problemGenerator";
+import MathJaxLoader from "../components/MathJaxLoader";
 
-const topic: { [key: number]: string } = {
-  1: "n * 11",
-  2: "n * 25",
-  3: "n / 101",
-  4: "n / 111",
-  5: "n % x",
-  6: "n - x",
-  7: "n + x",
-  8: "Nn * Xx",
-  9: "SQUARES",
-  10: "Tens Trick",
-  11: "Σ : n(n+1)/2",
-  12: "Estimation",
-  13: "90-110 x n",
-};
-const keys = Object.keys(topic).map(Number);
+const keys = Object.keys(problemSet).map(Number);
 
 export default function Home() {
   const router = useRouter();
@@ -49,7 +36,7 @@ export default function Home() {
   const [questionLimited, setQuestionLimited] = useState(true);
   const [autoEnter, setAutoEnter] = useState(true);
   const [loading, setLoading] = useState(true);
-
+  const [mjloading, setmjLoading] = useState(true);
   const updateUser = async (userId: string, newData: any) => {
     const userRef = doc(db, "users", userId);
     try {
@@ -71,6 +58,8 @@ export default function Home() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+      await MathJaxLoader();
+      setmjLoading(false);
       if (authUser) {
         setUser(authUser);
         if (user) {
@@ -290,26 +279,51 @@ export default function Home() {
         Note: Timer starts once a bubble is pressed. Solve 5 questions as fast
         as you can.
       </div>
-      <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
-        {keys.map((value) => (
-          <div key={value} className="h-24 w-[26rem]">
-            <div
-              className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold shadow-xl`}
-            >
-              <button
-                value={value}
-                onClick={() => router.push(`/home/practice/${value}`)}
-                className="hover:scale-105  hover:bg-gray-200  flex w-3/4 justify-center text-center items-center h-full duration-200 ease-in-out overflow-y-auto overflow-x-hidden rounded-l-2xl bg-white p-4"
+      {mjloading ? (
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          role="status"
+        >
+          <svg
+            aria-hidden="true"
+            className="w-16 h-16 text-gray-200 animate-spin dark:text-gray-600 fill-orange-400"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span className="sr-only">Loading...</span>
+        </div>
+      ) : (
+        <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
+          {keys.map((value) => (
+            <div key={value} className=" animate-slideUp h-24 w-[26rem]">
+              <div
+                className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold shadow-xl`}
               >
-                {`${topic[value]}`}
-              </button>
-              <button className="hover:scale-105 hover:bg-orange-500 flex font-extrabold w-1/4 justify-center text-center items-center mt-auto h-full duration-200 ease-in-out  text-4xl align-baseline text-white rounded-r-2xl bg-orange-400 p-4">
-                ?
-              </button>
+                <button
+                  value={value}
+                  onClick={() => router.push(`/home/practice/${value}`)}
+                  className="hover:scale-105  hover:bg-gray-200  flex w-3/4 justify-center text-center items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white p-4 text-2xl"
+                >
+                  \( {`${problemSet[value]}`}\)
+                </button>
+                <button className="hover:scale-105 hover:bg-orange-500 flex font-extrabold w-1/4 justify-center text-center items-center mt-auto h-full duration-200 ease-in-out  text-4xl align-baseline text-white rounded-r-2xl bg-orange-400 p-4">
+                  ?
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <hr className="my-4"></hr>
     </main>
   );
