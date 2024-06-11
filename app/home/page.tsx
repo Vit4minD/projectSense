@@ -38,6 +38,7 @@ const topic: { [key: number]: string } = {
   12: "Estimation",
   13: "90-110 x n",
 };
+const keys = Object.keys(topic).map(Number);
 
 export default function Home() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function Home() {
   const [user, setUser] = useState<null | User>(null);
   const [rightLeft, setRightLeft] = useState(false);
   const [questionLimited, setQuestionLimited] = useState(true);
+  const [autoEnter, setAutoEnter] = useState(true);
   const [loading, setLoading] = useState(true);
 
   const updateUser = async (userId: string, newData: any) => {
@@ -80,6 +82,7 @@ export default function Home() {
               const data = docSnap.data();
               await setQuestionLimited(data["questionLimited"]);
               await setRightLeft(data["rightLeft"]);
+              await setAutoEnter(data["autoEnter"]);
               setLoading(false);
             }
           } else {
@@ -154,7 +157,7 @@ export default function Home() {
                         No Question Limit
                       </FormLabel>
                       <Switch
-                        defaultChecked={questionLimited}
+                        defaultChecked={!questionLimited}
                         id="email-alerts"
                         size="lg"
                         onChange={() => {
@@ -162,6 +165,27 @@ export default function Home() {
                             questionLimited: !questionLimited,
                           });
                           setQuestionLimited(!questionLimited);
+                        }}
+                      />
+                    </FormControl>
+                    <FormControl
+                      display="flex"
+                      alignItems="center"
+                      textAlign="center"
+                      className="mx-auto items-center justify-center"
+                    >
+                      <FormLabel fontSize="2rem" htmlFor="email-alerts" mb="0">
+                        Auto-Enter
+                      </FormLabel>
+                      <Switch
+                        defaultChecked={autoEnter}
+                        id="email-alerts"
+                        size="lg"
+                        onChange={() => {
+                          updateUser(user?.email ?? "", {
+                            autoEnter: !autoEnter,
+                          });
+                          setAutoEnter(!autoEnter);
                         }}
                       />
                     </FormControl>
@@ -267,14 +291,14 @@ export default function Home() {
         as you can.
       </div>
       <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map((value) => (
+        {keys.map((value) => (
           <div key={value} className="h-24 w-[26rem]">
             <div
               className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold shadow-xl`}
             >
               <button
                 value={value}
-                onClick={() => router.push(`/home/problems/${value}`)}
+                onClick={() => router.push(`/home/practice/${value}`)}
                 className="hover:scale-105  hover:bg-gray-200  flex w-3/4 justify-center text-center items-center h-full duration-200 ease-in-out overflow-y-auto overflow-x-hidden rounded-l-2xl bg-white p-4"
               >
                 {`${topic[value]}`}

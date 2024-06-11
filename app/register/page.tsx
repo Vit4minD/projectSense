@@ -31,6 +31,7 @@ const Register = () => {
             await setDoc(docRef, {
               questionLimited: true,
               rightLeft: false,
+              autoEnter: true,
             });
           }
           router.push("/home");
@@ -63,6 +64,7 @@ const Register = () => {
             await setDoc(docRef, {
               questionLimited: true,
               rightLeft: false,
+              autoEnter: true,
             });
           }
           router.push("/home");

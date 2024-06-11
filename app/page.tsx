@@ -46,6 +46,7 @@ const Home = () => {
             await setDoc(docRef, {
               questionLimited: true,
               rightLeft: false,
+              autoEnter: true,
             });
           }
           router.push("/home");
