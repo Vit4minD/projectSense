@@ -22,7 +22,16 @@ const Trick: React.FC<TrickProps> = ({
   }, [trick]);
 
   useEffect(() => {
-    if (userAns === pair["ans"]) {
+    if (trick === "12") {
+      if (
+        Math.abs(Number(userAns) - Number(pair["ans"])) <=
+        Number(pair["ans"]) * 0.05
+      ) {
+        setPair(problemFunction[trick]());
+        setUserAns(""); // Reset user answer
+        if (questionLimited) setQuestion(question + 1);
+      }
+    } else if (userAns === pair["ans"]) {
       setPair(problemFunction[trick]());
       setUserAns(""); // Reset user answer
       if (questionLimited) setQuestion(question + 1);
