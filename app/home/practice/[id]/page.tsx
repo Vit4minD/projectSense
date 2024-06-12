@@ -96,8 +96,7 @@ const Home = ({ params }: { params: { id: string } }) => {
           <div className="text-orange-300 bg-white text-4xl font-semibold rounded-2xl py-1 px-3">
             <FaInfinity />
           </div>
-        ) : null}
-        {questionLimited ? (
+        ) : (
           <>
             <div className="text-orange-300 bg-white text-2xl font-semibold rounded-2xl py-1 px-3">
               {questions}/{MAX_QUESTION_COUNT}
@@ -106,7 +105,7 @@ const Home = ({ params }: { params: { id: string } }) => {
               {formatTime(elapsedTime)}
             </div>
           </>
-        ) : null}
+        )}
       </div>
       <Trick
         rightLeft={rightLeft}

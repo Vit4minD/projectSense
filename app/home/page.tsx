@@ -207,7 +207,7 @@ export default function Home() {
         <div className="bg-white text-5xl p-7 text-orange-300 flex font-bold justify-center items-center">
           <button
             onClick={() => router.push(`/leaderboard`)}
-            className=" hover:text-6xl hover:p-3 duration-300 ease-in-out absolute left-1 m-3 bg-orange-300 hover:cursor-pointer
+            className=" hover:text-4xl hover:p-3 duration-300 ease-in-out absolute left-1 m-3 bg-orange-300 hover:cursor-pointer
            hover:bg-orange-500 p-2 rounded-3xl text-white text-4xl flex items-center"
           >
             <FaTrophy />
