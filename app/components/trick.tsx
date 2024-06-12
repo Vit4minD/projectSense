@@ -6,6 +6,7 @@ type TrickProps = {
   question: number;
   setQuestion: (value: React.SetStateAction<number>) => void;
   questionLimited: boolean;
+  rightLeft: boolean;
 };
 
 const Trick: React.FC<TrickProps> = ({
@@ -13,6 +14,7 @@ const Trick: React.FC<TrickProps> = ({
   setQuestion,
   question,
   questionLimited,
+  rightLeft,
 }) => {
   const [userAns, setUserAns] = useState("");
   const [pair, setPair] = useState({ body: "", ans: "temp" });
@@ -22,7 +24,7 @@ const Trick: React.FC<TrickProps> = ({
   }, [trick]);
 
   useEffect(() => {
-    if (trick === "12") {
+    if (trick === "13") {
       if (
         Math.abs(Number(userAns) - Number(pair["ans"])) <=
         Number(pair["ans"]) * 0.05
@@ -48,7 +50,17 @@ const Trick: React.FC<TrickProps> = ({
             className="pb-2 w-1/5 focus:outline-none border-b-2 text-center bg-orange-300"
             type="text"
             value={userAns}
-            onChange={(e) => setUserAns(e.target.value)}
+            onChange={(e) => {
+              if (rightLeft)
+                if (e.target.value.length < userAns.length) {
+                  setUserAns(userAns.substring(1));
+                } else
+                  setUserAns(
+                    e.target.value.substring(e.target.value.length - 1) +
+                      userAns
+                  );
+              else setUserAns(e.target.value);
+            }}
           />
         </>
       ) : null}

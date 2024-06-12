@@ -7,60 +7,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { FaInfinity } from "react-icons/fa";
 import { VscDebugRestart } from "react-icons/vsc";
-
-const topic: { [key: number]: string } = {
-  1: "n * 11",
-  2: "n * 25",
-  3: "n / 101",
-  4: "n / 111",
-  5: "n % x",
-  6: "n - x",
-  7: "n + x",
-  8: "Nn * Xx",
-  9: "SQUARES",
-  10: "Tens Trick",
-  11: "Σ : n(n+1)/2",
-  12: "Estimation",
-  13: "<100 Multiplication",
-  14: ">100 Multiplication",
-  15: ">/< 100 Multiplication",
-  16: "Dec/Frac Conversion",
-  17: "Dec Addition/Subtraction",
-  18: "Roman Numerals",
-  19: "Cubes",
-  20: "GCD",
-  30: "LCM",
-  31: "Conversion into Base 10",
-  32: "Conversion from Base 10",
-  33: "Conversion of Base 2, 4, 8",
-  34: "Sum of Integral Divisors",
-  35: "Sum of Prime Divisors",
-  36: "x/90, x/99, x/900, x/990",
-  37: "Triangular Numbers",
-  38: "Pentagonal Numbers",
-  39: "Hexagonal Numbers",
-  40: "x^2 + (2x)^2",
-  41: "x^2 + (3x)^2",
-  42: "Complex Number Multiplication",
-  43: "Unit Conversions",
-  44: "x^2 + (x+1)^2",
-  45: "a/b + b/a",
-  46: "# of distinct diagonals in a polygon",
-  47: "Sum of n Squares",
-  48: "Alternating Sum of n Squares",
-  49: "Mean/Median",
-  50: "Geometric Mean",
-  51: "Harmonic Mean",
-  52: "Estimating Square/Cube Roots",
-  53: "x% of y",
-  54: "a * b/c",
-  55: "(a+b) * (a-b)",
-  56: "Fibonacci Series",
-  57: "Special Sum of Squares",
-  58: "3-digit Squares",
-  59: "3-digit Cubes",
-  60: "(x^3-y^3) / (x-y)",
-};
+import { problemSet } from "@/app/utils/problemGenerator";
 
 const Home = ({ params }: { params: { id: string } }) => {
   const MAX_QUESTION_COUNT = 5;
@@ -142,11 +89,11 @@ const Home = ({ params }: { params: { id: string } }) => {
         >
           {"⌂"}
         </button>
-        <p>Project Sense: {topic[Number(params.id)]} </p>
+        <p>Project Sense: {problemSet[Number(params.id)]} </p>
       </div>
       <div className="mt-3 justify-center flex gap-x-4 items-center">
         {!questionLimited ? (
-          <div className="text-orange-300 bg-white text-2xl font-semibold rounded-2xl py-1 px-3">
+          <div className="text-orange-300 bg-white text-4xl font-semibold rounded-2xl py-1 px-3">
             <FaInfinity />
           </div>
         ) : null}
@@ -162,6 +109,7 @@ const Home = ({ params }: { params: { id: string } }) => {
         ) : null}
       </div>
       <Trick
+        rightLeft={rightLeft}
         trick={params.id}
         question={questions}
         setQuestion={setQuestions}
