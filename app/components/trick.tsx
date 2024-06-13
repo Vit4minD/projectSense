@@ -47,6 +47,7 @@ const Trick: React.FC<TrickProps> = ({
           <div>{pair["body"]}</div>
           <div>=</div>
           <input
+            autoFocus={true}
             className="pb-2 w-1/5 focus:outline-none border-b-2 text-center bg-orange-300"
             type="text"
             value={userAns}

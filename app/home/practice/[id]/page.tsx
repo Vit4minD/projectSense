@@ -1,20 +1,21 @@
 "use client";
+import React, { useState, useEffect } from "react";
+import { FaInfinity } from "react-icons/fa";
+import { VscDebugRestart } from "react-icons/vsc";
 import Trick from "@/app/components/trick";
 import { auth, db } from "@/firebase/config";
 import { User } from "firebase/auth";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { FaInfinity } from "react-icons/fa";
-import { VscDebugRestart } from "react-icons/vsc";
 import { problemSet } from "@/app/utils/problemGenerator";
+import updateLeaderboard from "@/app/components/updateLeadeboard";
 
 const Home = ({ params }: { params: { id: string } }) => {
   const MAX_QUESTION_COUNT = 5;
   const router = useRouter();
   const [startTime, setStartTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
-  const [user, setUser] = useState<null | User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [rightLeft, setRightLeft] = useState(false);
   const [questionLimited, setQuestionLimited] = useState(true);
   const [autoEnter, setAutoEnter] = useState(true);
@@ -23,24 +24,60 @@ const Home = ({ params }: { params: { id: string } }) => {
   const [stopTimer, setStopTimer] = useState(false);
 
   useEffect(() => {
-    if (questionLimited) {
-      let timerId: string | number | NodeJS.Timeout | undefined;
-      if (!stopTimer) {
-        timerId = setInterval(() => {
-          setElapsedTime(Date.now() - startTime);
-        }, 10);
+    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+      if (authUser) {
+        setUser(authUser);
+        const email = authUser.email;
+        if (email) {
+          const docRef = doc(colRef, email);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setQuestionLimited(data?.questionLimited ?? true);
+            setRightLeft(data?.rightLeft ?? false);
+            setAutoEnter(data?.autoEnter ?? true);
+          }
+        } else {
+          console.error("Email is null or undefined");
+        }
+      } else {
+        setUser(null);
       }
-      return () => {
-        clearInterval(timerId);
-      };
-    }
-  }, [questionLimited, startTime, stopTimer]);
+    });
+
+    return () => unsubscribe();
+  }, [colRef]);
 
   useEffect(() => {
-    if (questions == 5 && questionLimited) {
-      setStopTimer(!stopTimer);
+    let animationFrameId: number;
+
+    const updateElapsedTime = () => {
+      if (!stopTimer) {
+        setElapsedTime(Date.now() - startTime);
+        animationFrameId = requestAnimationFrame(updateElapsedTime);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(updateElapsedTime);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [startTime, stopTimer]);
+  useEffect(() => {
+    if (questions === 5 && questionLimited) {
+      setStopTimer(true);
+      if (user) {
+        const email: string = user.email ? user.email : "";
+        updateLeaderboard(
+          email,
+          db,
+          Number(params.id),
+          formatTime(elapsedTime)
+        );
+      }
     }
-  }, [questionLimited, questions, stopTimer]);
+  }, [questions, questionLimited, user?.email, params.id, elapsedTime, user]);
 
   const formatTime = (time: number) => {
     const milliseconds = Math.floor((time % 1000) / 10);
@@ -51,32 +88,6 @@ const Home = ({ params }: { params: { id: string } }) => {
       .toString()
       .padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
   };
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
-      if (authUser) {
-        setUser(authUser);
-        if (user) {
-          const email = user.email;
-          if (email) {
-            const docRef = doc(colRef, email);
-            const docSnap = await getDoc(docRef);
-            if (docSnap.exists()) {
-              const data = docSnap.data();
-              await setQuestionLimited(data["questionLimited"]);
-              await setRightLeft(data["rightLeft"]);
-              await setAutoEnter(data["autoEnter"]);
-            }
-          } else {
-            console.error("Email is null or undefined");
-          }
-        }
-      } else {
-        setUser(null);
-      }
-    });
-    return () => unsubscribe();
-  }, [colRef, router, user]);
 
   return (
     <main className="w-screen min-h-screen flex-col flex bg-orange-300">
@@ -122,6 +133,7 @@ const Home = ({ params }: { params: { id: string } }) => {
               setQuestions(0);
               setStartTime(Date.now()); // Reset the startTime to the current timestamp
               setElapsedTime(0); // Reset the elapsedTime to 0
+              setStopTimer(false); // Ensure timer resumes after reset
             }}
             className="hover:bg-gray-200 bg-white mt-8 text-orange-300 p-3 rounded-3xl"
           >
@@ -132,4 +144,5 @@ const Home = ({ params }: { params: { id: string } }) => {
     </main>
   );
 };
+
 export default Home;

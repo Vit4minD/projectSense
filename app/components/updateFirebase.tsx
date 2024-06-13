@@ -28,7 +28,7 @@ export default function Home() {
         await setDoc(
           docRef,
           {
-            scores: [],
+            scores: Object.fromEntries(new Map<string, any>()),
           },
           { merge: false }
         );
@@ -57,7 +57,7 @@ export default function Home() {
     <>
       <div>hey</div>
       <button
-        onClick={addDocumentWithCustomId}
+        onClick={updateAllDocuments}
         className="ml-48 bg-black text-white p-5 rounded-2xl"
       >
         CLICK

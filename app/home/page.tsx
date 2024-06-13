@@ -143,7 +143,7 @@ export default function Home() {
                       className="mx-auto items-center justify-center"
                     >
                       <FormLabel fontSize="2rem" htmlFor="email-alerts" mb="0">
-                        No Question Limit
+                        Infinite Questions
                       </FormLabel>
                       <Switch
                         defaultChecked={!questionLimited}
@@ -154,27 +154,6 @@ export default function Home() {
                             questionLimited: !questionLimited,
                           });
                           setQuestionLimited(!questionLimited);
-                        }}
-                      />
-                    </FormControl>
-                    <FormControl
-                      display="flex"
-                      alignItems="center"
-                      textAlign="center"
-                      className="mx-auto items-center justify-center"
-                    >
-                      <FormLabel fontSize="2rem" htmlFor="email-alerts" mb="0">
-                        Auto-Enter
-                      </FormLabel>
-                      <Switch
-                        defaultChecked={autoEnter}
-                        id="email-alerts"
-                        size="lg"
-                        onChange={() => {
-                          updateUser(user?.email ?? "", {
-                            autoEnter: !autoEnter,
-                          });
-                          setAutoEnter(!autoEnter);
                         }}
                       />
                     </FormControl>
@@ -313,7 +292,7 @@ export default function Home() {
                 <button
                   value={value}
                   onClick={() => router.push(`/home/practice/${value}`)}
-                  className="p-4 px-[2.7rem] w-fit  hover:scale-105 hover:bg-gray-200  flex  items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white text-xl"
+                  className="p-4 px-[2.7rem] w-[26rem]  hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white text-xl"
                 >
                   {problemSet[value]}
                   {/* <MathJax className="w-full" suppressHydrationWarning={true}>
