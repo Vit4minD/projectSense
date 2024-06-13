@@ -1,6 +1,5 @@
 "use client";
-import { auth, db } from "@/firebase/config";
-import { User } from "firebase/auth";
+import { db } from "@/firebase/config";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
@@ -21,21 +20,26 @@ const Home = () => {
   const [currentBoard, setCurrentBoard] = useState(1);
   const keys = useMemo(() => Object.keys(problemSet).map(Number), []);
   const router = useRouter();
-  const colRef = collection(db, "leaderboard");
-  const [sortedScores, setSortedScores] = useState({});
+  const [sortedScores, setSortedScores] = useState<string[]>([]);
   useEffect(() => {
     const fetchData = async () => {
-      const docRef = doc(colRef, String(currentBoard));
+      const docRef = doc(collection(db, "leaderboard"), String(currentBoard));
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         const data = docSnap.data();
         const map = data["scores"];
-        const sortedScores = sortScoresByTime(map);
-        setSortedScores(sortedScores);
+        let finalArray = [];
+        for (const key in map) {
+          if (map.hasOwnProperty(key)) {
+            const value = map[key];
+            finalArray.push(value + " " + key);
+          }
+        }
+        setSortedScores(sortScoresByTime(finalArray));
       }
     };
     fetchData();
-  }, [colRef, currentBoard]);
+  }, [currentBoard]);
   return (
     <main className="w-screen min-h-screen flex-col flex bg-orange-300">
       <div className="bg-white text-3xl p-4 font-bold text-orange-300 w-full flex flex-row justify-center">
@@ -78,21 +82,25 @@ const Home = () => {
       </ChakraProvider>
       <FaTrophy className="mx-auto text-[12rem] text-white" />
       <hr className="w-5/6 mx-auto mt-2"></hr>
-      <div className="mt-6 gap-x-4 w-[80%] mx-auto text-2xl justify-center items-center flex flex-row">
-        {Object.entries(sortedScores).map(([user, time], index) => (
-          <>
+      {sortedScores.map((score, index) => {
+        const [time, email] = score.split(" ");
+        return (
+          <div
+            key={index}
+            className="mt-6 gap-x-4 w-[80%] mx-auto text-2xl justify-center items-center flex flex-row"
+          >
             <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-[4rem]">
               {index + 1}
             </p>
             <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center w-2/3">
-              {user.substring(0, user.indexOf("@"))}
+              {email.substring(0, email.indexOf("@"))}
             </p>
             <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
-              {time as string}
+              {time}
             </p>
-          </>
-        ))}
-      </div>
+          </div>
+        );
+      })}
     </main>
   );
 };

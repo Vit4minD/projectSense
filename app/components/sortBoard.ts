@@ -1,19 +1,22 @@
-interface ScoreMap {
-  [key: string]: string; // Assuming string format "00:00.00"
+interface ScoreEntry {
+  time: string;
+  email: string;
 }
 
-export const sortScoresByTime = (scores: ScoreMap): ScoreMap => {
-  // Convert the object into an array of [key, value] pairs
-  const scoreEntries = Object.entries(scores);
+export const sortScoresByTime = (scores: string[]): string[] => {
+  // Convert the array of strings into an array of ScoreEntry objects
+  const scoreEntries: ScoreEntry[] = scores.map((score) => {
+    const [time, email] = score.split(" ");
+    return { time, email };
+  });
 
   // Sort the array based on the time values
-  scoreEntries.sort(([, timeA], [, timeB]) => compareTimes(timeA, timeB));
+  scoreEntries.sort((a, b) => compareTimes(a.time, b.time));
 
-  // Convert back to an object
-  const sortedScores: ScoreMap = {};
-  scoreEntries.forEach(([key, value]) => {
-    sortedScores[key] = value;
-  });
+  // Convert back to an array of strings
+  const sortedScores = scoreEntries.map(
+    (entry) => `${entry.time} ${entry.email}`
+  );
 
   return sortedScores;
 };
