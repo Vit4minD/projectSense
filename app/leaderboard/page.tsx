@@ -15,16 +15,27 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FaTrophy } from "react-icons/fa";
+import { sortScoresByTime } from "../components/sortBoard";
 
 const Home = () => {
   const [currentBoard, setCurrentBoard] = useState(1);
   const keys = useMemo(() => Object.keys(problemSet).map(Number), []);
   const router = useRouter();
   const colRef = collection(db, "leaderboard");
-  // useEffect(() => {
-  //   const docRef = doc(colRef, String(currentBoard));
-  //   const docSnap = await getDoc(docRef)
-  // }, [colRef, currentBoard]);
+  const [sortedScores, setSortedScores] = useState({});
+  useEffect(() => {
+    const fetchData = async () => {
+      const docRef = doc(colRef, String(currentBoard));
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const map = data["scores"];
+        const sortedScores = sortScoresByTime(map);
+        setSortedScores(sortedScores);
+      }
+    };
+    fetchData();
+  }, [colRef, currentBoard]);
   return (
     <main className="w-screen min-h-screen flex-col flex bg-orange-300">
       <div className="bg-white text-3xl p-4 font-bold text-orange-300 w-full flex flex-row justify-center">
@@ -66,16 +77,21 @@ const Home = () => {
         </Menu>
       </ChakraProvider>
       <FaTrophy className="mx-auto text-[12rem] text-white" />
+      <hr className="w-5/6 mx-auto mt-2"></hr>
       <div className="mt-6 gap-x-4 w-[80%] mx-auto text-2xl justify-center items-center flex flex-row">
-        <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
-          hey
-        </p>
-        <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center w-2/3">
-          hi
-        </p>
-        <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
-          hello
-        </p>
+        {Object.entries(sortedScores).map(([user, time], index) => (
+          <>
+            <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-[4rem]">
+              {index + 1}
+            </p>
+            <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center w-2/3">
+              {user.substring(0, user.indexOf("@"))}
+            </p>
+            <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
+              {time as string}
+            </p>
+          </>
+        ))}
       </div>
     </main>
   );
