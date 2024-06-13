@@ -24,6 +24,7 @@ import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { problemSet } from "../utils/problemGenerator";
 import { MathJax, MathJaxContext } from "better-react-mathjax";
+import MathComponent from "../components/MathComponent";
 
 export default function Home() {
   const router = useRouter();
@@ -285,16 +286,19 @@ export default function Home() {
       ) : (
         <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
           {keys.map((value) => (
-            <div key={value} className=" animate-slideUp h-24 ">
+            <div
+              key={value}
+              className=" animate-slideUp h-24 overflow-y-hidden "
+            >
               <div
                 className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
               >
                 <button
                   value={value}
                   onClick={() => router.push(`/home/practice/${value}`)}
-                  className="p-4 px-[2.7rem] w-[26rem]  hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out overflow-y-auto rounded-l-2xl bg-white text-xl"
+                  className="p-4 px-[2.7rem] w-[26rem]  overflow-y-hidden hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out rounded-l-2xl bg-white text-xl"
                 >
-                  {problemSet[value]}
+                  <MathComponent math={problemSet[value]} />
                   {/* <MathJax className="w-full" suppressHydrationWarning={true}>
 
                     </MathJax> */}
