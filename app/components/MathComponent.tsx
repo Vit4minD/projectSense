@@ -1,7 +1,7 @@
 // components/MathComponent.js
 import React from "react";
 import "katex/dist/katex.min.css";
-import { BlockMath } from "react-katex";
+import { BlockMath, InlineMath } from "react-katex";
 
 interface MathComponentProps {
   math: string; // Define the type of the 'math' prop as string
@@ -9,16 +9,18 @@ interface MathComponentProps {
 
 const MathComponent: React.FC<MathComponentProps> = ({ math }) => {
   return (
-    <div
+    <span
       style={{
         margin: "0",
         padding: "0",
         lineHeight: "1",
         fontSize: "inherit",
+        overflowY: "hidden",
       }}
+      className="overflow-y-hidden"
     >
-      <BlockMath>{math}</BlockMath>
-    </div>
+      <InlineMath>{math}</InlineMath>
+    </span>
   );
 };
 

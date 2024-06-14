@@ -14,46 +14,87 @@ import {
 } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FaTrophy } from "react-icons/fa";
-import { sortScoresByTime } from "../components/sortBoard";
+import { BlockMath } from "react-katex";
+import MathComponent from "../components/MathComponent";
 
 const Home = () => {
   const [currentBoard, setCurrentBoard] = useState(1);
   const keys = useMemo(() => Object.keys(problemSet).map(Number), []);
   const router = useRouter();
   const [sortedScores, setSortedScores] = useState<string[]>([]);
+
+  // Helper function to compare time strings ("MM:SS.mm")
+  const compareTimes = (time1: string, time2: string): number => {
+    const [min1, secMs1] = time1.split(":");
+    const [sec1, ms1] = secMs1.split(".").map(parseFloat);
+    const [min2, secMs2] = time2.split(":");
+    const [sec2, ms2] = secMs2.split(".").map(parseFloat);
+
+    const totalMs1 = parseFloat(min1) * 60000 + sec1 * 1000 + ms1;
+    const totalMs2 = parseFloat(min2) * 60000 + sec2 * 1000 + ms2;
+
+    return totalMs1 - totalMs2; // Negative if time1 is smaller, positive if time2 is smaller
+  };
   useEffect(() => {
+    const sortScoresByTime = (scores: string[]): string[] => {
+      // Convert the array of strings into an array of ScoreEntry objects
+      const scoreEntries: ScoreEntry[] = scores.map((score) => {
+        const [time, email] = score.split(" ");
+        return { time, email };
+      });
+
+      // Sort the array based on the time values
+      scoreEntries.sort((a, b) => compareTimes(a.time, b.time));
+
+      // Convert back to an array of strings
+      const sortedScores = scoreEntries.map(
+        (entry) => `${entry.time} ${entry.email}`
+      );
+
+      return sortedScores;
+    };
     const fetchData = async () => {
-      const docRef = doc(collection(db, "leaderboard"), String(currentBoard));
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        const map = data["scores"];
-        let finalArray = [];
-        for (const key in map) {
-          if (map.hasOwnProperty(key)) {
-            const value = map[key];
-            finalArray.push(value + " " + key);
-          }
+      try {
+        const docRef = doc(collection(db, "leaderboard"), String(currentBoard));
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const map = data["scores"];
+          const resultArray = Object.entries(map).map(
+            ([key, value]) => `${value} ${key}`
+          );
+          const performSort = sortScoresByTime(resultArray);
+          setSortedScores(performSort);
+        } else {
+          console.log("No such document!");
         }
-        setSortedScores(sortScoresByTime(finalArray));
+      } catch (error) {
+        console.error("Error fetching document:", error);
       }
     };
     fetchData();
   }, [currentBoard]);
+
+  interface ScoreEntry {
+    time: string;
+    email: string;
+  }
+
   return (
-    <main className="w-screen min-h-screen flex-col flex bg-orange-300">
-      <div className="bg-white text-3xl p-4 font-bold text-orange-300 w-full flex flex-row justify-center">
-        <button
-          onClick={async () => {
-            await Promise.all([router.push("/home")]);
-          }}
-          className="absolute left-3 text-white hover:bg-orange-500 hover:text-gray-300 text-4xl px-3 rounded-2xl pb-1 bg-orange-300"
-        >
-          {"⌂"}
-        </button>
-        <p>Project Sense Leaderboards</p>
-      </div>
-      <ChakraProvider>
+    <ChakraProvider>
+      <main className="w-auto min-h-screen overflow-y-hidden flex-col flex bg-orange-300 overflow-x-hidden">
+        <div className="bg-white text-3xl p-4 font-bold text-orange-300 w-full flex flex-row justify-center relative">
+          <button
+            onClick={async () => {
+              await Promise.all([router.push("/home")]);
+            }}
+            className="absolute left-3 text-white hover:bg-orange-500 hover:text-gray-300 text-4xl px-3 rounded-2xl pb-1 bg-orange-300"
+          >
+            {"⌂"}
+          </button>
+          <p>Project Sense Leaderboards</p>
+        </div>
+
         <Menu>
           <MenuButton
             color="rgb(253, 186, 116)"
@@ -62,9 +103,14 @@ const Home = () => {
             as={Button}
             rightIcon={<ChevronDownIcon />}
           >
-            {problemSet[currentBoard]}
+            <MathComponent math={problemSet[currentBoard]} />
           </MenuButton>
-          <MenuList maxWidth="5rem" maxHeight="10rem" overflowY="auto">
+
+          <MenuList
+            maxH="10rem"
+            overflowY="auto"
+            style={{ maxHeight: "10rem", overflowY: "auto" }}
+          >
             {keys.map((value) =>
               currentBoard !== value ? (
                 <MenuItem
@@ -75,33 +121,38 @@ const Home = () => {
                 >
                   {problemSet[value]}
                 </MenuItem>
-              ) : null
+              ) : (
+                <></>
+              )
             )}
           </MenuList>
         </Menu>
-      </ChakraProvider>
-      <FaTrophy className="mx-auto text-[12rem] text-white" />
-      <hr className="w-5/6 mx-auto mt-2"></hr>
-      {sortedScores.map((score, index) => {
-        const [time, email] = score.split(" ");
-        return (
-          <div
-            key={index}
-            className="mt-6 gap-x-4 w-[80%] mx-auto text-2xl justify-center items-center flex flex-row"
-          >
-            <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-[4rem]">
-              {index + 1}
-            </p>
-            <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center w-2/3">
-              {email.substring(0, email.indexOf("@"))}
-            </p>
-            <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
-              {time}
-            </p>
-          </div>
-        );
-      })}
-    </main>
+
+        <FaTrophy className="mx-auto text-[12rem] text-white" />
+        <hr className="w-5/6 mx-auto mt-2 mb-3" />
+        <div className="w-full flex flex-col items-center">
+          {sortedScores.map((score, index) => {
+            const [time, email] = score.split(" ");
+            return (
+              <div
+                key={index}
+                className="my-3 gap-x-4 w-[80%] mx-auto text-2xl flex flex-row items-center justify-between"
+              >
+                <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-[4rem]">
+                  {index + 1}
+                </p>
+                <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center flex-grow">
+                  {email.substring(0, email.indexOf("@"))}
+                </p>
+                <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
+                  {time}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </main>
+    </ChakraProvider>
   );
 };
 export default Home;
