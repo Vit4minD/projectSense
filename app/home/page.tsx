@@ -91,7 +91,10 @@ export default function Home() {
     const { isOpen, onOpen, onClose } = useDisclosure();
     return (
       <>
-        <Button onClick={onOpen} className="ml-5 hover:text-orange-400">
+        <Button
+          onClick={onOpen}
+          className="ml-5 md:text-5xl text-4xl hover:text-orange-400"
+        >
           <IoMdSettings />
         </Button>
         <ChakraProvider>
@@ -184,23 +187,19 @@ export default function Home() {
     // <MathJaxContext>
     <main className="absolute bg-orange-300 h-screen overflow-auto w-screen flex flex-col items-center">
       <div className="bg-white text-orange-300 font-bold p-4 text-4xl   w-full">
-        <div className="bg-white text-5xl p-7 text-orange-300 flex font-bold justify-center items-center">
+        <div className="bg-white text-5xl  text-orange-300 flex font-bold justify-center items-center">
           <button
             onClick={() => router.push(`/leaderboard`)}
             className=" hover:text-4xl hover:p-3 duration-300 ease-in-out absolute left-1 m-3 bg-orange-300 hover:cursor-pointer
-           hover:bg-orange-500 p-2 rounded-3xl text-white text-4xl flex items-center"
+           hover:bg-orange-500 p-2 rounded-3xl text-white text-2xl md:text-4xl flex items-center"
           >
             <FaTrophy />
           </button>
-          <div className="absolute text-2xl md:text-3xl">Project Sense</div>
-          <div className="absolute right-1 mr-3">
-            <span className="relative flex h-3 w-3 pt-1">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-300 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
-            </span>
+          <div className="absolute text-xl md:text-3xl">Project Sense</div>
+          <div className=" ml-auto">
             <Button
               onClick={onOpen}
-              className="hover:text-orange-400 text-5xl "
+              className="hover:text-orange-400 text-4xl md:text-5xl"
             >
               <BsMailbox2Flag />
             </Button>
@@ -256,7 +255,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="text-white font-bold my-3">
+      <div className="text-white font-bold text-sm my-2 p-2 text-center md:text-base">
         Note: Timer starts once a bubble is pressed. Solve 5 questions as fast
         as you can.
       </div>
