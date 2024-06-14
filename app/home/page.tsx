@@ -287,22 +287,22 @@ export default function Home() {
           {keys.map((value) => (
             <div
               key={value}
-              className=" animate-slideUp h-24 overflow-y-hidden "
+              className=" animate-slideUp h-21 md:h-24 overflow-y-hidden mb-0.125 md:mb-4"
             >
               <div
-                className={`my-auto h-full duration-200 ease-in-out mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
+                className={`my-auto h-full duration-200 ease-in-out mx-12 md:mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
               >
                 <button
                   value={value}
                   onClick={() => router.push(`/home/practice/${value}`)}
-                  className="p-4 px-[2.7rem] w-[26rem]  overflow-y-hidden hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out rounded-l-2xl bg-white text-xl"
+                  className="p-2 md:p-4 px-[2.7rem] md:w-[26rem] w-full overflow-y-hidden hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out rounded-l-2xl bg-white text-lg md:text-xl"
                 >
                   <MathComponent math={problemSet[value]} />
                   {/* <MathJax className="w-full" suppressHydrationWarning={true}>
 
                     </MathJax> */}
                 </button>
-                <button className="hover:scale-105 hover:bg-orange-500 flex font-extrabold w-1/4 justify-center text-center items-center mt-auto h-full duration-200 ease-in-out  text-4xl align-baseline text-white rounded-r-2xl bg-orange-400 p-4">
+                <button className="hover:scale-105 hover:bg-orange-500 flex font-extrabold md:w-1/4 w-1/2 justify-center text-center items-center mt-auto h-full duration-200 ease-in-out  text-4xl align-baseline text-white rounded-r-2xl bg-orange-400 p-4">
                   ?
                 </button>
               </div>

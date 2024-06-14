@@ -643,14 +643,13 @@ function unitConversion() {
   const toIndex = Math.floor(Math.random() * toUnits.length);
   const toUnit = toUnits[toIndex];
   const value = Math.floor(Math.random() * 100) + 2;
-  const convertedValue = Math.round(value * conversions[fromUnit][toUnit]);
+  const convertedValue = value * conversions[fromUnit][toUnit];
 
   return {
-    body: `how many ${toUnit} are in ${value} ${fromUnit} (rounded to nearest integer)`,
-    ans: convertedValue,
+    body: `How many ${toUnit} are in ${value} ${fromUnit}? (put two decimals)`,
+    ans: convertedValue.toFixed(2),
   };
 }
-
 function xandx1() {
   let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
   let squaredN = `${n}\u00B2`;
