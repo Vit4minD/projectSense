@@ -84,6 +84,12 @@ export const problemFunction: { [key: string]: Function } = {
   "28": nover90,
   "29": ntriangular,
   "30": npentagonal,
+  "31": nhexagonal,
+  "32": nX22x2,
+  "33": nX23x2,
+  "34": complexNumber,
+  "35": unitConversion,
+  "36": xandx1,
 };
 
 function n11() {
@@ -266,7 +272,6 @@ function decAdditionandSub() {
 }
 
 function romanNum() {
-  // Roman numeral characters with their corresponding values
   const romanNumerals: { [key: string]: number } = {
     I: 1,
     V: 5,
@@ -292,8 +297,6 @@ function romanNum() {
     { value: 4, numeral: "IV" },
     { value: 1, numeral: "I" },
   ];
-
-  // Function to convert an Arabic number to a Roman numeral
   function toRoman(num: number): string {
     let result = "";
     for (const { value, numeral } of romanNumeralValues) {
@@ -304,12 +307,8 @@ function romanNum() {
     }
     return result;
   }
-
-  // Generate a random number between 10 and 3999
   const number = Math.floor(Math.random() * 3990) + 10;
   const romanNumeral = toRoman(number);
-
-  // Function to convert a Roman numeral to an Arabic number
   function toArabic(roman: string): number {
     let result = 0;
     for (let i = 0; i < roman.length; i++) {
@@ -377,16 +376,16 @@ function nLCM() {
   };
 }
 function toBase10() {
-  const x = Math.floor(Math.random() * 8) + 2; // Random base between 2 and 9
+  const x = Math.floor(Math.random() * 8) + 2;
   const n = generateValidNumber(x);
 
   function generateValidNumber(base: number): number {
     let num = "";
-    const length = Math.floor(Math.random() * 3) + 1; // Length between 1 and 3 digits
+    const length = Math.floor(Math.random() * 3) + 1;
     for (let i = 0; i < length; i++) {
       num += Math.floor(Math.random() * base).toString();
     }
-    return parseInt(num, 10); // Return as an integer
+    return parseInt(num, 10);
   }
 
   function convertToBase10(number: number, base: number): number {
@@ -400,11 +399,8 @@ function toBase10() {
 }
 
 function toBaseX() {
-  // Generate random numbers n and x
   let n: number = Math.floor(Math.random() * (999 - 10 + 1)) + 10;
   let x: number = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
-
-  // Function to convert number from base 10 to base x
   function convertToBaseX(number: number, base: number): string {
     let result: string = "";
     while (number > 0) {
@@ -525,7 +521,7 @@ function primeDiv() {
 }
 
 function nover90() {
-  let randomValue = Math.floor(Math.random() * 3);
+  let randomValue = Math.floor(Math.random() * 4);
   if (randomValue === 0) {
     let n = Math.floor(Math.random() * 89) + 1;
     return {
@@ -537,6 +533,12 @@ function nover90() {
     return {
       body: "What is " + n + "/900 as decimal (3 digits)",
       ans: "" + (n / 900).toFixed(3),
+    };
+  } else if (randomValue === 2) {
+    let n = Math.floor(Math.random() * 98) + 1;
+    return {
+      body: "What is " + n + "/99 as decimal (3 digits)",
+      ans: "" + (n / 99).toFixed(3),
     };
   } else {
     let n = Math.floor(Math.random() * 989) + 1;
@@ -559,5 +561,103 @@ function npentagonal() {
   return {
     body: "What is pentagonal number " + n,
     ans: "" + x,
+  };
+}
+
+function nhexagonal() {
+  let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
+  let x = n * (2 * n - 1);
+  return {
+    body: "What is hexagonal number " + n,
+    ans: "" + x,
+  };
+}
+
+function nX22x2() {
+  let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
+  let squaredN = `${n}\u00B2`;
+  let squaredNN = `${2 * n}\u00B2`;
+  return {
+    body: "" + squaredN + " + " + squaredNN,
+    ans: "" + n * n * 5,
+  };
+}
+function nX23x2() {
+  let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
+  let squaredN = `${n}\u00B2`;
+  let squaredNN = `${3 * n}\u00B2`;
+  return {
+    body: "" + squaredN + " + " + squaredNN,
+    ans: "" + n * n * 10,
+  };
+}
+function complexNumber() {
+  let a = Math.floor(Math.random() * 21) - 10;
+  let b = Math.floor(Math.random() * 21) - 10;
+  let c = Math.floor(Math.random() * 21) - 10;
+  let d = Math.floor(Math.random() * 21) - 10;
+  let realPart = a * c - b * d;
+  let imaginaryPart = a * d + b * c;
+  let sum = realPart + imaginaryPart;
+  let bFormatted = b >= 0 ? `+ ${b}i` : `- ${Math.abs(b)}i`;
+  let dFormatted = d >= 0 ? `+ ${d}i` : `- ${Math.abs(d)}i`;
+  let formattedString = `(${a} ${bFormatted})(${c} ${dFormatted})`;
+  return {
+    body: formattedString + "  a + b = ?",
+    ans: "" + sum,
+  };
+}
+
+function unitConversion() {
+  const conversions: { [fromUnit: string]: { [toUnit: string]: number } } = {
+    gallons: { quarts: 4, pints: 8, cups: 16, pecks: 0.25, bushels: 0.0625 },
+    quarts: {
+      gallons: 0.25,
+      pints: 2,
+      cups: 4,
+      pecks: 0.0625,
+      bushels: 0.015625,
+    },
+    pints: {
+      gallons: 0.125,
+      quarts: 0.5,
+      cups: 2,
+      pecks: 0.03125,
+      bushels: 0.0078125,
+    },
+    cups: {
+      gallons: 0.0625,
+      quarts: 0.25,
+      pints: 0.5,
+      pecks: 0.015625,
+      bushels: 0.00390625,
+    },
+    pecks: { gallons: 4, quarts: 16, pints: 32, cups: 64, bushels: 0.25 },
+    bushels: { gallons: 16, quarts: 64, pints: 128, cups: 256, pecks: 4 },
+  };
+
+  const units = Object.keys(conversions);
+  const randomIndex = Math.floor(Math.random() * units.length);
+  const fromUnit = units[randomIndex];
+  const toUnits = Object.keys(conversions[fromUnit]);
+  const toIndex = Math.floor(Math.random() * toUnits.length);
+  const toUnit = toUnits[toIndex];
+  const value = Math.floor(Math.random() * 100) + 2;
+  const convertedValue = Math.round(value * conversions[fromUnit][toUnit]);
+
+  return {
+    body: `how many ${toUnit} are in ${value} ${fromUnit} (rounded to nearest integer)`,
+    ans: convertedValue,
+  };
+}
+
+function xandx1() {
+  let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
+  let squaredN = `${n}\u00B2`;
+  let squaredNN = `${n + 1}\u00B2`;
+
+  return {
+    body: squaredN + " + " + squaredNN,
+    ans: "" + n * n + (n + 1) * (n + 1),
   };
 }
