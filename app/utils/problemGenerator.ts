@@ -339,23 +339,30 @@ function nCube() {
   };
 }
 function nGCD() {
-  let n = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
-  let x = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
-
-  function gcd(a: number, b: number): number {
+  function gcd(a: number, b: number) {
     while (b !== 0) {
-      let temp: number = b;
+      let temp = b;
       b = a % b;
       a = temp;
     }
     return a;
   }
+
+  let n = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+  let x = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+  let xx = gcd(n, x);
+
+  while (xx === 1) {
+    n = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+    x = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+    xx = gcd(n, x);
+  }
+
   return {
     body: "GCD of " + n + " and " + x,
-    ans: "" + gcd(n, x),
+    ans: "" + xx,
   };
 }
-
 function nLCM() {
   let n = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
   let x = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
