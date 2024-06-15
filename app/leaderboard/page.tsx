@@ -92,7 +92,7 @@ const Home = () => {
           >
             {"⌂"}
           </button>
-          <p className="text-center w-full">Project Sense Leaderboards</p>
+          <p className="text-center w-full">Leaderboards</p>
         </div>
 
         <Menu>

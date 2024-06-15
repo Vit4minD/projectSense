@@ -96,11 +96,13 @@ const Home = ({ params }: { params: { id: string } }) => {
           onClick={async () => {
             await Promise.all([router.prefetch("/home"), router.push("/home")]);
           }}
-          className="absolute left-3 text-white hover:bg-orange-500 hover:text-gray-300 text-4xl px-3 rounded-2xl pb-1 bg-orange-300"
+          className="absolute left-3 text-white hover:bg-orange-500 hover:text-gray-300 text-xl md:text-4xl px-3 rounded-2xl pb-1 bg-orange-300"
         >
           {"⌂"}
         </button>
-        <p>Project Sense: {problemSet[Number(params.id)]} </p>
+        <p className="w-[90%] md:w-auto ml-[-7.5px] md:ml-[-10px] text-center text-xl md:text-3xl">
+          {problemSet[Number(params.id)]}{" "}
+        </p>
       </div>
       <div className="mt-3 justify-center flex gap-x-4 items-center">
         {!questionLimited ? (
@@ -109,10 +111,10 @@ const Home = ({ params }: { params: { id: string } }) => {
           </div>
         ) : (
           <>
-            <div className="text-orange-300 bg-white text-2xl font-semibold rounded-2xl py-1 px-3">
+            <div className="text-orange-300 bg-white text-2xl font-semibold rounded-2xl py-1 px-3 ml-[-8px] md:ml-[0px]">
               {questions}/{MAX_QUESTION_COUNT}
             </div>
-            <div className="text-center bg-white w-[8.3rem] text-orange-300 rounded-2xl text-2xl py-1 px-3 font-semibold">
+            <div className="text-center bg-white w-[8.3rem] text-orange-300 rounded-2xl text-2xl py-1 px-3 font-semibold ml-[-5.5px] md:ml-[0px]">
               {formatTime(elapsedTime)}
             </div>
           </>

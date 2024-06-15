@@ -41,14 +41,17 @@ const Trick: React.FC<TrickProps> = ({
   }, [userAns, pair, trick, setQuestion, question, questionLimited]);
 
   return (
-    <div className="font-semibold text-6xl w-screen flex text-white flex-row justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <div className="font-semibold text-[3.0rem] md:text-6xl w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
       {question < 5 ? (
         <>
-          <div>{pair["body"]}</div>
-          <div>=</div>
+          <div className=" text-center md:text-left ml-[-7.5px] md:ml-[0px] ">
+            {" "}
+            {pair["body"]}
+          </div>
+          <div className="text-center md:text-left">=</div>
           <input
             autoFocus={true}
-            className="pb-2 w-1/5 focus:outline-none border-b-2 text-center bg-orange-300"
+            className="pb-2 w-2/3 md:w-1/5 focus:outline-none border-b-2 text-center bg-orange-300"
             type="text"
             value={userAns}
             onChange={(e) => {
