@@ -82,7 +82,7 @@ const Home = () => {
 
   return (
     <ChakraProvider>
-      <main className="w-auto min-h-screen overflow-y-hidden flex-col flex bg-orange-300 overflow-x-hidden">
+      <main className="w-full min-h-screen overflow-y-hidden flex-col flex bg-orange-300 overflow-x-hidden">
         <div className="bg-white text-3xl p-4 font-bold text-orange-300 w-full flex flex-row justify-center relative">
           <button
             onClick={async () => {
@@ -92,14 +92,14 @@ const Home = () => {
           >
             {"⌂"}
           </button>
-          <p>Project Sense Leaderboards</p>
+          <p className="text-center w-full">Project Sense Leaderboards</p>
         </div>
 
         <Menu>
           <MenuButton
             color="rgb(253, 186, 116)"
             backgroundColor="white"
-            className="w-fit ml-4 mt-4 py-4"
+            className="w-fit ml-4 mt-3 md:mt-4 py-2 px-2 md:py-4 md:px-6 text-sm md:text-base"
             as={Button}
             rightIcon={<ChevronDownIcon />}
           >
@@ -109,7 +109,7 @@ const Home = () => {
           <MenuList
             maxH="10rem"
             overflowY="auto"
-            style={{ maxHeight: "10rem", overflowY: "auto" }}
+            style={{ maxHeight: "10rem", width: "100%", maxWidth: "20rem" }}
           >
             {keys.map((value) =>
               currentBoard !== value ? (
@@ -128,7 +128,7 @@ const Home = () => {
           </MenuList>
         </Menu>
 
-        <FaTrophy className="mx-auto text-[12rem] text-white" />
+        <FaTrophy className="mx-auto text-[8rem] md:text-[12rem] text-white" />
         <hr className="w-5/6 mx-auto mt-2 mb-3" />
         <div className="w-full flex flex-col items-center">
           {sortedScores.map((score, index) => {
@@ -136,15 +136,15 @@ const Home = () => {
             return (
               <div
                 key={index}
-                className="my-3 gap-x-4 w-[80%] mx-auto text-2xl flex flex-row items-center justify-between"
+                className="my-3 gap-x-2 md:gap-x-4 w-[90%] md:w-[80%] mx-auto text-lg md:text-2xl flex flex-row items-center justify-between "
               >
-                <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-[4rem]">
+                <p className="bg-white px-4 text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center md:w-[4rem]">
                   {index + 1}
                 </p>
-                <p className="bg-white text-orange-300 py-3 rounded-2xl font-bold text-center flex-grow">
+                <p className="bg-white text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center flex-grow">
                   {email.substring(0, email.indexOf("@"))}
                 </p>
-                <p className="bg-white px-4 text-orange-300 py-3 rounded-2xl font-bold text-center w-fit">
+                <p className="bg-white px-2 md:px-4 text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center w-fit">
                   {time}
                 </p>
               </div>

@@ -283,11 +283,11 @@ export default function Home() {
           <span className="sr-only">Loading...</span>
         </div>
       ) : (
-        <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-16">
+        <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-8 md:gap-y-16">
           {keys.map((value) => (
             <div
               key={value}
-              className=" animate-slideUp h-21 md:h-24 overflow-y-hidden mb-0.125 md:mb-4"
+              className=" animate-slideUp h-23 md:h-24 overflow-y-hidden"
             >
               <div
                 className={`my-auto h-full duration-200 ease-in-out mx-12 md:mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
