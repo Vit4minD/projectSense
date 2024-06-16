@@ -90,6 +90,9 @@ export const problemFunction: { [key: string]: Function } = {
   "34": complexNumber,
   "35": unitConversion,
   "36": xandx1,
+  "37": abab,
+  "38": ngon,
+  "39": sumofnsq,
 };
 
 function n11() {
@@ -383,26 +386,143 @@ function nLCM() {
   };
 }
 function toBase10() {
-  const x = Math.floor(Math.random() * 8) + 2;
-  const n = generateValidNumber(x);
+  let operation = Math.floor(Math.random() * 8);
 
-  function generateValidNumber(base: number): number {
+  if (operation === 0) {
     let num = "";
-    const length = Math.floor(Math.random() * 3) + 1;
-    for (let i = 0; i < length; i++) {
-      num += Math.floor(Math.random() * base).toString();
+    let length = Math.floor(Math.random() * 6) + 2;
+    let firstDigit = Math.floor(Math.random() * 1) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 2);
+      num += digit.toString();
     }
-    return parseInt(num, 10);
+    let n = parseInt(num, 2);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 2 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
   }
 
-  function convertToBase10(number: number, base: number): number {
-    return parseInt(number.toString(), base);
+  if (operation === 1) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 2) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 3);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 3);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 3 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
   }
 
-  return {
-    body: "Convert " + n + " base " + x + " to base 10",
-    ans: convertToBase10(n, x).toString(),
-  };
+  if (operation === 2) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 3) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 4);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 4);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 4 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
+
+  if (operation === 3) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 2) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 5);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 5);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 5 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
+
+  if (operation === 4) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 5) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 6);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 6);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 6 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
+
+  if (operation === 5) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 6) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 7);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 7);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 7 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
+
+  if (operation === 6) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 7) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 8);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 8);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 8 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
+
+  if (operation === 7) {
+    let num = "";
+    let length = Math.floor(Math.random() * 3) + 2;
+    let firstDigit = Math.floor(Math.random() * 8) + 1;
+    num += firstDigit.toString();
+    for (let i = 1; i < length; i++) {
+      let digit = Math.floor(Math.random() * 9);
+      num += digit.toString();
+    }
+    let n = parseInt(num, 9);
+    let convertedToBase10 = parseInt(n.toString(), 10);
+    return {
+      body: `Convert ${num} base 9 to base 10`,
+      ans: convertedToBase10.toString(),
+    };
+  }
 }
 
 function toBaseX() {
@@ -426,9 +546,7 @@ function base248() {
   let conversionResult: string;
   let result: string;
   let randomFunctionIndex: number = Math.floor(Math.random() * 6);
-  let randomNumberBase8: number = Math.floor(Math.random() * 512); // Random number between 0 and 511 (since base 8 uses digits 0-7)
-
-  // Conversion functions
+  let randomNumberBase8: number = Math.floor(Math.random() * 512);
   function base8to2(base8: string): string {
     return parseInt(base8, 8).toString(2);
   }
@@ -665,5 +783,68 @@ function xandx1() {
   return {
     body: squaredN + " + " + squaredNN,
     ans: "" + n * n + (n + 1) * (n + 1),
+  };
+}
+
+function abab() {
+  let n = Math.floor(Math.random() * 14) + 2;
+  let x = Math.floor(Math.random() * 14) + 2;
+
+  while (n === x || (n - x) ** 2 >= n * x) {
+    x = Math.floor(Math.random() * 14) + 2;
+  }
+
+  let numerator = (n - x) ** 2;
+  let denominator = n * x;
+
+  function gcd(a: number, b: number): number {
+    while (b !== 0) {
+      let temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a;
+  }
+
+  let gcdValue = gcd(numerator, denominator);
+
+  numerator /= gcdValue;
+  denominator /= gcdValue;
+
+  return {
+    body: "" + n + "/" + x + " + " + x + "/" + n,
+    ans: "2 " + numerator + "/" + denominator,
+  };
+}
+
+function ngon() {
+  const polygons = [
+    { sides: 3, name: "Triangle" },
+    { sides: 4, name: "Square" },
+    { sides: 5, name: "Pentagon" },
+    { sides: 6, name: "Hexagon" },
+    { sides: 7, name: "Heptagon" },
+    { sides: 8, name: "Octagon" },
+    { sides: 9, name: "Nonagon" },
+    { sides: 10, name: "Decagon" },
+  ];
+
+  let randomIndex = Math.floor(Math.random() * polygons.length);
+  let selectedPolygon = polygons[randomIndex];
+  let diagonals = (selectedPolygon.sides * (selectedPolygon.sides - 3)) / 2;
+
+  return {
+    body: `Number of diagonals in a ${selectedPolygon.name}`,
+    ans: "" + diagonals,
+  };
+}
+
+function sumofnsq() {
+  let n = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
+  let sum = ((n * (n + 1)) / 2) ** 2;
+  let nSquared = `${n}\u{00B2}`;
+  return {
+    body: "1\u{00B2} + 2\u{00B2} + 3\u{00B2} + .... + " + nSquared,
+    ans: "" + sum,
   };
 }
