@@ -9,6 +9,7 @@ import { collection, doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { problemSet } from "@/app/utils/problemGenerator";
 import updateLeaderboard from "@/app/components/updateLeadeboard";
+import MathComponent from "@/app/components/MathComponent";
 
 const Home = ({ params }: { params: { id: string } }) => {
   const MAX_QUESTION_COUNT = 5;
@@ -101,7 +102,7 @@ const Home = ({ params }: { params: { id: string } }) => {
           {"⌂"}
         </button>
         <p className="w-[90%] md:w-auto ml-[-7.5px] md:ml-[-10px] text-center text-xl md:text-3xl">
-          {problemSet[Number(params.id)]}{" "}
+          <MathComponent math={problemSet[Number(params.id)]} />
         </p>
       </div>
       <div className="mt-3 justify-center flex gap-x-4 items-center">
