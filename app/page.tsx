@@ -68,21 +68,6 @@ const Home = () => {
 
   return (
     <main className="flex-col w-screen h-screen flex items-center justify-center bg-orange-300">
-      <meta name="description" content="henry tran" />
-        {/* Open Graph tags */}
-        <meta property="og:title" content="Project Sense" />
-        <meta property="og:description" content="henry tran" />
-        <meta property="og:image" content="/projectSenseLogo.png" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://yourwebsite.com" />
-        <meta property="og:site_name" content="Project Sense" />
-        {/* Twitter Card tags */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Project Sense" />
-        <meta name="twitter:description" content="henry tran" />
-        <meta name="twitter:image" content="/projectSenseLogo.png" />
       <div className="absolute w-[14rem] h-[14rem] sm:w-[16rem] sm:h-[16rem] md:w-[18rem] md:h-[18rem] lg:w-[20rem] lg:h-[20rem] animate-fadeIn">
         <Image
           src="/projectSenseLogo.png"
