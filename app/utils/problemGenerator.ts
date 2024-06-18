@@ -6,7 +6,7 @@ export const problemSet: { [key: number]: string } = {
   5: "n \\% x",
   6: "n - x",
   7: "n + x",
-  8: "NN \\times XX",
+  8: "\\text{FOIL}",
   9: "\\text{SQUARES (10-41)}",
   10: "\\text{SQUARES (41-60)}",
   11: "(\\text{Tens Trick})",
@@ -93,6 +93,31 @@ export const problemFunction: { [key: string]: Function } = {
   "37": abab,
   "38": ngon,
   "39": sumofnsq,
+};
+
+export const videoMap: { [key: number]: string } = {
+  51: "3-Digit_Cubes.mp4",
+  37: "a_b+b_a.mp4",
+  40: "Alternating_Sum_of_Squares.mp4",
+  34: "Complex_Number_Multiplication.mp4",
+  24: "Conversion_From_Base_10.mp4",
+  23: "Conversion_Into_Base_10.mp4",
+  8: "FOIL.mp4",
+  42: "Geometric_Mean.mp4",
+  43: "Harmonic_Mean.mp4",
+  38: "Number_of_Distinct_Diagonals.mp4",
+  15: "Over_100_Multiplication.mp4",
+  16: "Over_Under_Multiplication.mp4",
+  29: "Polygonal_Numbers.mp4",
+  12: "Sum_of_Arithmetic_Series.mp4",
+  26: "Sum_of_Intergral_Divisors.mp4",
+  27: "Sum_of_Prime_Divisors.mp4",
+  1: "Times_11.mp4",
+  2: "Times_25.mp4",
+  14: "Under_100_Multiplication.mp4",
+  32: "x^2+(2x)^2.mp4",
+  33: "x^2+(3x)^2.mp4",
+  36: "x^2+(x+1)^2.mp4",
 };
 
 function n11() {
