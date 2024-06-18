@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Project Sense",
   description: "henry tran",
+  icons: "/projectSenseLogo.png"
 };
 
 export default function RootLayout({
