@@ -121,7 +121,7 @@ export const videoMap: { [key: number]: string } = {
   36: "x^2+(x+1)^2.mp4",
   10: "sq41-59.mp4",
   5: "nmodx.mp4",
-  3: "m101.mp4",
+  3: "n101.mp4",
 };
 
 function n11() {
