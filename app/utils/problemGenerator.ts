@@ -93,6 +93,7 @@ export const problemFunction: { [key: string]: Function } = {
   "37": abab,
   "38": ngon,
   "39": sumofnsq,
+  "40": alternatingsum,
 };
 
 export const videoMap: { [key: number]: string } = {
@@ -120,6 +121,7 @@ export const videoMap: { [key: number]: string } = {
   36: "x^2+(x+1)^2.mp4",
   10: "sq41-59.mp4",
   5: "nmodx.mp4",
+  3: "m101.mp4",
 };
 
 function n11() {
@@ -574,6 +576,9 @@ function base248() {
   let result: string;
   let randomFunctionIndex: number = Math.floor(Math.random() * 6);
   let randomNumberBase8: number = Math.floor(Math.random() * 512);
+  let randomNumberBase2: number = Math.floor(Math.random() * 1024);
+  let randomNumberBase4: number = Math.floor(Math.random() * 256);
+
   function base8to2(base8: string): string {
     return parseInt(base8, 8).toString(2);
   }
@@ -607,29 +612,26 @@ function base248() {
     conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 4`;
     result = base8to4(base8Number);
   } else if (randomFunctionIndex === 2) {
-    let base8Number: string = randomNumberBase8.toString(8);
-    let base2Number: string = base8to2(base8Number);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 4`;
-    result = base2to4(base2Number);
-  } else if (randomFunctionIndex === 3) {
-    let base8Number: string = randomNumberBase8.toString(8);
-    let base2Number: string = base8to2(base8Number);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 8`;
+    let base2Number: string = randomNumberBase2.toString(2);
+    conversionResult = `Number ${base2Number} in base 2 = Number ??? in base 8`;
     result = base2to8(base2Number);
+  } else if (randomFunctionIndex === 3) {
+    let base2Number: string = randomNumberBase2.toString(2);
+    conversionResult = `Number ${base2Number} in base 2 = Number ??? in base 4`;
+    result = base2to4(base2Number);
   } else if (randomFunctionIndex === 4) {
-    let base8Number: string = randomNumberBase8.toString(8);
-    let base4Number: string = base8to4(base8Number);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 2`;
+    let base4Number: string = randomNumberBase4.toString(4);
+    conversionResult = `Number ${base4Number} in base 4 = Number ??? in base 2`;
     result = base4to2(base4Number);
   } else if (randomFunctionIndex === 5) {
-    let base8Number: string = randomNumberBase8.toString(8);
-    let base4Number: string = base8to4(base8Number);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 8`;
+    let base4Number: string = randomNumberBase4.toString(4);
+    conversionResult = `Number ${base4Number} in base 4 = Number ??? in base 8`;
     result = base4to8(base4Number);
   } else {
     conversionResult = "Invalid function index";
     result = "";
   }
+
   return {
     body: conversionResult,
     ans: result,
@@ -868,10 +870,43 @@ function ngon() {
 
 function sumofnsq() {
   let n = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
+  let squaredN = `${n}\u{00B2}`;
   let sum = ((n * (n + 1)) / 2) ** 2;
-  let nSquared = `${n}\u{00B2}`;
   return {
-    body: "1\u{00B2} + 2\u{00B2} + 3\u{00B2} + .... + " + nSquared,
+    body: "1\u{00B2} + 2\u{00B2} + 3\u{00B2} + ... + " + squaredN,
+    ans: "" + sum,
+  };
+}
+function alternatingsum() {
+  let n = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
+  let sum = 0;
+  let sequence = "";
+  const superscript2 = "\u00B2";
+  let startsWithNegative = Math.random() < 0.5;
+  let terms = [];
+
+  for (let i = 1; i <= n; i++) {
+    let sign = i % 2 === 0 ? -1 : 1;
+    if (startsWithNegative) {
+      sign *= -1;
+    }
+    let term = sign * Math.pow(i, 2);
+    sum += term;
+    terms.push(`${sign === 1 ? "+" : "-"}${i}${superscript2}`);
+  }
+
+  if (terms[0][0] === "+") {
+    terms[0] = terms[0].substring(1);
+  }
+
+  if (n > 4) {
+    sequence = terms.slice(0, 3).join(" ") + " ... " + terms[n - 1];
+  } else {
+    sequence = terms.join(" ");
+  }
+
+  return {
+    body: sequence,
     ans: "" + sum,
   };
 }
