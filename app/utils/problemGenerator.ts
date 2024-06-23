@@ -1046,12 +1046,8 @@ function harmonicMean() {
     sumReciprocals += 1 / num;
   }
   let harmonicMeanValue: number = numbers.length / sumReciprocals;
-
-  // Convert harmonic mean value to a mixed number
   let wholePart = Math.floor(harmonicMeanValue);
   let fractionalPart = harmonicMeanValue - wholePart;
-
-  // Find the fractional part's denominator using continued fractions
   let a = Math.floor(fractionalPart);
   let b = 1;
   while (Math.abs(fractionalPart - a / b) > 0.001) {
@@ -1061,8 +1057,6 @@ function harmonicMean() {
       b++;
     }
   }
-
-  // Simplify the mixed number
   let numerator = wholePart * b + a;
   let denominator = b;
 
@@ -1074,6 +1068,6 @@ function harmonicMean() {
 
   return {
     body: `The harmonic mean of ${numbers.join(", ")} is`,
-    ans: mixedNumber, // Return the mixed number format of the harmonic mean
+    ans: mixedNumber,
   };
 }
