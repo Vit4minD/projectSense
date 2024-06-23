@@ -94,6 +94,9 @@ export const problemFunction: { [key: string]: Function } = {
   "38": ngon,
   "39": sumofnsq,
   "40": alternatingsum,
+  "41": meanmedian,
+  "42": geometricmean,
+  "43": harmonicMean,
 };
 
 export const videoMap: { [key: number]: string } = {
@@ -908,5 +911,169 @@ function alternatingsum() {
   return {
     body: sequence,
     ans: "" + sum,
+  };
+}
+
+function calculateMean() {
+  let count = Math.floor(Math.random() * 3) + 4;
+  let numbers = [];
+  let sum = 0;
+
+  for (let i = 0; i < count - 1; i++) {
+    let randomTwoDigit = Math.floor(Math.random() * 90) + 10;
+    sum += randomTwoDigit;
+    numbers.push(randomTwoDigit);
+  }
+
+  let preliminaryMean = sum / (count - 1);
+  let targetMean = Math.round(preliminaryMean * 2) / 2;
+  let requiredSum = targetMean * count;
+  let lastNumber = requiredSum - sum;
+
+  if (lastNumber < 10 || lastNumber > 99) {
+    lastNumber = Math.max(10, Math.min(99, lastNumber));
+    requiredSum = sum + lastNumber;
+    targetMean = Math.round((requiredSum / count) * 2) / 2;
+  }
+
+  numbers.push(lastNumber);
+  sum += lastNumber;
+  let mean = sum / count;
+
+  return {
+    body: "The mean of " + numbers + " is",
+    ans: "" + mean,
+  };
+}
+
+function calculateMedian() {
+  let count = Math.floor(Math.random() * 5) + 7;
+  let numbers = [];
+  for (let i = 0; i < count; i++) {
+    let randomSingleDigit = Math.floor(Math.random() * 9) + 1;
+    numbers.push(randomSingleDigit);
+  }
+
+  let middle = Math.floor(numbers.length / 2);
+  let median;
+  if (numbers.length % 2 === 0) {
+    median = (numbers[middle - 1] + numbers[middle]) / 2;
+  } else {
+    median = numbers[middle];
+  }
+
+  return {
+    body: "The median of " + numbers + " is",
+    ans: "" + median,
+  };
+}
+function meanmedian() {
+  let randomChoice = Math.random();
+  if (randomChoice < 0.5) {
+    return calculateMean();
+  } else {
+    return calculateMedian();
+  }
+}
+
+function geometricmean() {
+  let n = Math.floor(Math.random() * 22 - 4 + 1) + 4;
+  let numbers = [4, 9, 16, 25, 36, 49, 64];
+
+  let isThreeNumbers = Math.random() < 0.5;
+
+  let randomIndex1 = Math.floor(Math.random() * numbers.length);
+
+  if (isThreeNumbers) {
+    let supern1 = n * 2;
+    let supern2 = n * 4;
+    let answer = 2 * n;
+    return {
+      body:
+        "What is the geometric mean between " +
+        n +
+        ", " +
+        supern1 +
+        " and " +
+        supern2,
+      ans: "" + answer,
+    };
+  } else {
+    let supern = n * numbers[randomIndex1];
+    return {
+      body: "What is the geometric mean between " + n + " and " + supern,
+      ans: "" + Math.sqrt(n * supern),
+    };
+  }
+}
+function harmonicMean() {
+  function gcd(a: number, b: number): number {
+    while (b !== 0) {
+      let temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a;
+  }
+
+  function toMixedNumber(numerator: number, denominator: number): string {
+    if (numerator === 0) {
+      return "0";
+    }
+
+    let wholePart = Math.floor(numerator / denominator);
+    let remainder = numerator % denominator;
+
+    if (remainder === 0) {
+      return `${wholePart}`;
+    } else {
+      if (wholePart === 0) {
+        return `${remainder}/${denominator}`;
+      } else {
+        return `${wholePart} ${remainder}/${denominator}`;
+      }
+    }
+  }
+
+  let count = Math.floor(Math.random() * 2) + 2;
+  let numbers: number[] = [];
+  for (let i = 0; i < count; i++) {
+    numbers.push(Math.floor(Math.random() * 9) + 1);
+  }
+
+  let sumReciprocals: number = 0;
+  for (let num of numbers) {
+    sumReciprocals += 1 / num;
+  }
+  let harmonicMeanValue: number = numbers.length / sumReciprocals;
+
+  // Convert harmonic mean value to a mixed number
+  let wholePart = Math.floor(harmonicMeanValue);
+  let fractionalPart = harmonicMeanValue - wholePart;
+
+  // Find the fractional part's denominator using continued fractions
+  let a = Math.floor(fractionalPart);
+  let b = 1;
+  while (Math.abs(fractionalPart - a / b) > 0.001) {
+    if (fractionalPart > a / b) {
+      a++;
+    } else {
+      b++;
+    }
+  }
+
+  // Simplify the mixed number
+  let numerator = wholePart * b + a;
+  let denominator = b;
+
+  let gcdValue = gcd(numerator, denominator);
+  numerator /= gcdValue;
+  denominator /= gcdValue;
+
+  let mixedNumber: string = toMixedNumber(numerator, denominator);
+
+  return {
+    body: `The harmonic mean of ${numbers.join(", ")} is`,
+    ans: mixedNumber, // Return the mixed number format of the harmonic mean
   };
 }
