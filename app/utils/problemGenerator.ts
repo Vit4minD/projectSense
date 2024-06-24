@@ -1027,11 +1027,7 @@ function harmonicMean() {
     if (remainder === 0) {
       return `${wholePart}`;
     } else {
-      if (wholePart === 0) {
-        return `${remainder}/${denominator}`;
-      } else {
-        return `${wholePart} ${remainder}/${denominator}`;
-      }
+      return `${wholePart} ${remainder}/${denominator}`;
     }
   }
 
@@ -1041,15 +1037,18 @@ function harmonicMean() {
     numbers.push(Math.floor(Math.random() * 9) + 1);
   }
 
-  let sumReciprocals: number = 0;
-  for (let num of numbers) {
-    sumReciprocals += 1 / num;
+  function calculateHarmonicMean(numbers: number[]): number {
+    let sumReciprocals: number = numbers.reduce((acc, num) => acc + 1 / num, 0);
+    return numbers.length / sumReciprocals;
   }
-  let harmonicMeanValue: number = numbers.length / sumReciprocals;
+
+  let harmonicMeanValue: number = calculateHarmonicMean(numbers);
+
   let wholePart = Math.floor(harmonicMeanValue);
   let fractionalPart = harmonicMeanValue - wholePart;
-  let a = Math.floor(fractionalPart);
-  let b = 1;
+
+  let a = Math.floor(fractionalPart * 1000);
+  let b = 1000;
   while (Math.abs(fractionalPart - a / b) > 0.001) {
     if (fractionalPart > a / b) {
       a++;
@@ -1067,7 +1066,9 @@ function harmonicMean() {
   let mixedNumber: string = toMixedNumber(numerator, denominator);
 
   return {
-    body: `The harmonic mean of ${numbers.join(", ")} is`,
+    body: `What is the harmonic mean between ${numbers.join(
+      " and "
+    )} (mixed number)?`,
     ans: mixedNumber,
   };
 }
