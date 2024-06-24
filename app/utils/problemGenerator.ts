@@ -97,6 +97,10 @@ export const problemFunction: { [key: string]: Function } = {
   "41": meanmedian,
   "42": geometricmean,
   "43": harmonicMean,
+  "44": estimation,
+  "45": x100ofy,
+  "46": aboverc,
+  "47": diffofsq,
 };
 
 export const videoMap: { [key: number]: string } = {
@@ -1070,5 +1074,96 @@ function harmonicMean() {
       " and "
     )} (mixed number)?`,
     ans: mixedNumber,
+  };
+}
+
+function estimation() {
+  function cuberoot() {
+    let hugeNumber =
+      Math.floor(Math.random() * (Math.pow(10, 9) - 100000 + 1)) + 100000;
+    let cubeRoot = Math.cbrt(hugeNumber);
+    return {
+      body: `³√${hugeNumber}`,
+      ans: `${cubeRoot}`,
+    };
+  }
+
+  function sqaureroot() {
+    let smallerNumber = Math.floor(Math.random() * (40000 - 10000 + 1)) + 10000;
+    let squareRoot = Math.sqrt(smallerNumber);
+    return {
+      body: `√${smallerNumber}`,
+      ans: `${squareRoot}`,
+    };
+  }
+
+  if (Math.random() < 0.5) {
+    return cuberoot();
+  } else {
+    return sqaureroot();
+  }
+}
+
+function x100ofy() {
+  let twoDigitNumber = Math.floor(Math.random() * 90) + 10;
+  let percentage = Math.floor(Math.random() * 100) + 1;
+  let result = (percentage / 100) * twoDigitNumber;
+  return {
+    body: `${percentage}% of ${twoDigitNumber}`,
+    ans: "" + result,
+  };
+}
+
+function aboverc(): { body: string; ans: string } {
+  function calculateRandomMultiple(base: number) {
+    return base * (Math.floor(Math.random() * 5) + 1);
+  }
+
+  let a = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+  let b = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+
+  let multiplier = Math.floor(Math.random() * 2) + 1;
+  let c;
+
+  if (multiplier === 1) {
+    c = calculateRandomMultiple(a);
+  } else {
+    c = calculateRandomMultiple(b);
+  }
+
+  let body = `${a} × ${b} ∕ ${c}`;
+  let ans = `${(a * b) / c}`;
+
+  return {
+    body: body,
+    ans: ans,
+  };
+}
+
+function diffofsq() {
+  function generateNumbersWithSameTensDigit() {
+    let tensDigit = Math.floor(Math.random() * 9) + 1;
+    let a = Math.floor(Math.random() * 10);
+    let b = Math.floor(Math.random() * 10);
+    let number1 = tensDigit * 10 + a;
+    let number2 = tensDigit * 10 + b;
+    return {
+      number1: number1,
+      number2: number2,
+    };
+  }
+
+  let numbers = generateNumbersWithSameTensDigit();
+
+  let num1 = numbers.number1;
+  let num2 = numbers.number2;
+
+  let difference = num1 * num1 - num2 * num2;
+  let body = `${num1}² - ${num2}²`;
+  let ans = difference;
+
+  return {
+    body: "" + body,
+    ans: "" + ans,
   };
 }

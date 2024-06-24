@@ -24,7 +24,7 @@ const Trick: React.FC<TrickProps> = ({
   }, [trick]);
 
   useEffect(() => {
-    if (trick === "13") {
+    if (trick === "13" || trick === "44") {
       if (
         Math.abs(Number(userAns) - Number(pair["ans"])) <=
         Number(pair["ans"]) * 0.05
