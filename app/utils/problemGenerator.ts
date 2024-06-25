@@ -53,54 +53,248 @@ export const problemSet: { [key: number]: string } = {
   52: "(\\frac{x^3-y^3}{x-y})",
 };
 
-export const problemFunction: { [key: string]: Function } = {
-  "1": n11,
-  "2": n25,
-  "3": n101,
-  "4": n111,
-  "5": nmod,
-  "6": nminus,
-  "7": nplus,
-  "8": nFoil,
-  "9": nSq1,
-  "10": nSq2,
-  "11": nTens,
-  "12": nSum,
-  "13": nEstim,
-  "14": nless100,
-  "15": nmore100,
-  "16": nmix100,
-  "17": decandfrac,
-  "18": decAdditionandSub,
-  "19": romanNum,
-  "20": nCube,
-  "21": nGCD,
-  "22": nLCM,
-  "23": toBase10,
-  "24": toBaseX,
-  "25": base248,
-  "26": intdivisors,
-  "27": primeDiv,
-  "28": nover90,
-  "29": ntriangular,
-  "30": npentagonal,
-  "31": nhexagonal,
-  "32": nX22x2,
-  "33": nX23x2,
-  "34": complexNumber,
-  "35": unitConversion,
-  "36": xandx1,
-  "37": abab,
-  "38": ngon,
-  "39": sumofnsq,
-  "40": alternatingsum,
-  "41": meanmedian,
-  "42": geometricmean,
-  "43": harmonicMean,
-  "44": estimation,
-  "45": x100ofy,
-  "46": aboverc,
-  "47": diffofsq,
+interface Trick {
+  function: Function; // Adjust the type according to your actual use case
+  probability: number; //higher = more common
+  column: number;
+}
+
+export const problemFunction: { [key: string]: Trick } = {
+  "1": {
+    function: n11,
+    probability: 1,
+    column: 1
+  },
+  "2": {
+    function: n25,
+    probability: 1,
+    column: 1
+  },
+  "3": {
+    function: n101,
+    probability: 1,
+    column: 1
+  },
+  "4": {
+    function: n111,
+    probability: 1,
+    column: 1
+  },
+  "5": {
+    function: nmod,
+    probability: 1,
+    column: 1
+  },
+  "6": {
+    function: nminus,
+    probability: 1,
+    column: 1
+  },
+  "7": {
+    function: nplus,
+    probability: 1,
+    column: 1
+  },
+  "8": {
+    function: nFoil,
+    probability: 1,
+    column: 1
+  },
+  "9": {
+    function: nSq1,
+    probability: 1,
+    column: 1
+  },
+  "10": {
+    function: nSq2,
+    probability: 1,
+    column: 1
+  },
+  "11": {
+    function: nTens,
+    probability: 1,
+    column: 1
+  },
+  "12": {
+    function: nSum,
+    probability: 1,
+    column: 1
+  },
+  "13": {
+    function: nEstim,
+    probability: 1,
+    column: 1
+  },
+  "14": {
+    function: nless100,
+    probability: 1,
+    column: 1
+  },
+  "15": {
+    function: nmore100,
+    probability: 1,
+    column: 1
+  },
+  "16": {
+    function: nmix100,
+    probability: 1,
+    column: 1
+  },
+  "17": {
+    function: decandfrac,
+    probability: 1,
+    column: 1
+  },
+  "18": {
+    function: decAdditionandSub,
+    probability: 1,
+    column: 1
+  },
+  "19": {
+    function: romanNum,
+    probability: 1,
+    column: 1
+  },
+  "20": {
+    function: nCube,
+    probability: 1,
+    column: 1
+  },
+  "21": {
+    function: nGCD,
+    probability: 1,
+    column: 1
+  },
+  "22": {
+    function: nLCM,
+    probability: 1,
+    column: 1
+  },
+  "23": {
+    function: toBase10,
+    probability: 1,
+    column: 1
+  },
+  "24": {
+    function: toBaseX,
+    probability: 1,
+    column: 1
+  },
+  "25": {
+    function: base248,
+    probability: 1,
+    column: 1
+  },
+  "26": {
+    function: intdivisors,
+    probability: 1,
+    column: 1
+  },
+  "27": {
+    function: primeDiv,
+    probability: 1,
+    column: 1
+  },
+  "28": {
+    function: nover90,
+    probability: 1,
+    column: 1
+  },
+  "29": {
+    function: ntriangular,
+    probability: 1,
+    column: 1
+  },
+  "30": {
+    function: npentagonal,
+    probability: 1,
+    column: 1
+  },
+  "31": {
+    function: nhexagonal,
+    probability: 1,
+    column: 1
+  },
+  "32": {
+    function: nX22x2,
+    probability: 1,
+    column: 1
+  },
+  "33": {
+    function: nX23x2,
+    probability: 1,
+    column: 1
+  },
+  "34": {
+    function: complexNumber,
+    probability: 1,
+    column: 1
+  },
+  "35": {
+    function: unitConversion,
+    probability: 1,
+    column: 1
+  },
+  "36": {
+    function: xandx1,
+    probability: 1,
+    column: 1
+  },
+  "37": {
+    function: abab,
+    probability: 1,
+    column: 1
+  },
+  "38": {
+    function: ngon,
+    probability: 1,
+    column: 1
+  },
+  "39": {
+    function: sumofnsq,
+    probability: 1,
+    column: 1
+  },
+  "40": {
+    function: alternatingsum,
+    probability: 1,
+    column: 1
+  },
+  "41": {
+    function: meanmedian,
+    probability: 1,
+    column: 1
+  },
+  "42": {
+    function: geometricmean,
+    probability: 1,
+    column: 1
+  },
+  "43": {
+    function: harmonicMean,
+    probability: 1,
+    column: 1
+  },
+  "44": {
+    function: estimation,
+    probability: 1,
+    column: 1
+  },
+  "45": {
+    function: x100ofy,
+    probability: 1,
+    column: 1
+  },
+  "46": {
+    function: aboverc,
+    probability: 1,
+    column: 1
+  },
+  "47": {
+    function: diffofsq,
+    probability: 1,
+    column: 1
+  }
 };
 
 export const videoMap: { [key: number]: string } = {
