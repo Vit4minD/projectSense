@@ -20,7 +20,7 @@ const Trick: React.FC<TrickProps> = ({
   const [pair, setPair] = useState({ body: "", ans: "temp" });
 
   useEffect(() => {
-    setPair(problemFunction[trick]());
+    setPair(problemFunction[trick].function());
   }, [trick]);
 
   useEffect(() => {
@@ -29,12 +29,12 @@ const Trick: React.FC<TrickProps> = ({
         Math.abs(Number(userAns) - Number(pair["ans"])) <=
         Number(pair["ans"]) * 0.05
       ) {
-        setPair(problemFunction[trick]());
+        setPair(problemFunction[trick].function());
         setUserAns(""); // Reset user answer
         if (questionLimited) setQuestion(question + 1);
       }
     } else if (userAns === pair["ans"]) {
-      setPair(problemFunction[trick]());
+      setPair(problemFunction[trick].function());
       setUserAns(""); // Reset user answer
       if (questionLimited) setQuestion(question + 1);
     }

@@ -73,12 +73,12 @@ export const problemFunction: { [key: string]: Trick } = {
   "3": {
     function: n101,
     probability: 1,
-    column: 1
+    column: 2
   },
   "4": {
     function: n111,
     probability: 1,
-    column: 1
+    column: 2
   },
   "5": {
     function: nmod,
@@ -97,30 +97,30 @@ export const problemFunction: { [key: string]: Trick } = {
   },
   "8": {
     function: nFoil,
-    probability: 1,
-    column: 1
+    probability: 2,
+    column: 2
   },
   "9": {
     function: nSq1,
-    probability: 1,
+    probability: 3,
     column: 1
   },
   "10": {
     function: nSq2,
     probability: 1,
-    column: 1
+    column: 2
   },
   "11": {
     function: nTens,
-    probability: 1,
-    column: 1
+    probability: 3,
+    column: 2
   },
   "12": {
     function: nSum,
-    probability: 1,
+    probability: 2,
     column: 1
   },
-  "13": {
+  "13": { // tentative
     function: nEstim,
     probability: 1,
     column: 1
@@ -133,12 +133,12 @@ export const problemFunction: { [key: string]: Trick } = {
   "15": {
     function: nmore100,
     probability: 1,
-    column: 1
+    column: 2
   },
   "16": {
     function: nmix100,
-    probability: 1,
-    column: 1
+    probability: 2,
+    column: 2
   },
   "17": {
     function: decandfrac,
@@ -148,97 +148,97 @@ export const problemFunction: { [key: string]: Trick } = {
   "18": {
     function: decAdditionandSub,
     probability: 1,
-    column: 1
+    column: 2
   },
   "19": {
     function: romanNum,
-    probability: 1,
+    probability: 2,
     column: 1
   },
   "20": {
     function: nCube,
     probability: 1,
-    column: 1
+    column: 2
   },
   "21": {
     function: nGCD,
-    probability: 1,
+    probability: 2,
     column: 1
   },
   "22": {
     function: nLCM,
-    probability: 1,
+    probability: 2,
     column: 1
   },
   "23": {
     function: toBase10,
     probability: 1,
-    column: 1
+    column: 2
   },
   "24": {
     function: toBaseX,
     probability: 1,
-    column: 1
+    column: 2
   },
   "25": {
     function: base248,
     probability: 1,
-    column: 1
+    column: 2
   },
   "26": {
     function: intdivisors,
     probability: 1,
-    column: 1
+    column: 2
   },
   "27": {
     function: primeDiv,
     probability: 1,
-    column: 1
+    column: 2
   },
   "28": {
     function: nover90,
     probability: 1,
-    column: 1
+    column: 2
   },
   "29": {
     function: ntriangular,
     probability: 1,
-    column: 1
+    column: 2
   },
   "30": {
     function: npentagonal,
     probability: 1,
-    column: 1
+    column: 3
   },
   "31": {
     function: nhexagonal,
     probability: 1,
-    column: 1
+    column: 3
   },
   "32": {
     function: nX22x2,
     probability: 1,
-    column: 1
+    column: 2
   },
   "33": {
     function: nX23x2,
     probability: 1,
-    column: 1
+    column: 2
   },
   "34": {
     function: complexNumber,
     probability: 1,
-    column: 1
+    column: 3
   },
   "35": {
     function: unitConversion,
     probability: 1,
-    column: 1
+    column: 2
   },
   "36": {
     function: xandx1,
     probability: 1,
-    column: 1
+    column: 2
   },
   "37": {
     function: abab,
@@ -248,37 +248,37 @@ export const problemFunction: { [key: string]: Trick } = {
   "38": {
     function: ngon,
     probability: 1,
-    column: 1
+    column: 3
   },
   "39": {
     function: sumofnsq,
     probability: 1,
-    column: 1
+    column: 3
   },
   "40": {
     function: alternatingsum,
     probability: 1,
-    column: 1
+    column: 3
   },
   "41": {
     function: meanmedian,
-    probability: 1,
+    probability: 2,
     column: 1
   },
   "42": {
     function: geometricmean,
     probability: 1,
-    column: 1
+    column: 3
   },
   "43": {
     function: harmonicMean,
     probability: 1,
-    column: 1
+    column: 4
   },
-  "44": {
+  "44": { //tentative
     function: estimation,
     probability: 1,
-    column: 1
+    column: 3
   },
   "45": {
     function: x100ofy,
@@ -288,12 +288,12 @@ export const problemFunction: { [key: string]: Trick } = {
   "46": {
     function: aboverc,
     probability: 1,
-    column: 1
+    column: 2
   },
   "47": {
     function: diffofsq,
     probability: 1,
-    column: 1
+    column: 2
   }
 };
 
