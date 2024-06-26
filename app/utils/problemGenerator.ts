@@ -47,7 +47,7 @@ export const problemSet: { [key: number]: string } = {
   46: "(\\frac{a \\times b}{c})",
   47: "((a+b) \\times (a-b))",
   48: "(\\text{Fibonacci Series})",
-  49: "(\\text{Special Sum of Squares})",
+  49: "(\\text{3 digit FOIL})",
   50: "(\\text{3-digit Squares})",
   51: "(\\text{3-digit Cubes})",
   52: "(\\frac{x^3-y^3}{x-y})",
@@ -63,238 +63,260 @@ export const problemFunction: { [key: string]: Trick } = {
   "1": {
     function: n11,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "2": {
     function: n25,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "3": {
     function: n101,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "4": {
     function: n111,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "5": {
     function: nmod,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "6": {
     function: nminus,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "7": {
     function: nplus,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "8": {
     function: nFoil,
     probability: 2,
-    column: 2
+    column: 2,
   },
   "9": {
     function: nSq1,
     probability: 3,
-    column: 1
+    column: 1,
   },
   "10": {
     function: nSq2,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "11": {
     function: nTens,
     probability: 3,
-    column: 2
+    column: 2,
   },
   "12": {
     function: nSum,
     probability: 2,
-    column: 1
+    column: 1,
   },
-  "13": { // tentative
+  "13": {
+    // tentative
     function: nEstim,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "14": {
     function: nless100,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "15": {
     function: nmore100,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "16": {
     function: nmix100,
     probability: 2,
-    column: 2
+    column: 2,
   },
   "17": {
     function: decandfrac,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "18": {
     function: decAdditionandSub,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "19": {
     function: romanNum,
     probability: 2,
-    column: 1
+    column: 1,
   },
   "20": {
     function: nCube,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "21": {
     function: nGCD,
     probability: 2,
-    column: 1
+    column: 1,
   },
   "22": {
     function: nLCM,
     probability: 2,
-    column: 1
+    column: 1,
   },
   "23": {
     function: toBase10,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "24": {
     function: toBaseX,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "25": {
     function: base248,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "26": {
     function: intdivisors,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "27": {
     function: primeDiv,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "28": {
     function: nover90,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "29": {
     function: ntriangular,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "30": {
     function: npentagonal,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "31": {
     function: nhexagonal,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "32": {
     function: nX22x2,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "33": {
     function: nX23x2,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "34": {
     function: complexNumber,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "35": {
     function: unitConversion,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "36": {
     function: xandx1,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "37": {
     function: abab,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "38": {
     function: ngon,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "39": {
     function: sumofnsq,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "40": {
     function: alternatingsum,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "41": {
     function: meanmedian,
     probability: 2,
-    column: 1
+    column: 1,
   },
   "42": {
     function: geometricmean,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "43": {
     function: harmonicMean,
     probability: 1,
-    column: 4
+    column: 4,
   },
-  "44": { //tentative
+  "44": {
+    //tentative
     function: estimation,
     probability: 1,
-    column: 3
+    column: 3,
   },
   "45": {
     function: x100ofy,
     probability: 1,
-    column: 1
+    column: 1,
   },
   "46": {
     function: aboverc,
     probability: 1,
-    column: 2
+    column: 2,
   },
   "47": {
     function: diffofsq,
     probability: 1,
-    column: 2
-  }
+    column: 2,
+  },
+  "48": {
+    function: fib,
+    probability: 1,
+    column: 3,
+  },
+  "49": {
+    function: tripledigit,
+    probability: 1,
+    column: 3,
+  },
+  "50": {
+    function: tripdigitsq,
+    probability: 1,
+    column: 3,
+  },
+  "51": {
+    function: tripdigitcube,
+    probability: 1,
+    column: 3,
+  },
 };
 
 export const videoMap: { [key: number]: string } = {
@@ -1359,5 +1381,74 @@ function diffofsq() {
   return {
     body: "" + body,
     ans: "" + ans,
+  };
+}
+
+function fib() {
+  function generateCustomFibonacciSequence() {
+    let numTerms = Math.floor(Math.random() * (10 - 6 + 1)) + 6;
+    let firstTerm = Math.floor(Math.random() * 20) + 1;
+    let secondTerm = Math.floor(Math.random() * 20) + 1;
+
+    let sequence = [firstTerm, secondTerm];
+
+    for (let i = 2; i < numTerms; i++) {
+      sequence.push(sequence[i - 1] + sequence[i - 2]);
+    }
+
+    return sequence;
+  }
+
+  let fibonacciSequence = generateCustomFibonacciSequence();
+
+  function calculateCustomSum(sequence: number[]) {
+    let sum = 0;
+    for (let i = 0; i < sequence.length; i++) {
+      sum += sequence[i];
+    }
+    return sum;
+  }
+  let sum = calculateCustomSum(fibonacciSequence);
+
+  let body =
+    fibonacciSequence.slice(0, 3).join(" + ") +
+    "+ ..." +
+    "+ " +
+    fibonacciSequence.slice(-2).join(" + ");
+
+  return {
+    body: body,
+    ans: "" + sum,
+  };
+}
+
+function tripledigit() {
+  let n = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+  let x = Math.floor(Math.random() * 999 - 100 + 1) + 100;
+
+  return {
+    body: "" + n + " * " + x,
+    ans: "" + n * x,
+  };
+}
+
+function tripdigitsq() {
+  let n = 100;
+  let x = Math.floor(Math.random() * 10) + 1;
+  let b = Math.floor(Math.random() * 21) + 1;
+  let num = n * x + b;
+  return {
+    body: `${num}²`,
+    ans: "" + Math.pow(num, 2),
+  };
+}
+function tripdigitcube() {
+  let n = 100;
+  let x = Math.floor(Math.random() * 10) + 1;
+  let b = Math.floor(Math.random() * 16) + 1;
+  let num = n * x + b;
+  return {
+    body: `${num}³`,
+    ans: "" + Math.pow(num, 3),
   };
 }
