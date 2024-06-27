@@ -317,6 +317,11 @@ export const problemFunction: { [key: string]: Trick } = {
     probability: 1,
     column: 3,
   },
+  "52": {
+    function: xcubedycubed,
+    probability: 1,
+    column: 3,
+  },
 };
 
 export const videoMap: { [key: number]: string } = {
@@ -424,12 +429,16 @@ function nSq2() {
   };
 }
 function nTens() {
-  let n = Math.floor(Math.random() * (60 - 10 + 1)) + 10;
-  let x = Math.floor(Math.random() * (10 + 1));
+  let tensDigit = Math.floor(Math.random() * 6) + 1;
+  let nOnesDigit = Math.floor(Math.random() * 10) + 1;
+  let xOnesDigit = 10 - nOnesDigit;
+
+  let n = tensDigit * 10 + nOnesDigit;
+  let x = tensDigit * 10 + xOnesDigit;
 
   return {
-    body: "" + (n + x) + " * " + (n - x),
-    ans: "" + (n + x) * (n - x),
+    body: "" + n + " * " + x,
+    ans: "" + n * x,
   };
 }
 function nSum() {
@@ -490,26 +499,97 @@ function nmix100() {
   };
 }
 function decandfrac() {
+  if (Math.random() < 0.75) {
+    return fractodec();
+  } else {
+    return decToFrac();
+  }
+}
+function fractodec() {
   let fracarr = [7, 8, 9, 11, 16];
   let randomIndex = Math.floor(Math.random() * fracarr.length);
   let denominator = fracarr[randomIndex];
 
   let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
-  let decimalValue = (numerator / denominator).toFixed(3);
+  let decimalValue = (numerator / denominator).toString();
+
+  let answer;
+  if (denominator === 8 || denominator === 16) {
+    answer = (numerator / denominator).toString().replace(/^0\./, ".");
+  } else {
+    answer = decimalValue.includes(".")
+      ? decimalValue
+          .substring(0, decimalValue.indexOf(".") + 4)
+          .replace(/^0+/, "")
+      : decimalValue + ".000";
+  }
 
   return {
-    body: `Represent ${numerator}/${denominator} as a decimal (3 decimals)`,
-    ans: decimalValue,
+    body:
+      denominator === 7 || denominator === 9 || denominator === 11
+        ? `Represent ${numerator}/${denominator} (first three decimals)`
+        : `Represent ${numerator}/${denominator} (decimal)`,
+    ans: answer,
   };
 }
+function decToFrac() {
+  const examples = [
+    { decimal: 0.0625, fraction: "1/16" },
+    { decimal: 0.0909, fraction: "1/11" },
+    { decimal: 0.1111, fraction: "1/9" },
+    { decimal: 0.125, fraction: "1/8" },
+    { decimal: 0.142857, fraction: "1/7" },
+    { decimal: 0.1818, fraction: "2/11" },
+    { decimal: 0.2222, fraction: "2/9" },
+    { decimal: 0.285714, fraction: "2/7" },
+    { decimal: 0.1875, fraction: "3/16" },
+    { decimal: 0.2727, fraction: "3/11" },
+    { decimal: 0.375, fraction: "3/8" },
+    { decimal: 0.4285714, fraction: "3/7" },
+    { decimal: 0.3636, fraction: "4/11" },
+    { decimal: 0.4444, fraction: "4/9" },
+    { decimal: 0.5714, fraction: "4/7" },
+    { decimal: 0.3125, fraction: "5/16" },
+    { decimal: 0.4545, fraction: "5/11" },
+    { decimal: 0.5555, fraction: "5/9" },
+    { decimal: 0.625, fraction: "5/8" },
+    { decimal: 0.714, fraction: "5/7" },
+    { decimal: 0.5454, fraction: "6/11" },
+    { decimal: 0.85714, fraction: "6/7" },
+    { decimal: 0.4375, fraction: "7/16" },
+    { decimal: 0.6363, fraction: "7/11" },
+    { decimal: 0.7777, fraction: "7/9" },
+    { decimal: 0.875, fraction: "7/8" },
+    { decimal: 0.7272, fraction: "8/11" },
+    { decimal: 0.8888, fraction: "8/9" },
+    { decimal: 0.5625, fraction: "9/16" },
+    { decimal: 0.8181, fraction: "9/11" },
+    { decimal: 0.909, fraction: "10/11" },
+    { decimal: 0.6875, fraction: "11/16" },
+    { decimal: 0.8125, fraction: "13/16" },
+    { decimal: 0.9375, fraction: "15/16" },
+  ];
+
+  const randomIndex = Math.floor(Math.random() * examples.length);
+  const { decimal, fraction } = examples[randomIndex];
+  const decimalString = decimal.toString();
+  const body = `${decimalString.replace(/(\d+)\.(\d+)/, (...args) => {
+    const whole = args[1];
+    const fractional = args[2];
+    const fractionPart = `${fractional.replace(/(\d+?)\1+$/, "$1...")}`;
+    return whole ? `${whole}.${fractionPart}` : `${fractionPart}`;
+  })} as a fraction`;
+  const ans = fraction;
+
+  return { body: body, ans: "" + ans };
+}
+
 function decAdditionandSub() {
   let n1 = Math.random() * 1000;
   let n2 = Math.random() * 1000;
   let operation = Math.random() < 0.5 ? "add" : "subtract";
   let x = n1.toFixed(2);
   let y = n2.toFixed(2);
-
-  // Perform the arithmetic operation
   let result;
   if (operation === "add") {
     result = (parseFloat(x) + parseFloat(y)).toFixed(2);
@@ -899,29 +979,39 @@ function primeDiv() {
 
 function nover90() {
   let randomValue = Math.floor(Math.random() * 4);
+  let n, result, truncatedResult;
+
   if (randomValue === 0) {
-    let n = Math.floor(Math.random() * 89) + 1;
+    n = Math.floor(Math.random() * 89) + 1;
+    result = n / 90;
+    truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What is " + n + "/90 as decimal (3 digits)",
-      ans: "" + (n / 90).toFixed(3),
+      body: "What are the first 3 digits of " + n + "/90 .",
+      ans: truncatedResult.toString().substring(2, 5),
     };
   } else if (randomValue === 1) {
-    let n = Math.floor(Math.random() * 899) + 1;
+    n = Math.floor(Math.random() * 899) + 1;
+    result = n / 900;
+    truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What is " + n + "/900 as decimal (3 digits)",
-      ans: "" + (n / 900).toFixed(3),
+      body: "What are the first 3 digits of " + n + "/900 .",
+      ans: truncatedResult.toString().substring(2, 5),
     };
   } else if (randomValue === 2) {
-    let n = Math.floor(Math.random() * 98) + 1;
+    n = Math.floor(Math.random() * 98) + 1;
+    result = n / 99;
+    truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What is " + n + "/99 as decimal (3 digits)",
-      ans: "" + (n / 99).toFixed(3),
+      body: "What are the first 3 digits of " + n + "/99  .",
+      ans: truncatedResult.toString().substring(2, 5),
     };
   } else {
-    let n = Math.floor(Math.random() * 989) + 1;
+    n = Math.floor(Math.random() * 989) + 1;
+    result = n / 990;
+    truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What is " + n + "/990 as decimal (3 digits)",
-      ans: "" + (n / 990).toFixed(3),
+      body: "What are the first 3 digits of " + n + "/990 .",
+      ans: truncatedResult.toString().substring(2, 5),
     };
   }
 }
@@ -978,9 +1068,8 @@ function complexNumber() {
   let sum = realPart + imaginaryPart;
   let bFormatted = b >= 0 ? `+ ${b}i` : `- ${Math.abs(b)}i`;
   let dFormatted = d >= 0 ? `+ ${d}i` : `- ${Math.abs(d)}i`;
-  let formattedString = `(${a} ${bFormatted})(${c} ${dFormatted})`;
   return {
-    body: formattedString + "  a + b = ?",
+    body: `(${a} ${bFormatted})(${c} ${dFormatted})` + "  a + b = ?",
     ans: "" + sum,
   };
 }
@@ -1450,5 +1539,27 @@ function tripdigitcube() {
   return {
     body: `${num}³`,
     ans: "" + Math.pow(num, 3),
+  };
+}
+
+function xcubedycubed() {
+  let x = Math.floor(Math.random() * 16) + 1;
+  let y = Math.floor(Math.random() * 16) + 1;
+  let xx = Math.pow(x, 3);
+  let yy = Math.pow(y, 3);
+  let diff = x - y;
+  let remainder = (xx - yy) % diff;
+  return {
+    body:
+      "(" +
+      `${x}³` +
+      " - " +
+      `${y}³` +
+      ")/(" +
+      x +
+      "-" +
+      y +
+      ") has a remainder of",
+    ans: "" + remainder,
   };
 }
