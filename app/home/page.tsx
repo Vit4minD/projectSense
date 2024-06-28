@@ -14,6 +14,7 @@ import { useInView } from "react-intersection-observer";
 import { SettingsModal } from "../components/settingsModal";
 import { ChangelogModal } from "../components/changeLog";
 import { VideoModal } from "../components/videoModal";
+import { GameModal } from "../components/gameModal";
 
 export default function Home() {
   const router = useRouter();
@@ -104,7 +105,8 @@ export default function Home() {
             </button>
             <div className="absolute text-xl md:text-3xl">Project Sense</div>
             <div className=" ml-auto">
-            <ChangelogModal />
+              <GameModal />
+              <ChangelogModal />
               <SettingsModal
                 loading={loading}
                 rightLeft={rightLeft}
@@ -139,7 +141,7 @@ export default function Home() {
                 >
                   <MathComponent math={problemSet[value]} />
                 </button>
-                <VideoModal trick={value}/>
+                <VideoModal trick={value} />
               </div>
             </div>
           ))}

@@ -43,7 +43,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     <>
       <button
         onClick={onOpen}
-        className="ml-5 md:text-5xl text-4xl hover:text-orange-400"
+        className="ml-5 md:text-5xl text-4xl hover:text-orange-400 hover:scale-110 ease-in-out duration-200"
       >
         <IoMdSettings className="text-4xl hover:text-orange-400 text-orange-300" />
       </button>

@@ -22,7 +22,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = () => {
     <>
       <button
         onClick={onOpen}
-        className="hover:text-orange-400 text-4xl md:text-5xl"
+        className="hover:text-orange-400 text-4xl md:text-5xl hover:scale-110 ease-in-out duration-200"
       >
         <BsMailbox2Flag className="text-4xl hover:text-orange-400 text-orange-300" />
       </button>

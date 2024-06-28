@@ -22,7 +22,6 @@ const Home = () => {
   const keys = useMemo(() => Object.keys(problemSet).map(Number), []);
   const router = useRouter();
   const [sortedScores, setSortedScores] = useState<string[]>([]);
-
   // Helper function to compare time strings ("MM:SS.mm")
   const compareTimes = (time1: string, time2: string): number => {
     const [min1, secMs1] = time1.split(":");
@@ -79,7 +78,13 @@ const Home = () => {
     time: string;
     email: string;
   }
+  const disableScroll = () => {
+    document.body.style.overflow = 'hidden';
+  };
 
+  const enableScroll = () => {
+    document.body.style.overflow = 'auto';
+  };
   return (
     <ChakraProvider>
       <main className="w-full min-h-screen overflow-y-hidden flex-col flex bg-orange-300 overflow-x-hidden">
@@ -95,7 +100,7 @@ const Home = () => {
           <p className="text-center w-full">Leaderboards</p>
         </div>
 
-        <Menu>
+        <Menu onOpen={disableScroll} onClose={enableScroll}>
           <MenuButton
             color="rgb(253, 186, 116)"
             backgroundColor="white"
@@ -119,7 +124,7 @@ const Home = () => {
                   }}
                   key={value}
                 >
-                  {problemSet[value]}
+                <MathComponent math=  {problemSet[value]} />
                 </MenuItem>
               ) : (
                 <></>
