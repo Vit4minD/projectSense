@@ -18,9 +18,10 @@ const Trick: React.FC<TrickProps> = ({
 }) => {
   const [userAns, setUserAns] = useState("");
   const [pair, setPair] = useState({ body: "", ans: "temp" });
-
+  const [type, setType] = useState("");
   useEffect(() => {
     setPair(problemFunction[trick].function());
+    setType(problemFunction[trick].type);
   }, [trick]);
 
   useEffect(() => {
@@ -66,6 +67,7 @@ const Trick: React.FC<TrickProps> = ({
               else setUserAns(e.target.value);
             }}
           />
+          <label className="text-[3.0rem] mt-2 md:mt-0">{type}</label>
         </>
       ) : null}
     </div>

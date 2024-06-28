@@ -57,6 +57,7 @@ interface Trick {
   function: Function; // Adjust the type according to your actual use case
   probability: number; //higher = more common
   column: number;
+  type: string
 }
 
 export const problemFunction: { [key: string]: Trick } = {
@@ -64,265 +65,318 @@ export const problemFunction: { [key: string]: Trick } = {
     function: n11,
     probability: 1,
     column: 1,
+    type: ""
   },
   "2": {
     function: n25,
     probability: 1,
     column: 1,
+    type: ""
   },
   "3": {
     function: n101,
     probability: 1,
     column: 2,
+    type: ""
   },
   "4": {
     function: n111,
     probability: 1,
     column: 2,
+    type: ""
   },
   "5": {
     function: nmod,
     probability: 1,
     column: 1,
+    type: ""
   },
   "6": {
     function: nminus,
     probability: 1,
     column: 1,
+    type: ""
   },
   "7": {
     function: nplus,
     probability: 1,
     column: 1,
+    type: ""
   },
   "8": {
     function: nFoil,
     probability: 2,
     column: 2,
+    type: ""
   },
   "9": {
     function: nSq1,
     probability: 3,
     column: 1,
+    type: ""
   },
   "10": {
     function: nSq2,
     probability: 1,
     column: 2,
+    type: ""
   },
   "11": {
     function: nTens,
     probability: 3,
     column: 2,
+    type: ""
   },
   "12": {
     function: nSum,
     probability: 2,
     column: 1,
+    type: ""
   },
   "13": {
     // tentative
     function: nEstim,
     probability: 1,
     column: 1,
+    type: ""
   },
   "14": {
     function: nless100,
     probability: 1,
     column: 1,
+    type: ""
   },
   "15": {
     function: nmore100,
     probability: 1,
     column: 2,
+    type: ""
   },
   "16": {
     function: nmix100,
     probability: 2,
     column: 2,
+    type: ""
   },
   "17": {
     function: decandfrac,
     probability: 1,
     column: 1,
+    type: ""
   },
   "18": {
     function: decAdditionandSub,
     probability: 1,
     column: 2,
+    type: ""
   },
   "19": {
     function: romanNum,
     probability: 2,
     column: 1,
+    type: ""
   },
   "20": {
     function: nCube,
     probability: 1,
     column: 2,
+    type: ""
   },
   "21": {
     function: nGCD,
     probability: 2,
     column: 1,
+    type: ""
   },
   "22": {
     function: nLCM,
     probability: 2,
     column: 1,
+    type: ""
   },
   "23": {
     function: toBase10,
     probability: 1,
     column: 2,
+    type: ""
   },
   "24": {
     function: toBaseX,
     probability: 1,
     column: 2,
+    type: ""
   },
   "25": {
     function: base248,
     probability: 1,
     column: 2,
+    type: ""
   },
   "26": {
     function: intdivisors,
     probability: 1,
     column: 2,
+    type: ""
   },
   "27": {
     function: primeDiv,
     probability: 1,
     column: 2,
+    type: ""
   },
   "28": {
     function: nover90,
     probability: 1,
     column: 2,
+    type: ""
   },
   "29": {
     function: ntriangular,
     probability: 1,
     column: 2,
+    type: ""
   },
   "30": {
     function: npentagonal,
     probability: 1,
     column: 3,
+    type: ""
   },
   "31": {
     function: nhexagonal,
     probability: 1,
     column: 3,
+    type: ""
   },
   "32": {
     function: nX22x2,
     probability: 1,
     column: 2,
+    type: ""
   },
   "33": {
     function: nX23x2,
     probability: 1,
     column: 2,
+    type: ""
   },
   "34": {
     function: complexNumber,
     probability: 1,
     column: 3,
+    type: ""
   },
   "35": {
     function: unitConversion,
     probability: 1,
     column: 2,
+    type: ""
   },
   "36": {
     function: xandx1,
     probability: 1,
     column: 2,
+    type: ""
   },
   "37": {
     function: abab,
     probability: 1,
     column: 1,
+    type: ""
   },
   "38": {
     function: ngon,
     probability: 1,
     column: 3,
+    type: ""
   },
   "39": {
     function: sumofnsq,
     probability: 1,
     column: 3,
+    type: ""
   },
   "40": {
     function: alternatingsum,
     probability: 1,
     column: 3,
+    type: ""
   },
   "41": {
     function: meanmedian,
     probability: 2,
     column: 1,
+    type: ""
   },
   "42": {
     function: geometricmean,
     probability: 1,
     column: 3,
+    type: ""
   },
   "43": {
     function: harmonicMean,
     probability: 1,
     column: 4,
+    type: ""
   },
   "44": {
-    //tentative
+    // tentative
     function: estimation,
     probability: 1,
     column: 3,
+    type: ""
   },
   "45": {
     function: x100ofy,
     probability: 1,
     column: 1,
+    type: ""
   },
   "46": {
     function: aboverc,
     probability: 1,
     column: 2,
+    type: ""
   },
   "47": {
     function: diffofsq,
     probability: 1,
     column: 2,
+    type: ""
   },
   "48": {
     function: fib,
     probability: 1,
     column: 3,
+    type: ""
   },
   "49": {
     function: tripledigit,
     probability: 1,
     column: 3,
+    type: ""
   },
   "50": {
     function: tripdigitsq,
     probability: 1,
     column: 3,
+    type: ""
   },
   "51": {
     function: tripdigitcube,
     probability: 1,
     column: 3,
+    type: ""
   },
   "52": {
     function: xcubedycubed,
     probability: 1,
     column: 3,
-  },
+    type: ""
+  }
 };
+
 
 export const videoMap: { [key: number]: string } = {
   51: "3-Digit_Cubes.mp4",
