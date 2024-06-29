@@ -69,21 +69,6 @@ const Home = () => {
 
   return (
     <main className="flex-col w-screen h-screen flex items-center justify-center bg-orange-300">
-      <head>
-        <title>Project Sense</title>
-        <meta name="title" content="Project Sense" />
-        <meta name="description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://project-sense.vercel.app/" />
-        <meta property="twitter:url" content="https://project-sense.vercel.app/" />
-        <meta property="og:title" content="Project Sense" />
-        <meta property="og:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="og:image" content="/projectSenseLogo-1200.png" />
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Project Sense" />
-        <meta property="twitter:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="twitter:image" content="/projectSenseLogo-1200.png" />
-      </head>
       <div className="absolute w-[14rem] h-[14rem] sm:w-[16rem] sm:h-[16rem] md:w-[18rem] md:h-[18rem] lg:w-[20rem] lg:h-[20rem] animate-fadeIn">
         <Image
           src="/projectSenseLogo.png"
