@@ -6,10 +6,34 @@ import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  // title: "Project Sense",
-  // description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
+  title: "Project Sense",
+  description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
   manifest: "/manifest.json",
+  openGraph: {
+      url: "https://project-sense.vercel.app/",
+      type: "website",
+      title: "Project Sense",
+      description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
+      images: [
+          {
+              url: "https://project-sense.vercel.app/opengraph-image.png"
+          }
+      ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "https://project-sense.vercel.app/", // Replace with your actual Twitter handle
+    creator: "@HT", // Replace with your actual Twitter handle
+    title: "Project Sense",
+    description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
+    images: [
+        {
+            url: "https://project-sense.vercel.app/twitter-image.png"
+        }
+    ]
+}
 };
+
 
 export default function RootLayout({
   children,
@@ -18,7 +42,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <Head>
+      {/* <Head>
         <title>Project Sense</title>
         <meta name="description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
         <meta property="og:url" content="https://project-sense.vercel.app/" />
@@ -32,7 +56,7 @@ export default function RootLayout({
         <meta name="twitter:title" content="Project Sense" />
         <meta name="twitter:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
         <meta name="twitter:image" content="https://ogcdn.net/e4b8c678-7bd5-445d-ba03-bfaad510c686/v4/project-sense.vercel.app/Project%20Sense/https%3A%2F%2Fproject-sense-6ysr7llve-henry-trans-projects.vercel.app%2Fopengraph-image.png%3F83e7d7e34c916d3f/og.png" />
-      </Head>
+      </Head> */}
       <body className={inter.className}>{children}</body>
     </html>
   );
