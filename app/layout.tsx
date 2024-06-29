@@ -23,8 +23,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <Head><meta property="og:image" content="/icon-512x512.png" />
-      <meta name="twitter:card" content="/icon-512x512.png" /></Head>
+      <Head>
+        <title>Project Sense</title>
+        <meta name="description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
+        <meta property="og:image" content="/icon-512x512.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Head>
       <body className={inter.className}>{children}</body>
     </html>
   );
