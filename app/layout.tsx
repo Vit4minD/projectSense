@@ -16,7 +16,7 @@ export const metadata: Metadata = {
       description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
       images: [
           {
-              url: "https://project-sense.vercel.app/opengraph-image.png"
+              url: "https://roxburynjchamber.org/wp-content/uploads/1200x630-1140x600.png"
           }
       ]
   },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
     images: [
         {
-            url: "https://project-sense.vercel.app/twitter-image.png"
+            url: "https://roxburynjchamber.org/wp-content/uploads/1200x630-1140x600.png"
         }
     ]
 }
