@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Head from "next/head";
-import { DefaultSeo } from 'next-seo';
-import SEO from '../next-seo.config'; // Your SEO configuration
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -59,7 +57,6 @@ export default function RootLayout({
         <meta name="twitter:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
         <meta name="twitter:image" content="https://ogcdn.net/e4b8c678-7bd5-445d-ba03-bfaad510c686/v4/project-sense.vercel.app/Project%20Sense/https%3A%2F%2Fproject-sense-6ysr7llve-henry-trans-projects.vercel.app%2Fopengraph-image.png%3F83e7d7e34c916d3f/og.png" />
       </Head> */}
-       <DefaultSeo {...SEO} />
       <body className={inter.className}>{children}</body>
     </html>
   );
