@@ -69,7 +69,7 @@ const Home = () => {
 
   return (
     <main className="flex-col w-screen h-screen flex items-center justify-center bg-orange-300">
-      <Head>
+      <head>
         <title>Project Sense</title>
         <meta name="title" content="Project Sense" />
         <meta name="description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
@@ -83,7 +83,7 @@ const Home = () => {
         <meta property="twitter:title" content="Project Sense" />
         <meta property="twitter:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
         <meta property="twitter:image" content="/projectSenseLogo-1200.png" />
-      </Head>
+      </head>
       <div className="absolute w-[14rem] h-[14rem] sm:w-[16rem] sm:h-[16rem] md:w-[18rem] md:h-[18rem] lg:w-[20rem] lg:h-[20rem] animate-fadeIn">
         <Image
           src="/projectSenseLogo.png"
