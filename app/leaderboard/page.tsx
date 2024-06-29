@@ -16,6 +16,11 @@ import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FaTrophy } from "react-icons/fa";
 import { BlockMath } from "react-katex";
 import MathComponent from "../components/MathComponent";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Leaderboard"
+}
 
 const Home = () => {
   const [currentBoard, setCurrentBoard] = useState(1);

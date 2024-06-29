@@ -10,7 +10,8 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
-import Head from "next/head";
+
+
 
 const Home = () => {
   const [email, setEmail] = useState("");
