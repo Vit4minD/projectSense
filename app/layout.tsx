@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   twitter: {
     card: "summary_large_image",
-  }
+  },
+  metadataBase: new URL("https://project-sense.vercel.app/"),
 };
 
 
