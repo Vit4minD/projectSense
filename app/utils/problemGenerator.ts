@@ -57,7 +57,7 @@ interface Trick {
   function: Function; // Adjust the type according to your actual use case
   probability: number; //higher = more common
   column: number;
-  type: string
+  type: string;
 }
 
 export const problemFunction: { [key: string]: Trick } = {
@@ -65,318 +65,317 @@ export const problemFunction: { [key: string]: Trick } = {
     function: n11,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "2": {
     function: n25,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "3": {
     function: n101,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "4": {
     function: n111,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "5": {
     function: nmod,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "6": {
     function: nminus,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "7": {
     function: nplus,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "8": {
     function: nFoil,
     probability: 2,
     column: 2,
-    type: ""
+    type: "",
   },
   "9": {
     function: nSq1,
     probability: 3,
     column: 1,
-    type: ""
+    type: "",
   },
   "10": {
     function: nSq2,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "11": {
     function: nTens,
     probability: 3,
     column: 2,
-    type: ""
+    type: "",
   },
   "12": {
     function: nSum,
     probability: 2,
     column: 1,
-    type: ""
+    type: "",
   },
   "13": {
     // tentative
     function: nEstim,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "14": {
     function: nless100,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "15": {
     function: nmore100,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "16": {
     function: nmix100,
     probability: 2,
     column: 2,
-    type: ""
+    type: "",
   },
   "17": {
     function: decandfrac,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "18": {
     function: decAdditionandSub,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "19": {
     function: romanNum,
     probability: 2,
     column: 1,
-    type: ""
+    type: "",
   },
   "20": {
     function: nCube,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "21": {
     function: nGCD,
     probability: 2,
     column: 1,
-    type: ""
+    type: "",
   },
   "22": {
     function: nLCM,
     probability: 2,
     column: 1,
-    type: ""
+    type: "",
   },
   "23": {
     function: toBase10,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "24": {
     function: toBaseX,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "25": {
     function: base248,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "26": {
     function: intdivisors,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "27": {
     function: primeDiv,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "28": {
     function: nover90,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "29": {
     function: ntriangular,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "30": {
     function: npentagonal,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "31": {
     function: nhexagonal,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "32": {
     function: nX22x2,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "33": {
     function: nX23x2,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "34": {
     function: complexNumber,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "35": {
     function: unitConversion,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "36": {
     function: xandx1,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "37": {
     function: abab,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "38": {
     function: ngon,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "39": {
     function: sumofnsq,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "40": {
     function: alternatingsum,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "41": {
     function: meanmedian,
     probability: 2,
     column: 1,
-    type: ""
+    type: "",
   },
   "42": {
     function: geometricmean,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "43": {
     function: harmonicMean,
     probability: 1,
     column: 4,
-    type: ""
+    type: "",
   },
   "44": {
     // tentative
     function: estimation,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "45": {
     function: x100ofy,
     probability: 1,
     column: 1,
-    type: ""
+    type: "",
   },
   "46": {
     function: aboverc,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "47": {
     function: diffofsq,
     probability: 1,
     column: 2,
-    type: ""
+    type: "",
   },
   "48": {
     function: fib,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "49": {
     function: tripledigit,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "50": {
     function: tripdigitsq,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "51": {
     function: tripdigitcube,
     probability: 1,
     column: 3,
-    type: ""
+    type: "",
   },
   "52": {
     function: xcubedycubed,
     probability: 1,
     column: 3,
-    type: ""
-  }
+    type: "",
+  },
 };
-
 
 export const videoMap: { [key: number]: string } = {
   51: "3-Digit_Cubes.mp4",
@@ -409,14 +408,14 @@ export const videoMap: { [key: number]: string } = {
 function n11() {
   let num = Math.floor(Math.random() * (999 - 15 + 1)) + 15;
   return {
-    body: "" + num + " * 11",
+    body: `${num} \\times 11`,
     ans: "" + num * 11,
   };
 }
 function n25() {
-  let num = Math.floor(Math.random() * (200 - 12 + 1)) + 12;
+  let num = Math.floor(Math.random() * (100 - 12 + 1)) + 12;
   return {
-    body: "" + num + " * 25",
+    body: `${num} \\times 25`,
     ans: "" + num * 25,
   };
 }
@@ -424,7 +423,7 @@ function n101() {
   let num = 101 * (Math.floor(Math.random() * (999 - 100 + 1)) + 100);
 
   return {
-    body: "" + num + " / 101",
+    body: `${num} \\div 101`,
     ans: "" + num / 101,
   };
 }
@@ -432,15 +431,16 @@ function n111() {
   let num = (Math.floor(Math.random() * (999 - 100 + 1)) + 100) * 111;
 
   return {
-    body: "" + num + "  / 111",
+    body: `${num} \\div 111`,
     ans: "" + num / 111,
   };
 }
+
 function nmod() {
   let n = Math.floor(Math.random() * (99999 - 10 + 1)) + 10;
   let x = Math.floor(Math.random() * (11 - 3 + 1)) + 3;
   return {
-    body: "" + n + " % " + x,
+    body: `${n} \\text{ divided by } ${x} \\text{ has a remainder of } `,
     ans: "" + (n % x),
   };
 }
@@ -448,40 +448,45 @@ function nminus() {
   let n = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
   let x = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
   return {
-    body: "" + n + " - " + x,
+    body: `${n} - ${x}`,
     ans: "" + (n - x),
   };
 }
+
 function nplus() {
   let n = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
   let x = Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000;
   return {
-    body: "" + n + " + " + x,
+    body: `${n} + ${x}`,
     ans: "" + (n + x),
   };
 }
+
 function nFoil() {
   let n = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
   let x = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
+
 function nSq1() {
   let n = Math.floor(Math.random() * (40 - 10 + 1)) + 10;
   return {
-    body: "" + n + " * " + n,
+    body: `${n} \\times ${n}`,
     ans: "" + n * n,
   };
 }
+
 function nSq2() {
   let n = Math.floor(Math.random() * (60 - 41 + 1)) + 41;
   return {
-    body: "" + n + " * " + n,
+    body: `${n} \\times ${n}`,
     ans: "" + n * n,
   };
 }
+
 function nTens() {
   let tensDigit = Math.floor(Math.random() * 6) + 1;
   let nOnesDigit = Math.floor(Math.random() * 10) + 1;
@@ -491,23 +496,25 @@ function nTens() {
   let x = tensDigit * 10 + xOnesDigit;
 
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
+
 function nSum() {
   let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
-  let x = Math.floor(Math.random() * (8 - 1 + 1) + 1);
+  let x = Math.floor(Math.random() * (8 - 1 + 1)) + 1;
 
   return {
-    body: "" + x + " + " + x * 2 + " + " + x * 3 + " +... + " + x * n,
+    body: `${x} + ${x * 2} + ${x * 3} + \\dots + ${x * n}`,
     ans: "" + x * ((n * (n + 1)) / 2),
   };
 }
+
 function nEstim() {
   let operation = Math.random() < 0.5 ? "multiply" : "divide";
   let num1, num2;
-  let correctAnswer, minAnswer, maxAnswer;
+  let correctAnswer;
 
   if (operation === "multiply") {
     num1 = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
@@ -520,7 +527,10 @@ function nEstim() {
   }
 
   return {
-    body: operation === "multiply" ? `${num1} * ${num2}` : `${num1} / ${num2}`,
+    body:
+      operation === "multiply"
+        ? `${num1} \\times ${num2}`
+        : `${num1} \\div ${num2}`,
     ans: correctAnswer,
   };
 }
@@ -530,28 +540,31 @@ function nless100() {
   let x = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
 
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
+
 function nmore100() {
   let n = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
   let x = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
 
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
+
 function nmix100() {
   let n = Math.floor(Math.random() * (120 - 80 + 1)) + 80;
   let x = Math.floor(Math.random() * (120 - 80 + 1)) + 80;
 
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
+
 function decandfrac() {
   if (Math.random() < 0.75) {
     return fractodec();
@@ -559,6 +572,7 @@ function decandfrac() {
     return decToFrac();
   }
 }
+
 function fractodec() {
   let fracarr = [7, 8, 9, 11, 16];
   let randomIndex = Math.floor(Math.random() * fracarr.length);
@@ -579,10 +593,7 @@ function fractodec() {
   }
 
   return {
-    body:
-      denominator === 7 || denominator === 9 || denominator === 11
-        ? `Represent ${numerator}/${denominator} (first three decimals)`
-        : `Represent ${numerator}/${denominator} (decimal)`,
+    body: `${numerator}/${denominator} \\text{ (first three decimals)}`,
     ans: answer,
   };
 }
@@ -631,13 +642,12 @@ function decToFrac() {
     const whole = args[1];
     const fractional = args[2];
     const fractionPart = `${fractional.replace(/(\d+?)\1+$/, "$1...")}`;
-    return whole ? `${whole}.${fractionPart}` : `${fractionPart}`;
-  })} as a fraction`;
+    return whole ? `${whole} . ${fractionPart}` : `${fractionPart}`;
+  })} \\text{ as a fraction}`;
   const ans = fraction;
 
   return { body: body, ans: "" + ans };
 }
-
 function decAdditionandSub() {
   let n1 = Math.random() * 1000;
   let n2 = Math.random() * 1000;
@@ -715,7 +725,7 @@ function romanNum() {
   const arabicNumber = toArabic(romanNumeral);
 
   return {
-    body: `${romanNumeral} (in Arabic Numeral)`,
+    body: `${romanNumeral} \\text{ (in Arabic Numeral)}`,
     ans: "" + arabicNumber,
   };
 }
@@ -723,7 +733,7 @@ function nCube() {
   let n = Math.floor(Math.random() * (20 + 1)) + 1;
 
   return {
-    body: "" + n + " * " + n + " * " + n,
+    body: `${n} \\times ${n} \\times ${n}`,
     ans: "" + n * n * n,
   };
 }
@@ -748,13 +758,15 @@ function nGCD() {
   }
 
   return {
-    body: "GCD of " + n + " and " + x,
+    body: `\\text{GCD of } ${n} \\text{ and } ${x}`,
     ans: "" + xx,
   };
 }
+
 function nLCM() {
   let n = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
   let x = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
+
   function gcd(a: number, b: number): number {
     while (b !== 0) {
       let temp: number = b;
@@ -763,11 +775,13 @@ function nLCM() {
     }
     return a;
   }
+
   function lcm(a: number, b: number): number {
     return (a * b) / gcd(a, b);
   }
+
   return {
-    body: "LCM of " + n + " and " + x,
+    body: `\\text{LCM of } ${n} \\text{ and } ${x}`,
     ans: "" + lcm(n, x),
   };
 }
@@ -786,7 +800,7 @@ function toBase10() {
     let n = parseInt(num, 2);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 2 to base 10`,
+      body: `${num} \\text{ base 2 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -803,7 +817,7 @@ function toBase10() {
     let n = parseInt(num, 3);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 3 to base 10`,
+      body: `${num} \\text{ base 3 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -820,7 +834,7 @@ function toBase10() {
     let n = parseInt(num, 4);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 4 to base 10`,
+      body: `${num} \\text{ base 4 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -837,7 +851,7 @@ function toBase10() {
     let n = parseInt(num, 5);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 5 to base 10`,
+      body: `${num} \\text{ base 5 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -854,7 +868,7 @@ function toBase10() {
     let n = parseInt(num, 6);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 6 to base 10`,
+      body: `${num} \\text{ base 6 in to base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -871,7 +885,7 @@ function toBase10() {
     let n = parseInt(num, 7);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 7 to base 10`,
+      body: `${num} \\text{ base 7 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -888,7 +902,7 @@ function toBase10() {
     let n = parseInt(num, 8);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 8 to base 10`,
+      body: `${num} \\text{ base 8 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -905,7 +919,7 @@ function toBase10() {
     let n = parseInt(num, 9);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `Convert ${num} base 9 to base 10`,
+      body: `${num} \\text{ base 9 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -924,7 +938,7 @@ function toBaseX() {
   }
   let result: string = convertToBaseX(n, x);
   return {
-    body: `Convert ${n} from base 10 to base ${x}`,
+    body: `${n} \\text{ base 10 in base ${x}}`,
     ans: `${result}`,
   };
 }
@@ -962,27 +976,27 @@ function base248() {
 
   if (randomFunctionIndex === 0) {
     let base8Number: string = randomNumberBase8.toString(8);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 2`;
+    conversionResult = `${base8Number} \\text{ in base 8 in base 2}`;
     result = base8to2(base8Number);
   } else if (randomFunctionIndex === 1) {
     let base8Number: string = randomNumberBase8.toString(8);
-    conversionResult = `Number ${base8Number} in base 8 = Number ??? in base 4`;
+    conversionResult = `${base8Number} \\text{ in base 8 in base 4}`;
     result = base8to4(base8Number);
   } else if (randomFunctionIndex === 2) {
     let base2Number: string = randomNumberBase2.toString(2);
-    conversionResult = `Number ${base2Number} in base 2 = Number ??? in base 8`;
+    conversionResult = `${base2Number} \\text{ in base 2 in base 8}`;
     result = base2to8(base2Number);
   } else if (randomFunctionIndex === 3) {
     let base2Number: string = randomNumberBase2.toString(2);
-    conversionResult = `Number ${base2Number} in base 2 = Number ??? in base 4`;
+    conversionResult = `${base2Number} \\text{ in base 2 in base 4}`;
     result = base2to4(base2Number);
   } else if (randomFunctionIndex === 4) {
     let base4Number: string = randomNumberBase4.toString(4);
-    conversionResult = `Number ${base4Number} in base 4 = Number ??? in base 2`;
+    conversionResult = `${base4Number} \\text{ in base 4 in base 2}`;
     result = base4to2(base4Number);
   } else if (randomFunctionIndex === 5) {
     let base4Number: string = randomNumberBase4.toString(4);
-    conversionResult = `Number ${base4Number} in base 4 = Number ??? in base 8`;
+    conversionResult = `${base4Number} \\text{ in base 4 in base 8}`;
     result = base4to8(base4Number);
   } else {
     conversionResult = "Invalid function index";
@@ -994,9 +1008,8 @@ function base248() {
     ans: result,
   };
 }
-
 function intdivisors() {
-  let n = Math.floor(Math.random() * 1000) + 1;
+  let n = Math.floor(Math.random() * 100 - 12 + 1) + 12;
   let sum = 0;
   for (let i = 1; i <= n; i++) {
     if (n % i === 0) {
@@ -1004,10 +1017,11 @@ function intdivisors() {
     }
   }
   return {
-    body: "The sum of the postitve integral divisors of " + n,
+    body: `\\text{The sum of the positive integral divisors of } ${n}`,
     ans: "" + sum,
   };
 }
+
 function primeDiv() {
   let n: number = Math.floor(Math.random() * 1000) + 1;
   function isPrime(num: number): boolean {
@@ -1026,8 +1040,8 @@ function primeDiv() {
     }
   }
   return {
-    body: `The sum of the prime divisors of ${n}`,
-    ans: `${sum}`,
+    body: `\\text{The sum of the prime divisors of }${n}`,
+    ans: "" + sum,
   };
 }
 
@@ -1040,47 +1054,49 @@ function nover90() {
     result = n / 90;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What are the first 3 digits of " + n + "/90 .",
-      ans: truncatedResult.toString().substring(2, 5),
+      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{90}  `,
+      ans: truncatedResult.toString().substring(1, 5),
     };
   } else if (randomValue === 1) {
     n = Math.floor(Math.random() * 899) + 1;
     result = n / 900;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What are the first 3 digits of " + n + "/900 .",
-      ans: truncatedResult.toString().substring(2, 5),
+      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{900} `,
+      ans: truncatedResult.toString().substring(1, 5),
     };
   } else if (randomValue === 2) {
     n = Math.floor(Math.random() * 98) + 1;
     result = n / 99;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What are the first 3 digits of " + n + "/99  .",
-      ans: truncatedResult.toString().substring(2, 5),
+      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{99} `,
+      ans: truncatedResult.toString().substring(1, 5),
     };
   } else {
     n = Math.floor(Math.random() * 989) + 1;
     result = n / 990;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: "What are the first 3 digits of " + n + "/990 .",
-      ans: truncatedResult.toString().substring(2, 5),
+      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{990} `,
+      ans: truncatedResult.toString().substring(1, 5),
     };
   }
 }
+
 function ntriangular() {
   let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
   return {
-    body: "1 + 2 + 3 +.... + " + n,
+    body: `1 + 2 + 3 + \\ldots + ${n}`,
     ans: "" + (n * (n + 1)) / 2,
   };
 }
+
 function npentagonal() {
   let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
   let x = (n * (3 * n - 1)) / 2;
   return {
-    body: "What is pentagonal number " + n,
+    body: `\\text{What is the } ${n}\\text{th} \\text{ pentagonal number}`,
     ans: "" + x,
   };
 }
@@ -1089,7 +1105,7 @@ function nhexagonal() {
   let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
   let x = n * (2 * n - 1);
   return {
-    body: "What is hexagonal number " + n,
+    body: `\\text{What is the } ${n}\\text{th} \\text{ hexagonal number}`,
     ans: "" + x,
   };
 }
@@ -1123,7 +1139,7 @@ function complexNumber() {
   let bFormatted = b >= 0 ? `+ ${b}i` : `- ${Math.abs(b)}i`;
   let dFormatted = d >= 0 ? `+ ${d}i` : `- ${Math.abs(d)}i`;
   return {
-    body: `(${a} ${bFormatted})(${c} ${dFormatted})` + "  a + b = ?",
+    body: `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ a + b }",
     ans: "" + sum,
   };
 }
@@ -1166,7 +1182,7 @@ function unitConversion() {
   const convertedValue = value * conversions[fromUnit][toUnit];
 
   return {
-    body: `How many ${toUnit} are in ${value} ${fromUnit}? (put two decimals)`,
+    body: `\\text{ How many } ${toUnit} \\text{ are in } ${value}\\text{ } ${fromUnit}? \\text{ (put two decimals)}`,
     ans: convertedValue.toFixed(2),
   };
 }
@@ -1207,7 +1223,7 @@ function abab() {
   denominator /= gcdValue;
 
   return {
-    body: "" + n + "/" + x + " + " + x + "/" + n,
+    body: `\\frac{${n}}{${x}} \\text{ + }\\frac{${x}}{${n}}`,
     ans: "2 " + numerator + "/" + denominator,
   };
 }
@@ -1229,7 +1245,7 @@ function ngon() {
   let diagonals = (selectedPolygon.sides * (selectedPolygon.sides - 3)) / 2;
 
   return {
-    body: `Number of diagonals in a ${selectedPolygon.name}`,
+    body: `\\text{Number of diagonals in a } ${selectedPolygon.name}`,
     ans: "" + diagonals,
   };
 }
@@ -1304,7 +1320,7 @@ function calculateMean() {
   let mean = sum / count;
 
   return {
-    body: "The mean of " + numbers + " is",
+    body: `\\text{The mean of }  ${numbers} \\text{ is}`,
     ans: "" + mean,
   };
 }
@@ -1326,7 +1342,7 @@ function calculateMedian() {
   }
 
   return {
-    body: "The median of " + numbers + " is",
+    body: `\\text{The median of }  ${numbers} \\text{ is}`,
     ans: "" + median,
   };
 }
@@ -1352,19 +1368,13 @@ function geometricmean() {
     let supern2 = n * 4;
     let answer = 2 * n;
     return {
-      body:
-        "What is the geometric mean between " +
-        n +
-        ", " +
-        supern1 +
-        " and " +
-        supern2,
+      body: `\\text{What is the geometric mean between } ${n} \\text{, } ${supern1} \\text{, and } ${supern2}`,
       ans: "" + answer,
     };
   } else {
     let supern = n * numbers[randomIndex1];
     return {
-      body: "What is the geometric mean between " + n + " and " + supern,
+      body: `\\text{What is the geometric mean between } ${n} \\text{ and } ${supern} `,
       ans: "" + Math.sqrt(n * supern),
     };
   }
@@ -1429,9 +1439,9 @@ function harmonicMean() {
   let mixedNumber: string = toMixedNumber(numerator, denominator);
 
   return {
-    body: `What is the harmonic mean between ${numbers.join(
-      " and "
-    )} (mixed number)?`,
+    body: `\\text{What is the harmonic mean between }${numbers.join(
+      `\\text{, } `
+    )} \\text{ (mixed number)}`,
     ans: mixedNumber,
   };
 }
@@ -1468,7 +1478,7 @@ function x100ofy() {
   let percentage = Math.floor(Math.random() * 100) + 1;
   let result = (percentage / 100) * twoDigitNumber;
   return {
-    body: `${percentage}% of ${twoDigitNumber}`,
+    body: `${percentage}% \\text{ of } ${twoDigitNumber}`,
     ans: "" + result,
   };
 }
@@ -1490,7 +1500,7 @@ function aboverc(): { body: string; ans: string } {
     c = calculateRandomMultiple(b);
   }
 
-  let body = `${a} × ${b} ∕ ${c}`;
+  let body = `${a} \\times \\frac{${b}}{${c}}`;
   let ans = `${(a * b) / c}`;
 
   return {
@@ -1555,7 +1565,7 @@ function fib() {
 
   let body =
     fibonacciSequence.slice(0, 3).join(" + ") +
-    "+ ..." +
+    `\\text{+ ... }` +
     "+ " +
     fibonacciSequence.slice(-2).join(" + ");
 
@@ -1570,7 +1580,7 @@ function tripledigit() {
   let x = Math.floor(Math.random() * 999 - 100 + 1) + 100;
 
   return {
-    body: "" + n + " * " + x,
+    body: `${n} \\times ${x}`,
     ans: "" + n * x,
   };
 }
@@ -1602,18 +1612,8 @@ function xcubedycubed() {
   let xx = Math.pow(x, 3);
   let yy = Math.pow(y, 3);
   let diff = x - y;
-  let remainder = (xx - yy) % diff;
   return {
-    body:
-      "(" +
-      `${x}³` +
-      " - " +
-      `${y}³` +
-      ")/(" +
-      x +
-      "-" +
-      y +
-      ") has a remainder of",
-    ans: "" + remainder,
+    body: "(" + `${x}³` + " - " + `${y}³` + ")/(" + x + "-" + y + ")",
+    ans: "" + (xx - yy) / diff,
   };
 }
