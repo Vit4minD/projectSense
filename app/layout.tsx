@@ -30,21 +30,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      {/* <Head>
-        <title>Project Sense</title>
-        <meta name="title" content="Project Sense" />
-        <meta name="description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://project-sense.vercel.app/" />
-        <meta property="twitter:url" content="https://project-sense.vercel.app/" />
-        <meta property="og:title" content="Project Sense" />
-        <meta property="og:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="og:image" content="/projectSenseLogo-1200.png" />
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:title" content="Project Sense" />
-        <meta property="twitter:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
-        <meta property="twitter:image" content="/projectSenseLogo-1200.png" />
-      </Head> */}
       <body className={inter.className}>{children}</body>
     </html>
   );
