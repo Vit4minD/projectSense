@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Project Sense",
   description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
   manifest: "/manifest.json",
+  twitter:{ card: "summary_large_image", site: "@site", creator: "@creator", "images": "/projectSenseLogo-1200.png" }
 };
 
 export default function RootLayout({
