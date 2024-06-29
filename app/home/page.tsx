@@ -15,11 +15,7 @@ import { SettingsModal } from "../components/settingsModal";
 import { ChangelogModal } from "../components/changeLog";
 import { VideoModal } from "../components/videoModal";
 import { GameModal } from "../components/gameModal";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-  title: "Home"
-}
 export default function Home() {
   const router = useRouter();
   const colRef = collection(db, "users");
