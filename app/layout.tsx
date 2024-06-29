@@ -23,7 +23,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <Head><meta property="og:image" content="/icon-512x512.png" /></Head>
+      <Head><meta property="og:image" content="/icon-512x512.png" />
+      <meta name="twitter:card" content="/icon-512x512.png" /></Head>
       <body className={inter.className}>{children}</body>
     </html>
   );
