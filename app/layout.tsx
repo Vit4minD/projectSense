@@ -19,6 +19,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <Head>
+        <meta property="og:title" content="Project Sense" />
+        <meta property="og:description" content="Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!" />
+        <meta property="og:image" content="https://project-sense.vercel.app/opengraph-image.png" />
+        <meta property="og:image:alt" content="image" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://project-sense.vercel.app/twitter-image.png" />
+        <meta name="twitter:image:alt" content="image" />
+      </Head>
       <body className={inter.className}>{children}</body>
     </html>
   );
