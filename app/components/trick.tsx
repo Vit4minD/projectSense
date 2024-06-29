@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { problemFunction } from "../utils/problemGenerator";
+import MathComponent from "./MathComponent";
 
 type TrickProps = {
   trick: string;
@@ -46,8 +47,7 @@ const Trick: React.FC<TrickProps> = ({
       {question < 5 ? (
         <>
           <div className=" text-center md:text-left ml-[-7.5px] md:ml-[0px] ">
-            {" "}
-            {pair["body"]}
+            <MathComponent math={pair["body"]} />
           </div>
           <div className="text-center md:text-left">=</div>
           <input
@@ -62,7 +62,7 @@ const Trick: React.FC<TrickProps> = ({
                 } else
                   setUserAns(
                     e.target.value.substring(e.target.value.length - 1) +
-                      userAns
+                    userAns
                   );
               else setUserAns(e.target.value);
             }}
