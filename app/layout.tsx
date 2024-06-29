@@ -9,7 +9,11 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Project Sense",
   description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
-  manifest: "/manifest.json"
+  manifest: "/manifest.json",
+  icons: {
+    apple: "/icon-512x512.png"
+  },
+  themeColor: "#fdba74"
 };
 
 export default function RootLayout({
