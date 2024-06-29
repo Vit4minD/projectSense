@@ -7,9 +7,20 @@ import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Project Sense",
+   title: "Project Sense",
   description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
   manifest: "/manifest.json",
+  icons: {
+    apple: "/icon-512x512.png"
+  },
+  themeColor: "#fdba74",
+  twitter: {
+    card: "summary_large_image",
+    site: "https://project-sense.vercel.app/", // Replace with your Twitter handle
+    title: "Project Sense",
+    description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
+    images: "/projectSenseLogo-1200.png", // URL to your Twitter card image
+  },
 };
 
 export default function RootLayout({
