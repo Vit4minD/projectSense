@@ -9,29 +9,9 @@ export const metadata: Metadata = {
   title: "Project Sense",
   description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
   manifest: "/manifest.json",
-  openGraph: {
-      url: "https://project-sense.vercel.app/",
-      type: "website",
-      title: "Project Sense",
-      description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
-      images: [
-          {
-              url: "https://roxburynjchamber.org/wp-content/uploads/1200x630-1140x600.png"
-          }
-      ]
-  },
   twitter: {
     card: "summary_large_image",
-    site: "https://project-sense.vercel.app/", // Replace with your actual Twitter handle
-    creator: "@HT", // Replace with your actual Twitter handle
-    title: "Project Sense",
-    description: "Practice TMSCA/UIL Number Sense Questions using Project Sense and compete against others through a variety of different tricks (including tutorials)!",
-    images: [
-        {
-            url: "https://roxburynjchamber.org/wp-content/uploads/1200x630-1140x600.png"
-        }
-    ]
-}
+  }
 };
 
 
