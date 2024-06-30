@@ -103,7 +103,9 @@ export default function Home() {
             >
               <FaTrophy />
             </button>
-            <div className="absolute text-xl md:text-3xl">Project Sense</div>
+            <div className="ml-[-100px] md:ml-[0px] absolute text-xl md:text-3xl">
+              Project Sense
+            </div>
             <div className=" ml-auto">
               <GameModal />
               <ChangelogModal />

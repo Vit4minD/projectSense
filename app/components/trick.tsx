@@ -43,10 +43,20 @@ const Trick: React.FC<TrickProps> = ({
   }, [userAns, pair, trick, setQuestion, question, questionLimited]);
 
   return (
-    <div className="font-semibold text-[3.0rem] md:text-6xl w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+    <div
+      className={`font-semibold ${
+        trick === "26" ||
+        trick === "27" ||
+        trick === "35" ||
+        trick === "42" ||
+        trick === "43"
+          ? "text-[2.0rem] md:text-[2.3rem]"
+          : "text-[3.0rem] md:text-6xl"
+      } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  overflow-wrap break-words whitespace-pre-wrap`}
+    >
       {question < 5 ? (
         <>
-          <div className=" text-center md:text-left ml-[-7.5px] md:ml-[0px] ">
+          <div className={`text-center md:text-left ml-[0px] `}>
             <MathComponent math={pair["body"]} />
           </div>
           <div className="text-center md:text-left">=</div>
@@ -62,7 +72,7 @@ const Trick: React.FC<TrickProps> = ({
                 } else
                   setUserAns(
                     e.target.value.substring(e.target.value.length - 1) +
-                    userAns
+                      userAns
                   );
               else setUserAns(e.target.value);
             }}

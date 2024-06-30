@@ -67,7 +67,7 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = () => {
                 - Solve 5 Questions as Fast as Possible
               </div>
               <div className="pl-4 md:pl-16">
-                - 14 Different Numbersense Styled Problems with Tricks and more
+                - 52 Different Numbersense Styled Problems with Tricks and more
                 to come
               </div>
             </div>

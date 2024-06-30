@@ -1,8 +1,8 @@
 export const problemSet: { [key: number]: string } = {
   1: "n \\times 11",
   2: "n \\times 25",
-  3: "\\frac{n}{101}",
-  4: "\\frac{n}{111}",
+  3: "n101",
+  4: "n111",
   5: "n \\% x",
   6: "n - x",
   7: "n + x",
@@ -420,20 +420,34 @@ function n25() {
   };
 }
 function n101() {
-  let num = 101 * (Math.floor(Math.random() * (999 - 100 + 1)) + 100);
-
-  return {
-    body: `${num} \\div 101`,
-    ans: "" + num / 101,
-  };
+  let num = 101 * (Math.floor(Math.random() * (999 - 50 + 1)) + 50);
+  let nu = Math.floor(Math.random() * (999 - 100 + 1)) + 100;
+  if (Math.random() < 0.5) {
+    return {
+      body: `${num} \\div 101`,
+      ans: "" + num / 101,
+    };
+  } else {
+    return {
+      body: `${nu} \\times 101`,
+      ans: "" + nu * 101,
+    };
+  }
 }
 function n111() {
-  let num = (Math.floor(Math.random() * (999 - 100 + 1)) + 100) * 111;
-
-  return {
-    body: `${num} \\div 111`,
-    ans: "" + num / 111,
-  };
+  let num = (Math.floor(Math.random() * (999 - 50 + 1)) + 50) * 111;
+  let nu2 = Math.floor(Math.random() * (999 - 50 + 1)) + 50;
+  if (Math.random() < 0.5) {
+    return {
+      body: `${num} \\div 111`,
+      ans: "" + num / 111,
+    };
+  } else {
+    return {
+      body: `${nu2} \\times 111`,
+      ans: "" + nu2 * 111,
+    };
+  }
 }
 
 function nmod() {
@@ -637,17 +651,20 @@ function decToFrac() {
 
   const randomIndex = Math.floor(Math.random() * examples.length);
   const { decimal, fraction } = examples[randomIndex];
-  const decimalString = decimal.toString();
-  const body = `${decimalString.replace(/(\d+)\.(\d+)/, (...args) => {
-    const whole = args[1];
-    const fractional = args[2];
-    const fractionPart = `${fractional.replace(/(\d+?)\1+$/, "$1...")}`;
-    return whole ? `${whole} . ${fractionPart}` : `${fractionPart}`;
-  })} \\text{ as a fraction}`;
-  const ans = fraction;
 
-  return { body: body, ans: "" + ans };
+  let percentage = (decimal * 100).toFixed(2);
+  percentage = percentage.replace(/\.00$/, "");
+
+  const isRepeating =
+    decimal.toString().includes("...") ||
+    examples.some((e) => e.decimal === decimal);
+
+  const body = `${percentage}% \\text{ as a fraction}`;
+  const ans = isRepeating ? fraction : percentage;
+
+  return { body: body, ans: ans };
 }
+
 function decAdditionandSub() {
   let n1 = Math.random() * 1000;
   let n2 = Math.random() * 1000;
@@ -1023,7 +1040,7 @@ function intdivisors() {
 }
 
 function primeDiv() {
-  let n: number = Math.floor(Math.random() * 1000) + 1;
+  let n: number = Math.floor(Math.random() * 130) + 1;
   function isPrime(num: number): boolean {
     if (num <= 1) return false;
     if (num === 2) return true;
@@ -1143,49 +1160,45 @@ function complexNumber() {
     ans: "" + sum,
   };
 }
-
 function unitConversion() {
   const conversions: { [fromUnit: string]: { [toUnit: string]: number } } = {
-    gallons: { quarts: 4, pints: 8, cups: 16, pecks: 0.25, bushels: 0.0625 },
-    quarts: {
-      gallons: 0.25,
-      pints: 2,
-      cups: 4,
-      pecks: 0.0625,
-      bushels: 0.015625,
-    },
-    pints: {
-      gallons: 0.125,
-      quarts: 0.5,
-      cups: 2,
-      pecks: 0.03125,
-      bushels: 0.0078125,
-    },
-    cups: {
-      gallons: 0.0625,
-      quarts: 0.25,
-      pints: 0.5,
-      pecks: 0.015625,
-      bushels: 0.00390625,
-    },
-    pecks: { gallons: 4, quarts: 16, pints: 32, cups: 64, bushels: 0.25 },
-    bushels: { gallons: 16, quarts: 64, pints: 128, cups: 256, pecks: 4 },
+    bushels: { pecks: 4 },
+    pecks: { bushels: 0.25 },
+    gallons: { quarts: 4, pints: 8, cups: 16, pecks: 0.25 },
+    quarts: { gallons: 0.25, pints: 2, cups: 4, pecks: 0.0625 },
+    pints: { gallons: 0.125, quarts: 0.5, cups: 2, pecks: 0.03125 },
+    cups: { gallons: 0.0625, quarts: 0.25, pints: 0.5, pecks: 0.015625 },
   };
 
   const units = Object.keys(conversions);
-  const randomIndex = Math.floor(Math.random() * units.length);
-  const fromUnit = units[randomIndex];
+  const fromUnit = units[Math.floor(Math.random() * units.length)];
   const toUnits = Object.keys(conversions[fromUnit]);
-  const toIndex = Math.floor(Math.random() * toUnits.length);
-  const toUnit = toUnits[toIndex];
+  const toUnit = toUnits[Math.floor(Math.random() * toUnits.length)];
   const value = Math.floor(Math.random() * 100) + 2;
-  const convertedValue = value * conversions[fromUnit][toUnit];
+
+  let convertedValue = value * conversions[fromUnit][toUnit];
+
+  const validEndings = [0, 0.25, 0.5, 0.75];
+  const integerPart = Math.floor(convertedValue);
+  let fractionalPart = convertedValue - integerPart;
+
+  let exactFractionalPart =
+    validEndings.find((v) => Math.abs(fractionalPart - v) < 0.0001) ?? 0;
+  convertedValue = integerPart + exactFractionalPart;
+
+  const formattedValue = Number.isInteger(convertedValue)
+    ? convertedValue.toString()
+    : convertedValue
+        .toFixed(2)
+        .replace(/\.00$/, "")
+        .replace(/\.([1-9])0$/, ".$1");
 
   return {
-    body: `\\text{ How many } ${toUnit} \\text{ are in } ${value}\\text{ } ${fromUnit}? \\text{ (put two decimals)}`,
-    ans: convertedValue.toFixed(2),
+    body: `\\text{ How many } ${toUnit} \\text{ are in } ${value}\\text{ } ${fromUnit}?`,
+    ans: formattedValue,
   };
 }
+
 function xandx1() {
   let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
   let squaredN = `${n}\u00B2`;
@@ -1396,11 +1409,10 @@ function harmonicMean() {
 
     let wholePart = Math.floor(numerator / denominator);
     let remainder = numerator % denominator;
-
     if (remainder === 0) {
-      return `${wholePart}`;
+      return "" + wholePart;
     } else {
-      return `${wholePart} ${remainder}/${denominator}`;
+      return "" + wholePart + " " + remainder + "/" + denominator;
     }
   }
 
@@ -1411,35 +1423,28 @@ function harmonicMean() {
   }
 
   function calculateHarmonicMean(numbers: number[]): number {
-    let sumReciprocals: number = numbers.reduce((acc, num) => acc + 1 / num, 0);
+    let sumReciprocals = numbers.reduce((acc, num) => acc + 1 / num, 0);
     return numbers.length / sumReciprocals;
   }
 
-  let harmonicMeanValue: number = calculateHarmonicMean(numbers);
+  let harmonicMeanValue = calculateHarmonicMean(numbers);
 
-  let wholePart = Math.floor(harmonicMeanValue);
-  let fractionalPart = harmonicMeanValue - wholePart;
-
-  let a = Math.floor(fractionalPart * 1000);
-  let b = 1000;
-  while (Math.abs(fractionalPart - a / b) > 0.001) {
-    if (fractionalPart > a / b) {
-      a++;
-    } else {
-      b++;
-    }
-  }
-  let numerator = wholePart * b + a;
-  let denominator = b;
-
+  let precision = 100000;
+  let fractionalPart = harmonicMeanValue - Math.floor(harmonicMeanValue);
+  let numerator = Math.round(fractionalPart * precision);
+  let denominator = precision;
   let gcdValue = gcd(numerator, denominator);
   numerator /= gcdValue;
   denominator /= gcdValue;
-
-  let mixedNumber: string = toMixedNumber(numerator, denominator);
+  let wholePart = Math.floor(harmonicMeanValue);
+  numerator += wholePart * denominator;
+  gcdValue = gcd(numerator, denominator);
+  numerator /= gcdValue;
+  denominator /= gcdValue;
+  let mixedNumber = toMixedNumber(numerator, denominator);
 
   return {
-    body: `\\text{What is the harmonic mean between }${numbers.join(
+    body: `\\text{What is the harmonic mean between } ${numbers.join(
       `\\text{, } `
     )} \\text{ (mixed number)}`,
     ans: mixedNumber,
@@ -1483,29 +1488,49 @@ function x100ofy() {
   };
 }
 
-function aboverc(): { body: string; ans: string } {
-  function calculateRandomMultiple(base: number) {
-    return base * (Math.floor(Math.random() * 5) + 1);
+function aboverc() {
+  function getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  let a = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-  let b = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
-
-  let multiplier = Math.floor(Math.random() * 2) + 1;
-  let c;
-
-  if (multiplier === 1) {
-    c = calculateRandomMultiple(a);
-  } else {
-    c = calculateRandomMultiple(b);
+  function getCloseRandomInt(
+    base: number,
+    min: number,
+    max: number,
+    range: number
+  ): number {
+    let result;
+    do {
+      result = getRandomInt(
+        Math.max(min, base - range),
+        Math.min(max, base + range)
+      );
+    } while (result === base);
+    return result;
   }
+
+  let a = getRandomInt(10, 30);
+  let b = getCloseRandomInt(a, 10, 30, 5);
+  let c = getCloseRandomInt(b, 10, 30, 5);
 
   let body = `${a} \\times \\frac{${b}}{${c}}`;
   let ans = `${(a * b) / c}`;
+  let numerator = a * b;
+  let gcd = (x: number, y: number): number => (!y ? x : gcd(y, x % y));
+  let commonDivisor = gcd(numerator, c);
+  numerator /= commonDivisor;
+  c /= commonDivisor;
+
+  let integerPart = Math.floor(numerator / c);
+  let remainder = numerator % c;
+  let mixedNumber =
+    integerPart > 0
+      ? "" + integerPart + " " + remainder + "/" + c
+      : "" + remainder + "/" + c;
 
   return {
     body: body,
-    ans: ans,
+    ans: "" + mixedNumber,
   };
 }
 
@@ -1532,7 +1557,7 @@ function diffofsq() {
   let ans = difference;
 
   return {
-    body: "" + body,
+    body: body,
     ans: "" + ans,
   };
 }
