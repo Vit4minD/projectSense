@@ -488,7 +488,7 @@ function nFoil() {
 function nSq1() {
   let n = Math.floor(Math.random() * (40 - 10 + 1)) + 10;
   return {
-    body: `${n} \\times ${n}`,
+    body: `${n} ^ 2`,
     ans: "" + n * n,
   };
 }
@@ -496,7 +496,7 @@ function nSq1() {
 function nSq2() {
   let n = Math.floor(Math.random() * (60 - 41 + 1)) + 41;
   return {
-    body: `${n} \\times ${n}`,
+    body: `${n} ^ 2`,
     ans: "" + n * n,
   };
 }
@@ -750,7 +750,7 @@ function nCube() {
   let n = Math.floor(Math.random() * (20 + 1)) + 1;
 
   return {
-    body: `${n} \\times ${n} \\times ${n}`,
+    body: `{${n} ^ 3}`,
     ans: "" + n * n * n,
   };
 }

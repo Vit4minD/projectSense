@@ -55,7 +55,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         onClose={onClose}
       >
         <ModalOverlay />
-        <ModalContent className="h-2/5 md:h-auto">
+        <ModalContent className="h-2/5 md:h-auto rounded-2xl">
           <ModalHeader
             fontSize={["2xl", "md", "5xl"]}
             className="mt-5 md:mt-4 text-orange-400 text-center"

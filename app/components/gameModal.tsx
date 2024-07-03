@@ -32,29 +32,29 @@ export const GameModal: React.FC<gameModalProps> = () => {
                 isCentered={true}
                 onClose={onClose}
             >
-                <ModalOverlay />
-                <ModalContent className="w-4/5 h-2/3 md:max-w-3xl md:h-auto">
+                <ModalOverlay className="rounded-2xl" />
+                <ModalContent className="rounded-2xl w-4/5 h-2/3 md:max-w-3xl md:h-auto">
                     <ModalHeader
                         fontSize={["3xl", null, "5xl"]}
-                        className="text-orange-400 text-center"
+                        className="text-white bg-orange-300 text-center"
                     >
                         Mini Games
                         <hr className=" mx-auto w-2/3"></hr>
                     </ModalHeader>
-                    <ModalCloseButton fontSize="xl" className="text-orange-400" />
+                    <ModalCloseButton fontSize="xl" className="text-white" />
                     <ModalBody
                         fontSize={["xl", null, "3xl"]}
-                        className="overflow-y-auto max-h-[80vh]"
+                        className="overflow-y-auto max-h-[80vh] bg-orange-300"
                     >
-
-                        <div
+                        <p className="text-white mx-auto text-center mb-4">In the works</p>
+                        {/* <div
                             className="   h-23 md:h-24 overflow-y-hidden"
                         >
                             <div
                                 className={`my-auto h-full duration-200 ease-in-out mx-12 md:mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
                             >
                                 <button
-                                    className="text-white p-2 md:p-4 px-[2.7rem] md:w-[26rem] w-full overflow-y-hidden hover:scale-105 hover:bg-orange-400  flex justify-center items-center h-full duration-200 ease-in-out rounded-2xl bg-orange-300 text-xl md:text-2xl"
+                                    className="text-orange-300 p-2 md:p-4 px-[2.7rem] md:w-[26rem] w-full overflow-y-hidden hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out rounded-2xl bg-white text-xl md:text-2xl"
                                 >
                                     Zetamac
                                 </button>
@@ -67,12 +67,12 @@ export const GameModal: React.FC<gameModalProps> = () => {
                                 className={`my-auto h-full duration-200 ease-in-out mx-12 md:mx-8 text-center items-center flex rounded-2xl justify-center text-3xl font-semibold `}
                             >
                                 <button
-                                    className="text-white p-2 md:p-4 px-[2.7rem] md:w-[26rem] w-full overflow-y-hidden hover:scale-105 hover:bg-orange-400  flex justify-center items-center h-full duration-200 ease-in-out rounded-2xl bg-orange-300 text-xl md:text-2xl"
+                                    className="text-orange-300 p-2 md:p-4 px-[2.7rem] md:w-[26rem] w-full overflow-y-hidden hover:scale-105 hover:bg-gray-200  flex justify-center items-center h-full duration-200 ease-in-out rounded-2xl bg-white text-xl md:text-2xl"
                                 >
                                     24
                                 </button>
                             </div>
-                        </div>
+                        </div> */}
                     </ModalBody>
                 </ModalContent>
             </Modal>
