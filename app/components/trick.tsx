@@ -20,39 +20,42 @@ const Trick: React.FC<TrickProps> = ({
   const [userAns, setUserAns] = useState("");
   const [pair, setPair] = useState({ body: "", ans: "temp" });
   const [type, setType] = useState("");
+  const [randomizer, setRandomizer] = useState(false);
   useEffect(() => {
+    if (trick === "randomizer") {
+      setRandomizer(true)
+      trick = String(Math.floor(Math.random() * 52) + 1)
+    }
     setPair(problemFunction[trick].function());
     setType(problemFunction[trick].type);
   }, [trick]);
 
   useEffect(() => {
     if (trick === "13" || trick === "44") {
-      if (
-        Math.abs(Number(userAns) - Number(pair["ans"])) <=
-        Number(pair["ans"]) * 0.05
-      ) {
+      if (Math.abs(Number(userAns) - Number(pair["ans"])) <= Number(pair["ans"]) * 0.05) {
+        if (randomizer) trick = String(Math.floor(Math.random() * 52) + 1)
         setPair(problemFunction[trick].function());
         setUserAns(""); // Reset user answer
-        if (questionLimited) setQuestion(question + 1);
+        if (questionLimited && !randomizer) setQuestion(question + 1);
       }
     } else if (userAns === pair["ans"]) {
+      if (randomizer) trick = String(Math.floor(Math.random() * 52) + 1)
       setPair(problemFunction[trick].function());
       setUserAns(""); // Reset user answer
-      if (questionLimited) setQuestion(question + 1);
+      if (questionLimited && !randomizer) setQuestion(question + 1);
     }
   }, [userAns, pair, trick, setQuestion, question, questionLimited]);
 
   return (
     <div
-      className={`font-semibold ${
-        trick === "26" ||
+      className={`font-semibold ${trick === "26" ||
         trick === "27" ||
         trick === "35" ||
         trick === "42" ||
         trick === "43"
-          ? "text-[2.0rem] md:text-[2.3rem]"
-          : "text-[3.0rem] md:text-6xl"
-      } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  overflow-wrap break-words whitespace-pre-wrap`}
+        ? "text-[2.0rem] md:text-[2.3rem]"
+        : "text-[3.0rem] md:text-6xl"
+        } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  overflow-wrap break-words whitespace-pre-wrap`}
     >
       {question < 5 ? (
         <>
@@ -72,7 +75,7 @@ const Trick: React.FC<TrickProps> = ({
                 } else
                   setUserAns(
                     e.target.value.substring(e.target.value.length - 1) +
-                      userAns
+                    userAns
                   );
               else setUserAns(e.target.value);
             }}

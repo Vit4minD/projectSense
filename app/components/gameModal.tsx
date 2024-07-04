@@ -33,8 +33,8 @@ export const GameModal: React.FC<gameModalProps> = () => {
                 isCentered={true}
                 onClose={onClose}
             >
-                <ModalOverlay className="rounded-2xl" />
-                <ModalContent className="rounded-2xl w-4/5 h-auto md:max-w-3xl md:h-auto">
+                <ModalOverlay className="" />
+                <ModalContent className="w-4/5 h-auto md:max-w-3xl md:h-auto">
                     <ModalHeader
                         fontSize={["3xl", null, "5xl"]}
                         className="text-white bg-orange-300 text-center"

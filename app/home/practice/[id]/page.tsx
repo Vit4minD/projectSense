@@ -14,6 +14,7 @@ import MathComponent from "@/app/components/MathComponent";
 const Home = ({ params }: { params: { id: string } }) => {
   const MAX_QUESTION_COUNT = 5;
   const router = useRouter();
+  const [randomizer, setRandomizer] = useState(false);
   const [startTime, setStartTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
   const [user, setUser] = useState<User | null>(null);
@@ -25,6 +26,7 @@ const Home = ({ params }: { params: { id: string } }) => {
   const [stopTimer, setStopTimer] = useState(false);
 
   useEffect(() => {
+    if (params.id === "randomizer") setRandomizer(true)
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (authUser) {
         setUser(authUser);
@@ -66,7 +68,7 @@ const Home = ({ params }: { params: { id: string } }) => {
     };
   }, [startTime, stopTimer]);
   useEffect(() => {
-    if (questions === 5 && questionLimited) {
+    if (questions === 5 && questionLimited && !randomizer) {
       setStopTimer(true);
       if (user) {
         const email: string = user.email ? user.email : "";
@@ -102,11 +104,11 @@ const Home = ({ params }: { params: { id: string } }) => {
           {"⌂"}
         </button>
         <p className="w-[90%] md:w-auto ml-[-7.5px] md:ml-[-10px] text-center text-xl md:text-3xl">
-          <MathComponent math={problemSet[Number(params.id)]} />
+          <MathComponent math={ randomizer ? "Randomizer" : problemSet[Number(params.id)]} />
         </p>
       </div>
       <div className="mt-3 justify-center flex gap-x-4 items-center">
-        {!questionLimited ? (
+        {randomizer ? <></> : !questionLimited ? (
           <div className="text-orange-300 bg-white text-4xl font-semibold rounded-2xl py-1 px-3">
             <FaInfinity />
           </div>
