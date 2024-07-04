@@ -46,6 +46,15 @@ export const ChangelogModal: React.FC<ChangelogModalProps> = () => {
             fontSize={["xl", null, "3xl"]}
             className="overflow-y-auto max-h-[80vh]"
           >
+            {" "}
+            <div className="p-1 md:p-2">
+              Update 3.1: Randomizer in Progress
+              <hr className="h-1 bg-slate-300" />
+            </div>
+            <div className="p-1 md:p-2">
+              Update 3.0: Mini Games Added: 24 and Zetamac
+              <hr className="h-1 bg-slate-300" />
+            </div>
             <div className="p-1 md:p-2">
               Patch 2.2: Home Page Layout Redesign
             </div>
