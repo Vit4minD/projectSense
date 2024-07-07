@@ -147,7 +147,20 @@ export default function Multiplayer() {
       }
     });
   };
-
+  useEffect(() => {
+    if (gameState && gameState.state === "in_progress") {
+      setStopTimer(false); setStartTime(Date.now()); // Reset the startTime to the current timestamp
+      setElapsedTime(0);
+    } else if (gameState && gameState.state == 'ended') {
+      const gameRef = ref(database, `games/${gameId}`);
+      update(gameRef, { state: 'ended' });
+      gameState ? Object.keys(gameState.players).map((playerIdd) => { gameState.players[playerIdd]?.questionsSolved === 6 ? setWinner(playerIdd) : null }) : null
+      setTimeout(() => {
+        remove(gameRef)
+        setIndex(0)
+      }, 6000); // 10000 milliseconds = 10 seconds
+    }
+  }, [gameState, gameState?.state])
   const handleAnswerQuestion = async (
     questionIndex: number,
     playerAnswer: string
