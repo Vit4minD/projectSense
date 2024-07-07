@@ -20,6 +20,7 @@ import { FaCrown } from "react-icons/fa";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { Menu, MenuButton, Button, MenuList, MenuItem, ChakraProvider } from "@chakra-ui/react";
 import { problemSet } from "../utils/problemGenerator";
+import { useRouter } from "next/navigation";
 
 export interface Player {
   questionsSolved: number;
@@ -64,6 +65,7 @@ export default function Multiplayer() {
   const [stopTimer, setStopTimer] = useState(true);
   const [startTime, setStartTime] = useState(Date.now());
   const [elapsedTime, setElapsedTime] = useState(0);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
@@ -226,9 +228,9 @@ export default function Multiplayer() {
   return (
     <ChakraProvider>
       <div className="min-h-screen bg-orange-300 flex flex-col items-center font-mono">
-        <h1 className="absolute top-4 left-4 font-extrabold text-orange-300 text-5xl underline bg-white px-4 py-2 border border-gray-300 rounded">
+        <button onClick={() => router.push("/home")} className="absolute top-4 left-4 font-extrabold text-orange-300 text-5xl underline bg-white px-4 py-2 border border-gray-300 rounded">
           Project Sense
-        </h1>
+        </button>
         {index == 0 ?
           <div className="gap-y-4 font-mono text-white text-8xl font-extrabold items-start justify-center flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <button className="relative group" onClick={() => { setIndex(1); setRefresh(refresh + 1) }}>
