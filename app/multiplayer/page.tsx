@@ -243,7 +243,16 @@ export default function Multiplayer() {
             </button>
           </div> : index == 1 ?
             <div>
-              <button onClick={() => { setIndex(0) }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
+              <button onClick={() => {
+                setIndex(0); if (gameId) {
+                  const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
+                  remove(playerRef); // Remove the player from the game session
+                  setGameState(null);
+                  setGameId(null);
+                  setQuestionsSolved(1);
+                  setIndex(0);
+                }
+              }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
               <div className="   w-screen text-center text-white font-extrabold text-7xl">
                 LOBBY SELECT
                 <div className="  absolute w-2/3 rounded-2xl rounded-b-none border-b-0 shadow-xl border-8 border-orange-500 bottom-0 h-3/4 left-1/2 transform -translate-x-1/2 bg-white text-black text-4xl p-4">
@@ -278,7 +287,16 @@ export default function Multiplayer() {
             : <div className="w-screen">
               {gameState && gameState.state === "in_progress" ?
                 <div>
-                  <button onClick={() => { setIndex(0) }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
+                  <button onClick={() => {
+                    setIndex(0); if (gameId) {
+                      const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
+                      remove(playerRef); // Remove the player from the game session
+                      setGameState(null);
+                      setGameId(null);
+                      setQuestionsSolved(1);
+                      setIndex(0);
+                    }
+                  }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
                   <div className="   w-screen text-center text-white font-extrabold text-7xl">
                     {formatTime(elapsedTime)}
                   </div>
@@ -310,13 +328,31 @@ export default function Multiplayer() {
                   </div>
                 </div> : gameState && gameState.state === "ended" ?
                   <div>
-                    <button onClick={() => { setIndex(0) }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
+                    <button onClick={() => {
+                      setIndex(0); if (gameId) {
+                        const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
+                        remove(playerRef); // Remove the player from the game session
+                        setGameState(null);
+                        setGameId(null);
+                        setQuestionsSolved(1);
+                        setIndex(0);
+                      }
+                    }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
                     <div className="gap-y-4 font-mono text-white text-8xl font-extrabold gap-x-4 items-center  justify-center flex flex-row fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                       <FaCrown />Winner: {winner}
                     </div>
                   </div> :
                   <>
-                    <button onClick={() => { setIndex(0) }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
+                    <button onClick={() => {
+                      setIndex(0); if (gameId) {
+                        const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
+                        remove(playerRef); // Remove the player from the game session
+                        setGameState(null);
+                        setGameId(null);
+                        setQuestionsSolved(1);
+                        setIndex(0);
+                      }
+                    }} className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4">{"<"}</button>
                     <div className="   w-screen text-center text-white font-extrabold text-7xl">
                       LOBBY {gameId}
                       <div className="mx-auto h-[60vh] overflow-auto w-1/3 mt-8 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-4xl p-4">
