@@ -24,7 +24,6 @@ const Home = ({ params }: { params: { id: string } }) => {
   const colRef = collection(db, "users");
   const [questions, setQuestions] = useState(0);
   const [stopTimer, setStopTimer] = useState(false);
-
   useEffect(() => {
     if (params.id === "randomizer") setRandomizer(true)
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {

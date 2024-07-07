@@ -39,6 +39,7 @@ function setQuestions(gameId, trick) {
         3: problemFunction[trick].function(),
         4: problemFunction[trick].function(),
         5: problemFunction[trick].function(),
+        6: problemFunction[trick].function(),
     }
     return update(questionRef, questionJson);
 }
@@ -73,9 +74,8 @@ async function getAvailableGames() {
 
 function endGameSession(gameId) {
     const gameRef = ref(database, `games/${gameId}`);
+    remove(gameRef)
     return update(gameRef, { state: 'ended' });
-    // If you want to delete the game data altogether:
-    // return remove(gameRef);
 }
 
 function startGameSession(gameId) {

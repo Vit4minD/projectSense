@@ -19,10 +19,14 @@ const config: Config = {
           '0%': { transform: 'translateY(50%)', opacity: '.0', scale: '.3' },
           '100%': { transform: 'translateY(0)', opacity: '1', scale: '1' },
         },
+        shine: {
+          "100%": { left: "125%" },
+        },
       },
       animation: {
         fadeIn: 'fadeInShrink 1650ms ease-in-out forwards ',
         slideUp: 'slideUp .8s ease-in-out forwards ',
+        shine: "shine 1s",
       },
       
     },
