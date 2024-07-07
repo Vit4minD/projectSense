@@ -82,9 +82,14 @@ const MathGameComponent: React.FC = () => {
   const [score, setScore] = useState(game.getScore());
   const [timeLeft, setTimeLeft] = useState(120);
   const [gameOver, setGameOver] = useState(false);
-  const [highscore, setHighscore] = useState<number>(() =>
-    parseInt(localStorage.getItem("highscore") || "0", 10)
-  );
+  const [highscore, setHighscore] = useState<number>(0);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedHighscore = parseInt(localStorage.getItem("highscore") || "0", 10);
+      setHighscore(savedHighscore);
+    }
+  }, []);
 
   useEffect(() => {
     if (gameOver) return;
