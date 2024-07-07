@@ -22,6 +22,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/utils/mathjax.tsx", "app/components/changeLog.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/utils/mathjax.tsx", "app/components/changeLog.tsx", "app/multiplayer/utils/crud.js"],
   "exclude": ["node_modules"]
 }

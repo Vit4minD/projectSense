@@ -126,7 +126,10 @@ export default function Home() {
           Note: Timer starts once a bubble is pressed. Solve 5 questions as fast
           as you can.
         </div>
-        <button onClick={() => router.push(`/home/practice/randomizer`)} className="text-orange-300 rounded-2xl bg-white font-semibold py-2 px-8 mb-4 text-4xl font-serif shadow-md hover:bg-gray-200 hover:scale-105 ">Randomizer</button>
+        <div className="flex flex-row justify-center gap-x-2 ">
+          <button onClick={() => router.push(`/home/practice/randomizer`)} className="text-orange-300 rounded-2xl bg-white font-semibold py-2 px-8 mb-4 text-4xl font-serif shadow-md hover:bg-gray-200 hover:scale-105 ">Randomizer</button>
+          {/* <button onClick={() => router.push(`/multiplayer`)} className="text-orange-300 rounded-2xl bg-white font-semibold py-2 px-8 mb-4 text-4xl font-serif shadow-md hover:bg-gray-200 hover:scale-105 ">Mulitplayer</button> */}
+        </div>
         <div className=" text-center grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-3 gap-y-8 md:gap-y-16">
           {keys.map((value) => (
             <div
