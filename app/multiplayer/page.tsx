@@ -165,7 +165,7 @@ export default function Multiplayer() {
         setIndex(0)
       }, 6000); // 10000 milliseconds = 10 seconds
     }
-  }, [gameState, gameState?.state])
+  }, [gameState?.state])
   const handleAnswerQuestion = async (
     questionIndex: number,
     playerAnswer: string
