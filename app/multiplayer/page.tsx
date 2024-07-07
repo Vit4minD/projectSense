@@ -10,7 +10,6 @@ import {
   endGameSession,
   startGameSession,
   setQuestions,
-  getGameSession,
 } from "@/firebase/config";
 import { onValue, ref, remove, update } from "firebase/database";
 import { User } from "firebase/auth";
@@ -57,7 +56,6 @@ export default function Multiplayer() {
   const colRef = collection(db, "users");
   const [playerId, setEmail] = useState("");
   const [refresh, setRefresh] = useState(0);
-  const [playersData, setPlayersData] = useState(null);
   const [trick, setTrick] = useState("1");
   const [index, setIndex] = useState(0);
   const [userAns, setUserAns] = useState("");
@@ -149,9 +147,14 @@ export default function Multiplayer() {
   };
   useEffect(() => {
     if (gameState && gameState.state === "in_progress") {
-      setStopTimer(false); setStartTime(Date.now()); // Reset the startTime to the current timestamp
+      setStopTimer(false);
+      setStartTime(Date.now()); // Reset the startTime to the current timestamp
       setElapsedTime(0);
     } else if (gameState && gameState.state == 'ended') {
+      setStopTimer(true);
+      setStartTime(Date.now()); // Reset the startTime to the current timestamp
+      setElapsedTime(0);
+      setUserAns("")
       const gameRef = ref(database, `games/${gameId}`);
       update(gameRef, { state: 'ended' });
       gameState ? Object.keys(gameState.players).map((playerIdd) => { gameState.players[playerIdd]?.questionsSolved === 6 ? setWinner(playerIdd) : null }) : null
