@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect, useCallback } from "react";
 
 class MathGame {
@@ -81,15 +82,12 @@ const MathGameComponent: React.FC = () => {
   const [score, setScore] = useState(game.getScore());
   const [timeLeft, setTimeLeft] = useState(120);
   const [gameOver, setGameOver] = useState(false);
-  const [highscore, setHighscore] = useState<number>(() => {
-    if (typeof window !== "undefined") {
-      return parseInt(localStorage.getItem("highscore") || "0", 10);
-    }
-    return 0;
-  });
+  const [highscore, setHighscore] = useState<number>(() =>
+    parseInt(localStorage.getItem("highscore") || "0", 10)
+  );
 
   useEffect(() => {
-    if (gameOver) return; // Stop timer when game is over
+    if (gameOver) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
@@ -98,9 +96,7 @@ const MathGameComponent: React.FC = () => {
           setGameOver(true);
           if (score > highscore) {
             setHighscore(score);
-            if (typeof window !== "undefined") {
-              localStorage.setItem("highscore", score.toString());
-            }
+            localStorage.setItem("highscore", score.toString());
           }
           return 0;
         }
