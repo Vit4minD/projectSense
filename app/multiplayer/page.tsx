@@ -381,7 +381,6 @@ export default function Multiplayer() {
                         onClick={() => {
                           const gameRef = ref(database, `games/${gameId}`);
                           remove(gameRef);
-                          setIndex(0);
                         }}
                       >
                         End Game
