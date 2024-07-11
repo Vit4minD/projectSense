@@ -256,21 +256,21 @@ export default function Multiplayer() {
       <div className="min-h-screen bg-orange-300 flex flex-col items-center font-mono">
         <button
           onClick={() => router.push("/home")}
-          className="absolute top-4 left-4 font-extrabold text-orange-300 text-5xl underline bg-white px-4 py-2 border border-gray-300 rounded"
+          className="absolute top-2 md:top-4 left-2 md:left-4 font-extrabold text-orange-300 text-3xl md:text-5xl underline bg-white px-2 md:px-4 py-1 md:py-2 border border-gray-300 rounded"
         >
           Project Sense
         </button>
         {index == 0 ? (
-          <div className="gap-y-8 md:gap-y-4 font-mono text-white text-6xl md:text-8xl font-extrabold items-start justify-center flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <div className="gap-y-8 md:gap-y-4 -mt-8 md:mt-0 font-mono text-white text-6xl md:text-8xl font-extrabold items-start justify-center flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-auto">
             <button
-              className="relative group"
+              className="relative group "
               onClick={() => {
                 setIndex(1);
                 setRefresh(refresh + 1);
               }}
             >
               FIND GAME
-              <span className="absolute -bottom-1 left-5 md:left-0 w-0 h-2 bg-white transition-all group-hover:w-[85%] md:group-hover:w-full duration-700"></span>
+              <span className="absolute  -bottom-1 left-0 w-0 h-2 bg-white transition-all group-hover:w-full duration-700"></span>
             </button>
             <button
               className="relative group"
@@ -281,7 +281,7 @@ export default function Multiplayer() {
               }}
             >
               CREATE GAME
-              <span className="absolute -bottom-1 left-5 md:left-0 w-0 h-2 bg-white transition-all group-hover:w-[85%] md:group-hover:w-full duration-700"></span>
+              <span className="absolute -bottom-1 left-0 w-0 h-2 bg-white transition-all group-hover:w-full duration-700"></span>
             </button>
           </div>
         ) : index == 1 ? (
@@ -301,7 +301,7 @@ export default function Multiplayer() {
                   setIndex(0);
                 }
               }}
-              className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4"
+              className="hover:bg-gray-300 mt-16 md:mt-24 bg-white w-fit text-2xl md:text-4xl font-extrabold text-orange-300 text-left ml-3 md:ml-8 rounded-3xl p-2 px-4"
             >
               {"<"}
             </button>
@@ -359,11 +359,11 @@ export default function Multiplayer() {
                       setIndex(0);
                     }
                   }}
-                  className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4"
+                  className="hover:bg-gray-300 mt-16 md:mt-24 bg-white w-fit text-2xl md:text-4xl font-extrabold text-orange-300 text-left ml-3 md:ml-8 rounded-3xl p-2 px-4"
                 >
                   {"<"}
                 </button>
-                <div className="   w-screen text-center text-white font-extrabold text-7xl">
+                <div className="   w-screen text-center text-white font-extrabold text-5xl md:text-7xl">
                   {formatTime(elapsedTime)}
                 </div>
                 <div
@@ -417,7 +417,7 @@ export default function Multiplayer() {
                       setIndex(0);
                     }
                   }}
-                  className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4"
+                  className="hover:bg-gray-300 mt-16 md:mt-24 bg-white w-fit text-2xl md:text-4xl font-extrabold text-orange-300 text-left ml-3 md:ml-8 rounded-3xl p-2 px-4"
                 >
                   {"<"}
                 </button>
@@ -443,13 +443,13 @@ export default function Multiplayer() {
                       setIndex(0);
                     }
                   }}
-                  className="hover:bg-gray-300 mt-24 bg-white w-fit text-4xl font-extrabold text-orange-300 text-left ml-8 rounded-3xl p-2 px-4"
+                  className="hover:bg-gray-300 mt-16 md:mt-24 bg-white w-fit text-2xl md:text-4xl font-extrabold text-orange-300 text-left ml-3 md:ml-8 rounded-3xl p-2 px-4"
                 >
                   {"<"}
                 </button>
                 <div className=" mt-0 md:-mt-20 w-screen text-center text-white font-extrabold text-4xl md:text-7xl">
                   LOBBY {gameId}
-                  <div className="mx-auto h-[60vh] overflow-y-auto overflow-x-hidden w-3/4 md:w-1/2 mt-2 md:mt-0 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-4xl p-4">
+                  <div className="mx-auto h-[60vh] overflow-y-auto overflow-x-hidden w-3/4 md:w-1/2 mt-2 md:mt-0 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-3xl md:text-4xl p-4">
                     <p className="text-left underline">Players:</p>
                     <div className="text-left mr-auto mt-3">
                       {gameState

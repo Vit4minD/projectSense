@@ -1369,11 +1369,11 @@ function meanmedian() {
 }
 
 function geometricmean() {
+  const isSmallScreen = window.innerWidth <= 768;
+
   let n = Math.floor(Math.random() * 22 - 4 + 1) + 4;
   let numbers = [4, 9, 16, 25, 36, 49, 64];
-
   let isThreeNumbers = Math.random() < 0.5;
-
   let randomIndex1 = Math.floor(Math.random() * numbers.length);
 
   if (isThreeNumbers) {
@@ -1381,13 +1381,17 @@ function geometricmean() {
     let supern2 = n * 4;
     let answer = 2 * n;
     return {
-      body: `\\text{What is the geometric mean between } ${n} \\text{, } ${supern1} \\text{, and } ${supern2}`,
+      body: isSmallScreen
+        ? `\\text{What is the geometric} \\newline \\text{mean between} \\newline ${n}  \\text{, } ${supern1} \\newline \\text{, and } ${supern2}?`
+        : `\\text{What is the geometric mean between } ${n} \\text{, } ${supern1} \\text{, and } ${supern2}?`,
       ans: "" + answer,
     };
   } else {
     let supern = n * numbers[randomIndex1];
     return {
-      body: `\\text{What is the geometric mean between } ${n} \\text{ and } ${supern} `,
+      body: isSmallScreen
+        ? `\\text{What is the geometric} \\newline \\text{mean between} \\newline ${n}  \\text{ and } ${supern}?`
+        : `\\text{What is the geometric mean between } ${n} \\text{ and } ${supern}?`,
       ans: "" + Math.sqrt(n * supern),
     };
   }
