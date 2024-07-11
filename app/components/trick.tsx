@@ -57,8 +57,8 @@ const Trick: React.FC<TrickProps> = ({
         trick === "35" ||
         trick === "42" ||
         trick === "43"
-          ? "text-[2.0rem] md:text-[2.3rem]"
-          : "text-[3.0rem] md:text-6xl"
+          ? "text-[1.7rem] md:text-[2.3rem]"
+          : "text-[2.7rem] md:text-6xl"
       } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 break-words`}
     >
       {question < 5 ? (
