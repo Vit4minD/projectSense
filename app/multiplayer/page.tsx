@@ -449,7 +449,7 @@ export default function Multiplayer() {
                 </button>
                 <div className=" mt-0 md:-mt-20 w-screen text-center text-white font-extrabold text-4xl md:text-7xl">
                   LOBBY {gameId}
-                  <div className="mx-auto h-[60vh] overflow-y-auto overflow-x-hidden w-3/4 md:w-1/2 mt-2 md:mt-0 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-3xl md:text-4xl p-4">
+                  <div className="mx-auto h-[60vh] overflow-y-auto overflow-x-hidden w-3/4 md:w-1/2 mt-2 md:mt-0 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-2xl md:text-4xl p-4">
                     <p className="text-left underline">Players:</p>
                     <div className="text-left mr-auto mt-3">
                       {gameState
