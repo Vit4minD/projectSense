@@ -261,7 +261,7 @@ export default function Multiplayer() {
           Project Sense
         </button>
         {index == 0 ? (
-          <div className="gap-y-8 md:gap-y-4 -mt-8 md:mt-0 font-mono text-white text-6xl md:text-8xl font-extrabold items-start justify-center flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-auto">
+          <div className="gap-y-8 md:gap-y-4 -mt-8 md:mt-0 font-mono text-white text-[3.25rem] md:text-8xl font-extrabold items-start justify-center flex flex-col fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 md:w-auto">
             <button
               className="relative group "
               onClick={() => {
