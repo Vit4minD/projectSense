@@ -175,36 +175,19 @@ export default function Multiplayer() {
       update(gameRef, { state: "ended" });
       gameState
         ? Object.keys(gameState.players).map((playerIdd) => {
-            gameState.players[playerIdd]?.questionsSolved === 6
-              ? setWinner(playerIdd)
-              : null;
-          })
+          gameState.players[playerIdd]?.questionsSolved === 6
+            ? setWinner(playerIdd)
+            : null;
+        })
         : null;
       setTimeout(() => {
         remove(gameRef);
         setIndex(0);
       }, 6000); // 10000 milliseconds = 10 seconds
+    } else if (gameState && gameState.state == "end_clicked") {
+      setIndex(0);
     }
   }, [gameState?.state]);
-  const handleAnswerQuestion = async (
-    questionIndex: number,
-    playerAnswer: string
-  ) => {
-    if (
-      gameId &&
-      gameState &&
-      gameState.questions &&
-      gameState.questions[questionIndex]
-    ) {
-      const correctAnswer = gameState.questions[questionIndex].ans;
-      if (playerAnswer === correctAnswer) {
-        // Update questionsSolved
-        console.log(questionsSolved + 1);
-        setQuestionsSolved(questionsSolved + 1);
-        console.log("yes right");
-      }
-    }
-  };
 
   useEffect(() => {
     let animationFrameId: number;
@@ -229,10 +212,10 @@ export default function Multiplayer() {
       update(gameRef, { state: "ended" });
       gameState
         ? Object.keys(gameState.players).map((playerId) => {
-            gameState.players[playerId]?.questionsSolved === 6
-              ? setWinner(playerId)
-              : null;
-          })
+          gameState.players[playerId]?.questionsSolved === 6
+            ? setWinner(playerId)
+            : null;
+        })
         : null;
       setTimeout(() => {
         remove(gameRef);
@@ -367,15 +350,14 @@ export default function Multiplayer() {
                   {formatTime(elapsedTime)}
                 </div>
                 <div
-                  className={`font-semibold ${
-                    trick === "26" ||
+                  className={`font-semibold ${trick === "26" ||
                     trick === "27" ||
                     trick === "35" ||
                     trick === "42" ||
                     trick === "43"
-                      ? "text-[2.0rem] md:text-[2.3rem]"
-                      : "text-[3.0rem] md:text-6xl"
-                  } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  overflow-wrap break-words whitespace-pre-wrap`}
+                    ? "text-[2.0rem] md:text-[2.3rem]"
+                    : "text-[3.0rem] md:text-6xl"
+                    } w-screen flex flex-col md:flex-row text-white justify-center items-center gap-x-4 fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2  overflow-wrap break-words whitespace-pre-wrap`}
                 >
                   <>
                     <div className={`text-center md:text-left ml-[0px] `}>
@@ -454,10 +436,10 @@ export default function Multiplayer() {
                     <div className="text-left mr-auto mt-3">
                       {gameState
                         ? Object.keys(gameState.players).map((playerId) => (
-                            <div key={playerId} className="text-left ml-4">
-                              <p>{playerId}</p>
-                            </div>
-                          ))
+                          <div key={playerId} className="text-left ml-4">
+                            <p>{playerId}</p>
+                          </div>
+                        ))
                         : "Empty"}
                     </div>
                   </div>
@@ -478,6 +460,7 @@ export default function Multiplayer() {
                     className="hover:bg-gray-300 mt-4  block font-extrabold px-6 py-3 bg-white text-orange-300  transition-all duration-300 text-2xl rounded"
                     onClick={() => {
                       const gameRef = ref(database, `games/${gameId}`);
+                      update(gameRef, { state: "end_clicked" });
                       remove(gameRef);
                     }}
                   >
