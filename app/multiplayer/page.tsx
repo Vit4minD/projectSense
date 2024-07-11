@@ -180,10 +180,7 @@ export default function Multiplayer() {
             : null;
         })
         : null;
-      setTimeout(() => {
-        remove(gameRef);
-        setIndex(0);
-      }, 6000); // 10000 milliseconds = 10 seconds
+      remove(gameRef);
     } else if (gameState && gameState.state == "end_clicked") {
       setIndex(0);
     }
