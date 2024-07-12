@@ -553,8 +553,8 @@ function nEstim() {
 }
 
 function nless100() {
-  let n = Math.floor(Math.random() * (100 - 90 + 1)) + 80;
-  let x = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
+  let n = Math.floor(Math.random() * (99 - 90 + 1)) + 90;
+  let x = Math.floor(Math.random() * (99 - 80 + 1)) + 80;
 
   return {
     body: `${n} \\times ${x}`,
@@ -563,8 +563,8 @@ function nless100() {
 }
 
 function nmore100() {
-  let n = Math.floor(Math.random() * (120 - 110 + 1)) + 100;
-  let x = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
+  let n = Math.floor(Math.random() * (120 - 110 + 1)) + 101;
+  let x = Math.floor(Math.random() * (120 - 100 + 1)) + 101;
 
   return {
     body: `${n} \\times ${x}`,
@@ -573,8 +573,22 @@ function nmore100() {
 }
 
 function nmix100() {
-  let n = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
-  let x = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
+  function getRandomN() {
+    let n;
+    do {
+      n = Math.floor(Math.random() * (95 - 80 + 1)) + 80;
+    } while (n === 100);
+    return n;
+  }
+  function getRandomX() {
+    let x;
+    do {
+      x = Math.floor(Math.random() * (115 - 100 + 1)) + 100;
+    } while (x === 100);
+    return x;
+  }
+  let n = getRandomN();
+  let x = getRandomX();
 
   return {
     body: `${n} \\times ${x}`,
@@ -1327,7 +1341,6 @@ function abab() {
 
 function ngon() {
   const polygons = [
-    { sides: 3, name: "Triangle" },
     { sides: 4, name: "Square" },
     { sides: 5, name: "Pentagon" },
     { sides: 6, name: "Hexagon" },
@@ -1472,16 +1485,16 @@ function geometricmean() {
     let answer = 2 * n;
     return {
       body: isSmallScreen
-        ? `\\text{What is the geometric} \\newline \\text{mean between} \\newline ${n}  \\text{, } ${supern1} \\newline \\text{, and } ${supern2}?`
-        : `\\text{What is the geometric mean between } ${n} \\text{, } ${supern1} \\text{, and } ${supern2}?`,
+        ? `\\text{What is the geometric} \\newline \\text{mean beoftween} \\newline ${n}  \\text{, } ${supern1} \\newline \\text{, and } ${supern2}?`
+        : `\\text{What is the geometric mean of } ${n} \\text{, } ${supern1} \\text{, and } ${supern2}?`,
       ans: "" + answer,
     };
   } else {
     let supern = n * numbers[randomIndex1];
     return {
       body: isSmallScreen
-        ? `\\text{What is the geometric} \\newline \\text{mean between} \\newline ${n}  \\text{ and } ${supern}?`
-        : `\\text{What is the geometric mean between } ${n} \\text{ and } ${supern}?`,
+        ? `\\text{What is the geometric} \\newline \\text{mean of} \\newline ${n}  \\text{ and } ${supern}?`
+        : `\\text{What is the geometric mean of } ${n} \\text{ and } ${supern}?`,
       ans: "" + Math.sqrt(n * supern),
     };
   }
@@ -1539,10 +1552,10 @@ function harmonicMean() {
   const small = window.innerWidth <= 768;
   return {
     body: small
-      ? `\\text{What is the harmonic mean} \\newline  \\text{between } ${numbers.join(
+      ? `\\text{What is the harmonic mean} \\newline  \\text{of } ${numbers.join(
           `\\text{, } `
         )} \\text{(mixed number)}`
-      : `\\text{What is the harmonic mean between } ${numbers.join(
+      : `\\text{What is the harmonic mean of } ${numbers.join(
           `\\text{, } `
         )} \\text{ (mixed number)}`,
     ans: mixedNumber,
