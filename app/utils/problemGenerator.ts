@@ -453,8 +453,11 @@ function n111() {
 function nmod() {
   let n = Math.floor(Math.random() * (99999 - 10 + 1)) + 10;
   let x = Math.floor(Math.random() * (11 - 3 + 1)) + 3;
+  const small = window.innerWidth <= 768;
   return {
-    body: `${n} \\text{ divided by } ${x} \\text{ has a remainder of } `,
+    body: small
+      ? `${n} \\text{ divided } \\newline \\text{by } ${x} \\text{ has}\\newline \\text{a remainder of } `
+      : `${n} \\text{ divided by } ${x} \\text{ has a remainder of } `,
     ans: "" + (n % x),
   };
 }
@@ -591,7 +594,7 @@ function fractodec() {
   let fracarr = [7, 8, 9, 11, 16];
   let randomIndex = Math.floor(Math.random() * fracarr.length);
   let denominator = fracarr[randomIndex];
-
+  const small = window.innerWidth <= 768;
   let numerator = Math.floor(Math.random() * (denominator - 1)) + 1;
   let decimalValue = (numerator / denominator).toString();
 
@@ -607,10 +610,13 @@ function fractodec() {
   }
 
   return {
-    body: `${numerator}/${denominator} \\text{ (first three decimals)}`,
+    body: small
+      ? ` \\text{  }${numerator}/${denominator}\\newline \\text{ (first three} \\newline \\text{decimals)}`
+      : `${numerator}/${denominator} \\text{ (first three decimals)}`,
     ans: answer,
   };
 }
+
 function decToFrac() {
   const examples = [
     { decimal: 0.0625, fraction: "1/16" },
@@ -651,7 +657,7 @@ function decToFrac() {
 
   const randomIndex = Math.floor(Math.random() * examples.length);
   const { decimal, fraction } = examples[randomIndex];
-
+  const small = window.innerWidth <= 768;
   let percentage = (decimal * 100).toFixed(2);
   percentage = percentage.replace(/\.00$/, "");
 
@@ -659,12 +665,15 @@ function decToFrac() {
     decimal.toString().includes("...") ||
     examples.some((e) => e.decimal === decimal);
 
-  const body = `${percentage}% \\text{ as a fraction}`;
   const ans = isRepeating ? fraction : percentage;
 
-  return { body: body, ans: ans };
+  return {
+    body: small
+      ? `${percentage}\\% \\newline \\text{ as a fraction}`
+      : `${percentage}\\% \\text{ as a fraction}`,
+    ans: ans,
+  };
 }
-
 function decAdditionandSub() {
   let n1 = Math.random() * 1000;
   let n2 = Math.random() * 1000;
@@ -697,7 +706,7 @@ function romanNum() {
     D: 500,
     M: 1000,
   };
-
+  const small = window.innerWidth <= 768;
   const romanNumeralValues = [
     { value: 1000, numeral: "M" },
     { value: 900, numeral: "CM" },
@@ -742,7 +751,9 @@ function romanNum() {
   const arabicNumber = toArabic(romanNumeral);
 
   return {
-    body: `${romanNumeral} \\text{ (in Arabic Numeral)}`,
+    body: small
+      ? `\\text{}${romanNumeral}\\newline \\text{ (in Arabic} \\newline \\text{Numeral)}`
+      : `${romanNumeral} \\text{ (in Arabic Numeral)}`,
     ans: "" + arabicNumber,
   };
 }
@@ -781,9 +792,6 @@ function nGCD() {
 }
 
 function nLCM() {
-  let n = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
-  let x = Math.floor(Math.random() * (99 - 10 + 1)) + 1;
-
   function gcd(a: number, b: number): number {
     while (b !== 0) {
       let temp: number = b;
@@ -797,6 +805,11 @@ function nLCM() {
     return (a * b) / gcd(a, b);
   }
 
+  let n, x;
+  do {
+    n = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+    x = Math.floor(Math.random() * (99 - 10 + 1)) + 10;
+  } while (gcd(n, x) === 1);
   return {
     body: `\\text{LCM of } ${n} \\text{ and } ${x}`,
     ans: "" + lcm(n, x),
@@ -804,7 +817,7 @@ function nLCM() {
 }
 function toBase10() {
   let operation = Math.floor(Math.random() * 8);
-
+  const small = window.innerWidth <= 768;
   if (operation === 0) {
     let num = "";
     let length = Math.floor(Math.random() * 6) + 2;
@@ -817,7 +830,9 @@ function toBase10() {
     let n = parseInt(num, 2);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 2 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 2} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 2 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -834,7 +849,9 @@ function toBase10() {
     let n = parseInt(num, 3);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 3 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 3} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 3 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -851,14 +868,16 @@ function toBase10() {
     let n = parseInt(num, 4);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 4 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 4} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 4 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
 
   if (operation === 3) {
     let num = "";
-    let length = Math.floor(Math.random() * 3) + 2;
+    let length = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
     let firstDigit = Math.floor(Math.random() * 2) + 1;
     num += firstDigit.toString();
     for (let i = 1; i < length; i++) {
@@ -868,14 +887,16 @@ function toBase10() {
     let n = parseInt(num, 5);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 5 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 5} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 5 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
 
   if (operation === 4) {
     let num = "";
-    let length = Math.floor(Math.random() * 3) + 2;
+    let length = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
     let firstDigit = Math.floor(Math.random() * 5) + 1;
     num += firstDigit.toString();
     for (let i = 1; i < length; i++) {
@@ -885,14 +906,16 @@ function toBase10() {
     let n = parseInt(num, 6);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 6 in to base 10}`,
+      body: small
+        ? `${num} \\text{ base 6} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 6 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
 
   if (operation === 5) {
     let num = "";
-    let length = Math.floor(Math.random() * 3) + 2;
+    let length = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
     let firstDigit = Math.floor(Math.random() * 6) + 1;
     num += firstDigit.toString();
     for (let i = 1; i < length; i++) {
@@ -902,14 +925,16 @@ function toBase10() {
     let n = parseInt(num, 7);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 7 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 7} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 7 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
 
   if (operation === 6) {
     let num = "";
-    let length = Math.floor(Math.random() * 3) + 2;
+    let length = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
     let firstDigit = Math.floor(Math.random() * 7) + 1;
     num += firstDigit.toString();
     for (let i = 1; i < length; i++) {
@@ -919,14 +944,16 @@ function toBase10() {
     let n = parseInt(num, 8);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 8 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 8} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 8 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
 
   if (operation === 7) {
     let num = "";
-    let length = Math.floor(Math.random() * 3) + 2;
+    let length = Math.floor(Math.random() * (3 - 2 + 1)) + 2;
     let firstDigit = Math.floor(Math.random() * 8) + 1;
     num += firstDigit.toString();
     for (let i = 1; i < length; i++) {
@@ -936,7 +963,9 @@ function toBase10() {
     let n = parseInt(num, 9);
     let convertedToBase10 = parseInt(n.toString(), 10);
     return {
-      body: `${num} \\text{ base 9 in base 10}`,
+      body: small
+        ? `${num} \\text{ base 9} \\newline \\text{in base 10}`
+        : `${num} \\text{ base 9 in base 10}`,
       ans: convertedToBase10.toString(),
     };
   }
@@ -945,6 +974,7 @@ function toBase10() {
 function toBaseX() {
   let n: number = Math.floor(Math.random() * (999 - 10 + 1)) + 10;
   let x: number = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+  const small = window.innerWidth <= 768;
   function convertToBaseX(number: number, base: number): string {
     let result: string = "";
     while (number > 0) {
@@ -955,7 +985,9 @@ function toBaseX() {
   }
   let result: string = convertToBaseX(n, x);
   return {
-    body: `${n} \\text{ base 10 in base ${x}}`,
+    body: small
+      ? `${n} \\text{ base 10} \\newline \\text{in base ${x}}`
+      : `${n} \\text{ base 10 in base ${x}}`,
     ans: `${result}`,
   };
 }
@@ -966,7 +998,7 @@ function base248() {
   let randomNumberBase8: number = Math.floor(Math.random() * 512);
   let randomNumberBase2: number = Math.floor(Math.random() * 1024);
   let randomNumberBase4: number = Math.floor(Math.random() * 256);
-
+  const small = window.innerWidth <= 768;
   function base8to2(base8: string): string {
     return parseInt(base8, 8).toString(2);
   }
@@ -993,27 +1025,39 @@ function base248() {
 
   if (randomFunctionIndex === 0) {
     let base8Number: string = randomNumberBase8.toString(8);
-    conversionResult = `${base8Number} \\text{ in base 8 in base 2}`;
+    conversionResult = small
+      ? `${base8Number} \\text{ in base 8 } \\newline \\text{in base 2}`
+      : `${base8Number} \\text{ in base 8 in base 2}`;
     result = base8to2(base8Number);
   } else if (randomFunctionIndex === 1) {
     let base8Number: string = randomNumberBase8.toString(8);
-    conversionResult = `${base8Number} \\text{ in base 8 in base 4}`;
+    conversionResult = small
+      ? `${base8Number}  \\text{ in base 8 } \\newline \\text{in base 4}`
+      : `${base8Number} \\text{ in base 8 in base 4}`;
     result = base8to4(base8Number);
   } else if (randomFunctionIndex === 2) {
     let base2Number: string = randomNumberBase2.toString(2);
-    conversionResult = `${base2Number} \\text{ in base 2 in base 8}`;
+    conversionResult = small
+      ? `${base2Number} \\newline \\text{ in base 2 } \\newline \\text{in base 8}`
+      : `${base2Number} \\text{ in base 2 in base 8}`;
     result = base2to8(base2Number);
   } else if (randomFunctionIndex === 3) {
     let base2Number: string = randomNumberBase2.toString(2);
-    conversionResult = `${base2Number} \\text{ in base 2 in base 4}`;
+    conversionResult = small
+      ? `${base2Number} \\newline \\text{ in base 2 } \\newline \\text{in base 4}`
+      : `${base2Number} \\text{ in base 2 in base 4}`;
     result = base2to4(base2Number);
   } else if (randomFunctionIndex === 4) {
     let base4Number: string = randomNumberBase4.toString(4);
-    conversionResult = `${base4Number} \\text{ in base 4 in base 2}`;
+    conversionResult = small
+      ? `${base4Number} \\text{ in base 4 } \\newline \\text{in base 2}`
+      : `${base4Number} \\text{ in base 4 in base 2}`;
     result = base4to2(base4Number);
   } else if (randomFunctionIndex === 5) {
     let base4Number: string = randomNumberBase4.toString(4);
-    conversionResult = `${base4Number} \\text{ in base 4 in base 8}`;
+    conversionResult = small
+      ? `${base4Number}  \\text{ in base 4 } \\newline \\text{in base 8}`
+      : `${base4Number} \\text{ in base 4 in base 8}`;
     result = base4to8(base4Number);
   } else {
     conversionResult = "Invalid function index";
@@ -1028,19 +1072,23 @@ function base248() {
 function intdivisors() {
   let n = Math.floor(Math.random() * 100 - 12 + 1) + 12;
   let sum = 0;
+  const small = window.innerWidth <= 768;
   for (let i = 1; i <= n; i++) {
     if (n % i === 0) {
       sum += i;
     }
   }
   return {
-    body: `\\text{The sum of the positive integral divisors of } ${n}`,
+    body: small
+      ? `\\text{The sum of the positive}\\newline \\text{integral divisors of } ${n}`
+      : `\\text{The sum of the positive integral divisors of } ${n}`,
     ans: "" + sum,
   };
 }
 
 function primeDiv() {
   let n: number = Math.floor(Math.random() * 130) + 1;
+  const small = window.innerWidth <= 768;
   function isPrime(num: number): boolean {
     if (num <= 1) return false;
     if (num === 2) return true;
@@ -1057,7 +1105,9 @@ function primeDiv() {
     }
   }
   return {
-    body: `\\text{The sum of the prime divisors of }${n}`,
+    body: small
+      ? `\\text{The sum of the prime} \\newline \\text{divisors of }${n}`
+      : `\\text{The sum of the prime divisors of }${n}`,
     ans: "" + sum,
   };
 }
@@ -1065,13 +1115,15 @@ function primeDiv() {
 function nover90() {
   let randomValue = Math.floor(Math.random() * 4);
   let n, result, truncatedResult;
-
+  const small = window.innerWidth <= 768;
   if (randomValue === 0) {
     n = Math.floor(Math.random() * 89) + 1;
     result = n / 90;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{90}  `,
+      body: small
+        ? `\\text{What are the first}\\newline \\text{3 digits of } \\frac{${n}}{90}  `
+        : `\\text{What are the first 3 digits of }  \\frac{${n}}{90}  `,
       ans: truncatedResult.toString().substring(1, 5),
     };
   } else if (randomValue === 1) {
@@ -1079,7 +1131,9 @@ function nover90() {
     result = n / 900;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{900} `,
+      body: small
+        ? `\\text{What are the first}\\newline \\text{3 digits of } \\frac{${n}}{900}  `
+        : `\\text{What are the first 3 digits of }  \\frac{${n}}{900}  `,
       ans: truncatedResult.toString().substring(1, 5),
     };
   } else if (randomValue === 2) {
@@ -1087,7 +1141,9 @@ function nover90() {
     result = n / 99;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{99} `,
+      body: small
+        ? `\\text{What are the first}\\newline \\text{3 digits of } \\frac{${n}}{99}  `
+        : `\\text{What are the first 3 digits of }  \\frac{${n}}{99}  `,
       ans: truncatedResult.toString().substring(1, 5),
     };
   } else {
@@ -1095,14 +1151,16 @@ function nover90() {
     result = n / 990;
     truncatedResult = Math.floor(result * 1000) / 1000;
     return {
-      body: `\\text{What are the first 3 digits of }  \\frac{${n}}{990} `,
+      body: small
+        ? `\\text{What are the first}\\newline \\text{3 digits of } \\frac{${n}}{990}  `
+        : `\\text{What are the first 3 digits of }  \\frac{${n}}{990}  `,
       ans: truncatedResult.toString().substring(1, 5),
     };
   }
 }
 
 function ntriangular() {
-  let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
+  let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
   return {
     body: `1 + 2 + 3 + \\ldots + ${n}`,
     ans: "" + (n * (n + 1)) / 2,
@@ -1112,8 +1170,11 @@ function ntriangular() {
 function npentagonal() {
   let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
   let x = (n * (3 * n - 1)) / 2;
+  const small = window.innerWidth <= 768;
   return {
-    body: `\\text{What is the } ${n}\\text{th} \\text{ pentagonal number}`,
+    body: small
+      ? `\\text{What is the } ${n}\\text{th} \\newline \\text{pentagonal} \\newline \\text{number}`
+      : `\\text{What is the } ${n}\\text{th} \\text{ pentagonal number}`,
     ans: "" + x,
   };
 }
@@ -1121,8 +1182,11 @@ function npentagonal() {
 function nhexagonal() {
   let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
   let x = n * (2 * n - 1);
+  const small = window.innerWidth <= 768;
   return {
-    body: `\\text{What is the } ${n}\\text{th} \\text{ hexagonal number}`,
+    body: small
+      ? `\\text{What is the } ${n}\\text{th} \\newline \\text{hexagonal} \\newline \\text{number}`
+      : `\\text{What is the } ${n}\\text{th} \\text{ hexagonal number}`,
     ans: "" + x,
   };
 }
@@ -1150,13 +1214,17 @@ function complexNumber() {
   let b = Math.floor(Math.random() * 21) - 10;
   let c = Math.floor(Math.random() * 21) - 10;
   let d = Math.floor(Math.random() * 21) - 10;
+  const small = window.innerWidth <= 768;
   let realPart = a * c - b * d;
   let imaginaryPart = a * d + b * c;
   let sum = realPart + imaginaryPart;
   let bFormatted = b >= 0 ? `+ ${b}i` : `- ${Math.abs(b)}i`;
   let dFormatted = d >= 0 ? `+ ${d}i` : `- ${Math.abs(d)}i`;
   return {
-    body: `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ a + b }",
+    body: small
+      ? `(${a} ${bFormatted})(${c} ${dFormatted})` +
+        " \\newline \\text{ a + b }"
+      : `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ a + b }",
     ans: "" + sum,
   };
 }
@@ -1169,7 +1237,7 @@ function unitConversion() {
     pints: { gallons: 0.125, quarts: 0.5, cups: 2, pecks: 0.03125 },
     cups: { gallons: 0.0625, quarts: 0.25, pints: 0.5, pecks: 0.015625 },
   };
-
+  const small = window.innerWidth <= 768;
   const units = Object.keys(conversions);
   const fromUnit = units[Math.floor(Math.random() * units.length)];
   const toUnits = Object.keys(conversions[fromUnit]);
@@ -1194,7 +1262,9 @@ function unitConversion() {
         .replace(/\.([1-9])0$/, ".$1");
 
   return {
-    body: `\\text{ How many } ${toUnit} \\text{ are in } ${value}\\text{ } ${fromUnit}?`,
+    body: small
+      ? `\\text{ How many } ${toUnit} \\newline \\text{ are in } \\newline ${value} \\text{ } ${fromUnit}?`
+      : `\\text{ How many } ${toUnit}  \\text{ are in } ${value}\\text{ } ${fromUnit}?`,
     ans: formattedValue,
   };
 }
