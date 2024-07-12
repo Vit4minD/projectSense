@@ -124,7 +124,7 @@ export default function Home() {
             onClick={() => {
               setSymbol(value === "x" ? "*" : value === "÷" ? "/" : value)
             }}
-            className={` w-20 h-20 md:w-28 md:h-28 rounded-3xl text-2xl md:text-5xl font-extrabold  border-black border-4 ${value === symbol ? "bg-gray-700 text-white" : "bg-white hover:bg-gray-200 text-black"}`}
+            className={` w-20 h-20 md:w-28 md:h-28 rounded-3xl text-2xl md:text-5xl font-extrabold  border-black border-4 ${value === symbol || value === "x" && symbol === "*" || value === "÷" && symbol === "/" ? "bg-gray-700 text-white" : "bg-white hover:bg-gray-200 text-black"}`}
           >
             <MathComponent math={value} />
           </button>
