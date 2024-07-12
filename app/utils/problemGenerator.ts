@@ -9,48 +9,48 @@ export const problemSet: { [key: number]: string } = {
   8: "\\text{FOIL}",
   9: "\\text{SQUARES (10-41)}",
   10: "\\text{SQUARES (41-60)}",
-  11: "(\\text{Tens Trick})",
-  12: "(\\Sigma : \\frac{n(n+1)}{2})",
-  13: "(\\text{Estimation})",
-  14: "(<100 \\text{ Multiplication})",
-  15: "(>100 \\text{ Multiplication})",
-  16: "(\\pm< 100 \\text{ Multiplication})",
-  17: "(\\text{Dec/Frac Conversion})",
-  18: "(\\text{Dec Addition/Subtraction})",
-  19: "(\\text{Roman Numerals})",
-  20: "(\\text{Cubes})",
-  21: "(\\text{GCD})",
-  22: "(\\text{LCM})",
-  23: "(\\text{Conversion into Base 10})",
-  24: "(\\text{Conversion from Base 10})",
-  25: "(\\text{Conversion of Base 2, 4, 8})",
-  26: "(\\text{Sum of Integral Divisors})",
-  27: "(\\text{Sum of Prime Divisors})",
-  28: "(\\frac{x}{90}, \\frac{x}{99}, \\frac{x}{900}, \\frac{x}{990})",
-  29: "(\\text{Triangular Numbers})",
-  30: "(\\text{Pentagonal Numbers})",
-  31: "(\\text{Hexagonal Numbers})",
-  32: "(x^2 + (2x)^2)",
-  33: "(x^2 + (3x)^2)",
-  34: "(\\text{Complex Number Multiplication})",
-  35: "(\\text{Unit Conversions})",
-  36: "(x^2 + (x+1)^2)",
-  37: "(\\frac{a}{b} + \\frac{b}{a})",
-  38: "(\\# \\text{ of distinct diagonals in a polygon})",
-  39: "(\\text{Sum of } n \\text{ cubes})",
-  40: "(\\text{Alternating Sum of } n \\text{ Squares})",
-  41: "(\\text{Mean/Median})",
-  42: "(\\text{Geometric Mean})",
-  43: "(\\text{Harmonic Mean})",
-  44: "(\\text{Estimating Square/Cube Roots})",
-  45: "(\\frac{x}{100} \\text{ of } y)",
-  46: "(\\frac{a \\times b}{c})",
-  47: "((a+b) \\times (a-b))",
-  48: "(\\text{Fibonacci Series})",
-  49: "(\\text{3 digit FOIL})",
-  50: "(\\text{3-digit Squares})",
-  51: "(\\text{3-digit Cubes})",
-  52: "(\\frac{x^3-y^3}{x-y})",
+  11: "\\text{Tens Trick}",
+  12: "\\text{Sum of Arithmetic Series}",
+  13: "\\text{Estimation}",
+  14: "<100 \\text{ Multiplication}",
+  15: ">100 \\text{ Multiplication}",
+  16: "\\text{> / < } 100 \\text{ Multiplication}",
+  17: "\\text{Dec/Frac Conversion}",
+  18: "\\text{Dec Addition/Subtraction}",
+  19: "\\text{Roman Numerals}",
+  20: "\\text{Cubes}",
+  21: "\\text{GCD}",
+  22: "\\text{LCM}",
+  23: "\\text{Conversion into Base 10}",
+  24: "\\text{Conversion from Base 10}",
+  25: "\\text{Conversion of Base 2, 4, 8}",
+  26: "\\text{Sum of Integral Divisors}",
+  27: "\\text{Sum of Prime Divisors}",
+  28: "\\frac{x}{90}, \\frac{x}{99}, \\frac{x}{900}, \\frac{x}{990}",
+  29: "\\text{Triangular Numbers}",
+  30: "\\text{Pentagonal Numbers}",
+  31: "\\text{Hexagonal Numbers}",
+  32: "x^2 + (2x)^2",
+  33: "x^2 + (3x)^2",
+  34: "\\text{Complex Number Multiplication}",
+  35: "\\text{Unit Conversions}",
+  36: "x^2 + (x+1)^2",
+  37: "\\frac{a}{b} + \\frac{b}{a}",
+  38: "\\# \\text{ of distinct diagonals in a polygon}",
+  39: "\\text{Sum of } n \\text{ cubes}",
+  40: "\\text{Alternating Sum of } n \\text{ Squares}",
+  41: "\\text{Mean/Median}",
+  42: "\\text{Geometric Mean}",
+  43: "\\text{Harmonic Mean}",
+  44: "\\text{Estimating Square/Cube Roots}",
+  45: "\\frac{x}{100} \\text{ of } y",
+  46: "\\frac{a \\times b}{c}",
+  47: "(a+b) \\times (a-b)",
+  48: "\\text{Fibonacci Series}",
+  49: "\\text{3 digit FOIL}",
+  50: "\\text{3-digit Squares}",
+  51: "\\text{3-digit Cubes}",
+  52: "\\frac{x^3-y^3}{x-y}",
 };
 
 interface Trick {
@@ -553,7 +553,7 @@ function nEstim() {
 }
 
 function nless100() {
-  let n = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
+  let n = Math.floor(Math.random() * (100 - 90 + 1)) + 80;
   let x = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
 
   return {
@@ -563,7 +563,7 @@ function nless100() {
 }
 
 function nmore100() {
-  let n = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
+  let n = Math.floor(Math.random() * (120 - 110 + 1)) + 100;
   let x = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
 
   return {
@@ -573,8 +573,8 @@ function nmore100() {
 }
 
 function nmix100() {
-  let n = Math.floor(Math.random() * (120 - 80 + 1)) + 80;
-  let x = Math.floor(Math.random() * (120 - 80 + 1)) + 80;
+  let n = Math.floor(Math.random() * (100 - 80 + 1)) + 80;
+  let x = Math.floor(Math.random() * (120 - 100 + 1)) + 100;
 
   return {
     body: `${n} \\times ${x}`,
@@ -972,8 +972,11 @@ function toBase10() {
 }
 
 function toBaseX() {
-  let n: number = Math.floor(Math.random() * (999 - 10 + 1)) + 10;
   let x: number = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
+  if(x === 2) {
+    let n: number = Math.floor(Math.random() * (256 - 10 + 1)) + 10;
+  }
+  let n: number = Math.floor(Math.random() * (999 - 10 + 1)) + 10;
   const small = window.innerWidth <= 768;
   function convertToBaseX(number: number, base: number): string {
     let result: string = "";
@@ -1160,10 +1163,14 @@ function nover90() {
 }
 
 function ntriangular() {
-  let n = Math.floor(Math.random() * (25 - 5 + 1)) + 5;
+  let n = Math.floor(Math.random() * 25 - 5 + 1) + 5;
+  let x = (n * (n + 1)) / 2;
+  const small = window.innerWidth <= 768;
   return {
-    body: `1 + 2 + 3 + \\ldots + ${n}`,
-    ans: "" + (n * (n + 1)) / 2,
+    body: small
+      ? `\\text{What is the } ${n}\\text{th} \\newline \\text{trinagular} \\newline \\text{number}`
+      : `\\text{What is the } ${n}\\text{th} \\text{ triangular number}`,
+    ans: "" + x,
   };
 }
 
@@ -1210,10 +1217,17 @@ function nX23x2() {
   };
 }
 function complexNumber() {
-  let a = Math.floor(Math.random() * 21) - 10;
-  let b = Math.floor(Math.random() * 21) - 10;
-  let c = Math.floor(Math.random() * 21) - 10;
-  let d = Math.floor(Math.random() * 21) - 10;
+  function getRandomNonZeroInt() {
+    let num;
+    do {
+      num = Math.floor(Math.random() * 21) - 10;
+    } while (num === 0);
+    return num;
+  }
+  let a = getRandomNonZeroInt();
+  let b = getRandomNonZeroInt();
+  let c = getRandomNonZeroInt();
+  let d = getRandomNonZeroInt();
   const small = window.innerWidth <= 768;
   let realPart = a * c - b * d;
   let imaginaryPart = a * d + b * c;
@@ -1224,7 +1238,7 @@ function complexNumber() {
     body: small
       ? `(${a} ${bFormatted})(${c} ${dFormatted})` +
         " \\newline \\text{ a + b }"
-      : `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ a + b }",
+      : `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ = a + bi. a + b }",
     ans: "" + sum,
   };
 }
