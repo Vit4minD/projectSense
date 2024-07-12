@@ -37,7 +37,7 @@ export const problemSet: { [key: number]: string } = {
   36: "(x^2 + (x+1)^2)",
   37: "(\\frac{a}{b} + \\frac{b}{a})",
   38: "(\\# \\text{ of distinct diagonals in a polygon})",
-  39: "(\\text{Sum of } n \\text{ Squares})",
+  39: "(\\text{Sum of } n \\text{ cubes})",
   40: "(\\text{Alternating Sum of } n \\text{ Squares})",
   41: "(\\text{Mean/Median})",
   42: "(\\text{Geometric Mean})",
@@ -291,7 +291,7 @@ export const problemFunction: { [key: string]: Trick } = {
     type: "",
   },
   "39": {
-    function: sumofnsq,
+    function: sumofncub,
     probability: 1,
     column: 3,
     type: "",
@@ -1263,7 +1263,7 @@ function unitConversion() {
 
   return {
     body: small
-      ? `\\text{ How many } ${toUnit} \\newline \\text{ are in } \\newline ${value} \\text{ } ${fromUnit}?`
+      ? `\\text{ How many } ${toUnit} \\newline \\text{ are in }  ${value} \\text{ } ${fromUnit}?`
       : `\\text{ How many } ${toUnit}  \\text{ are in } ${value}\\text{ } ${fromUnit}?`,
     ans: formattedValue,
   };
@@ -1322,20 +1322,22 @@ function ngon() {
     { sides: 9, name: "Nonagon" },
     { sides: 10, name: "Decagon" },
   ];
-
+  const small = window.innerWidth <= 768;
   let randomIndex = Math.floor(Math.random() * polygons.length);
   let selectedPolygon = polygons[randomIndex];
   let diagonals = (selectedPolygon.sides * (selectedPolygon.sides - 3)) / 2;
 
   return {
-    body: `\\text{Number of diagonals in a } ${selectedPolygon.name}`,
+    body: small
+      ? `\\text{  Number of } \\newline \\text{diagonals in a } \\newline ${selectedPolygon.name}`
+      : `\\text{Number of diagonals in a } ${selectedPolygon.name}`,
     ans: "" + diagonals,
   };
 }
 
-function sumofnsq() {
+function sumofncub() {
   let n = Math.floor(Math.random() * (20 - 5 + 1)) + 5;
-  let squaredN = `${n}\u{00B2}`;
+  let squaredN = `${n}\u{00B3}`;
   let sum = ((n * (n + 1)) / 2) ** 2;
   return {
     body: "1\u{00B2} + 2\u{00B2} + 3\u{00B2} + ... + " + squaredN,
@@ -1382,7 +1384,7 @@ function calculateMean() {
   let sum = 0;
 
   for (let i = 0; i < count - 1; i++) {
-    let randomTwoDigit = Math.floor(Math.random() * 90) + 10;
+    let randomTwoDigit = Math.floor(Math.random() * 30) + 10;
     sum += randomTwoDigit;
     numbers.push(randomTwoDigit);
   }
@@ -1397,13 +1399,15 @@ function calculateMean() {
     requiredSum = sum + lastNumber;
     targetMean = Math.round((requiredSum / count) * 2) / 2;
   }
-
+  const small = window.innerWidth <= 768;
   numbers.push(lastNumber);
   sum += lastNumber;
   let mean = sum / count;
 
   return {
-    body: `\\text{The mean of }  ${numbers} \\text{ is}`,
+    body: small
+      ? `\\text{The mean of }\\newline  ${numbers}\\newline  \\text{ is}`
+      : `\\text{The mean of }  ${numbers} \\text{ is}`,
     ans: "" + mean,
   };
 }
@@ -1423,9 +1427,11 @@ function calculateMedian() {
   } else {
     median = numbers[middle];
   }
-
+  const small = window.innerWidth <= 768;
   return {
-    body: `\\text{The median of }  ${numbers} \\text{ is}`,
+    body: small
+      ? `\\text{The median of }\\newline  ${numbers} \\newline \\text{ is}`
+      : `\\text{The median of }  ${numbers} \\text{ is}`,
     ans: "" + median,
   };
 }
@@ -1516,11 +1522,15 @@ function harmonicMean() {
   numerator /= gcdValue;
   denominator /= gcdValue;
   let mixedNumber = toMixedNumber(numerator, denominator);
-
+  const small = window.innerWidth <= 768;
   return {
-    body: `\\text{What is the harmonic mean between } ${numbers.join(
-      `\\text{, } `
-    )} \\text{ (mixed number)}`,
+    body: small
+      ? `\\text{What is the harmonic mean} \\newline  \\text{between } ${numbers.join(
+          `\\text{, } `
+        )} \\text{(mixed number)}`
+      : `\\text{What is the harmonic mean between } ${numbers.join(
+          `\\text{, } `
+        )} \\text{ (mixed number)}`,
     ans: mixedNumber,
   };
 }
@@ -1557,7 +1567,7 @@ function x100ofy() {
   let percentage = Math.floor(Math.random() * 100) + 1;
   let result = (percentage / 100) * twoDigitNumber;
   return {
-    body: `${percentage}% \\text{ of } ${twoDigitNumber}`,
+    body: `${percentage}\\% \\text{ of } ${twoDigitNumber}`,
     ans: "" + result,
   };
 }
