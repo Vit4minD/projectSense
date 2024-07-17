@@ -987,7 +987,7 @@ function toBase10() {
 
 function toBaseX() {
   let x: number = Math.floor(Math.random() * (9 - 2 + 1)) + 2;
-  if(x === 2) {
+  if (x === 2) {
     let n: number = Math.floor(Math.random() * (256 - 10 + 1)) + 10;
   }
   let n: number = Math.floor(Math.random() * (999 - 10 + 1)) + 10;
@@ -1252,7 +1252,8 @@ function complexNumber() {
     body: small
       ? `(${a} ${bFormatted})(${c} ${dFormatted})` +
         " \\newline \\text{ a + b }"
-      : `(${a} ${bFormatted})(${c} ${dFormatted})` + "  \\text{ = a + bi. a + b }",
+      : `(${a} ${bFormatted})(${c} ${dFormatted})` +
+        "  \\text{ = a + bi. a + b }",
     ans: "" + sum,
   };
 }
@@ -1309,15 +1310,9 @@ function xandx1() {
 }
 
 function abab() {
-  let n = Math.floor(Math.random() * 14) + 2;
-  let x = Math.floor(Math.random() * 14) + 2;
-
-  while (n === x || (n - x) ** 2 >= n * x) {
-    x = Math.floor(Math.random() * 14) + 2;
+  function getRandomInt(min: number, max: number): number {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
   }
-
-  let numerator = (n - x) ** 2;
-  let denominator = n * x;
 
   function gcd(a: number, b: number): number {
     while (b !== 0) {
@@ -1328,6 +1323,16 @@ function abab() {
     return a;
   }
 
+  let n: number;
+  let x: number;
+  do {
+    n = getRandomInt(2, 15);
+    x = getRandomInt(2, 15);
+  } while (n === x || (n - x) ** 2 >= n * x || gcd(n, x) !== 1);
+
+  let numerator = (n - x) ** 2;
+  let denominator = n * x;
+
   let gcdValue = gcd(numerator, denominator);
 
   numerator /= gcdValue;
@@ -1335,7 +1340,7 @@ function abab() {
 
   return {
     body: `\\frac{${n}}{${x}} \\text{ + }\\frac{${x}}{${n}}`,
-    ans: "2 " + numerator + "/" + denominator,
+    ans: `2 ${numerator}/${denominator}`,
   };
 }
 
@@ -1604,7 +1609,11 @@ function aboverc() {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  function getCloseRandomInt(
+  function gcd(x: number, y: number): number {
+    return !y ? x : gcd(y, x % y);
+  }
+
+  function getRelativelyPrimeRandomInt(
     base: number,
     min: number,
     max: number,
@@ -1616,18 +1625,22 @@ function aboverc() {
         Math.max(min, base - range),
         Math.min(max, base + range)
       );
-    } while (result === base);
+    } while (result === base || gcd(base, result) !== 1);
     return result;
   }
 
-  let a = getRandomInt(10, 30);
-  let b = getCloseRandomInt(a, 10, 30, 5);
-  let c = getCloseRandomInt(b, 10, 30, 5);
+  let a: number;
+  let b: number;
+  let c: number;
+  do {
+    a = getRandomInt(10, 30);
+    b = getRelativelyPrimeRandomInt(a, 10, 30, 5);
+    c = getRelativelyPrimeRandomInt(b, 10, 30, 5);
+  } while (gcd(a, b) !== 1 || gcd(b, c) !== 1 || gcd(a, c) !== 1);
 
   let body = `${a} \\times \\frac{${b}}{${c}}`;
   let ans = `${(a * b) / c}`;
   let numerator = a * b;
-  let gcd = (x: number, y: number): number => (!y ? x : gcd(y, x % y));
   let commonDivisor = gcd(numerator, c);
   numerator /= commonDivisor;
   c /= commonDivisor;
@@ -1644,10 +1657,9 @@ function aboverc() {
     ans: "" + mixedNumber,
   };
 }
-
 function diffofsq() {
   function generateNumbersWithSameTensDigit() {
-    let tensDigit = Math.floor(Math.random() * 9) + 1;
+    let tensDigit = Math.floor(Math.random() * 5) + 1;
     let a = Math.floor(Math.random() * 10);
     let b = Math.floor(Math.random() * 10);
     let number1 = tensDigit * 10 + a;
