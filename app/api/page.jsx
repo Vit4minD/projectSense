@@ -85,14 +85,14 @@ function Gemini() {
                             <div className='w-[50%] flex flex-col h-full border-r-2 border-white overflow-y-auto'>
                                 <h1 className='p-4 text-center'>Your Answers</h1>
                                 {answers && Object.entries(answers).map(([key, item], index) => (
-                                    <p className='p-2 text-center'>{index + 1}. {item}</p>
+                                    <p key={index} className='p-2 text-center'>{index + 1}. {item}</p>
                                 ))}
                                 <hr className='mt-36'></hr>
                             </div>
                             <div className='w-[50%] flex flex-col h-full overflow-y-auto'>
                                 <h1 className='p-4 text-center'>AI Answers</h1>
                                 {answerKey && Object.entries(answerKey).map(([key, item], index) => (
-                                    <p className='p-2 text-center'>{index + 1}. {item}</p>
+                                    <p key={index} className='p-2 text-center'>{index + 1}. {item}</p>
                                 ))}
                                 <hr className='mt-36'></hr>
                             </div>
