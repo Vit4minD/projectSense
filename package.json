@@ -31,7 +31,8 @@
     "react-google-button": "^0.7.2",
     "react-icons": "^5.0.1",
     "react-intersection-observer": "^9.10.3",
-    "react-katex": "^3.0.1"
+    "react-katex": "^3.0.1",
+    "spinners-react": "^1.0.7"
   },
   "devDependencies": {
     "@types/node": "^20",
