@@ -74,14 +74,14 @@ function Gemini() {
                     <button onClick={() => {
                         setGenerating(true)
                         run()
-                    }} className='bg-white rounded-2xl p-6 shadow-lg text-5xl font-bold text-orange-400 flex flex-row items-center gap-x-4 hover:scale-105 ease-in-out hover:bg-gray-200 duration-200'>Generate Test with AI<FaPaperPlane /></button>
+                    }} className='bg-white rounded-2xl p-3 md:p-6 shadow-lg text-3xl md:text-5xl font-bold text-orange-400 flex flex-row items-center gap-x-4 hover:scale-105 ease-in-out hover:bg-gray-200 duration-200'>Generate Test with AI<FaPaperPlane /></button>
                 )}
             </main> :
             submitting ? !(results === null) ?
                 <main className='font-bold font-mono overflow-y-clip w-full h-screen bg-orange-300 text-white'>
-                    <h1 className=' text-center p-6 text-6xl border-b-2 border-white'>Answer Key</h1>
+                    <h1 className=' text-center p-6 text-4xl md:text-6xl border-b-2 border-white'>Answer Key</h1>
                     <div className='w-full h-full flex flex-row justify-center'>
-                        <div className='w-[70%] text-4xl h-full flex flex-row justify-between items-center'>
+                        <div className='w-[70%] text-2xl md:text-4xl h-full flex flex-row justify-between items-center'>
                             <div className='w-[50%] flex flex-col h-full border-r-2 border-white overflow-y-auto'>
                                 <h1 className='p-4 text-center'>Your Answers</h1>
                                 {answers && Object.entries(answers).map(([key, item], index) => (
@@ -97,33 +97,33 @@ function Gemini() {
                                 <hr className='mt-36'></hr>
                             </div>
                         </div>
-                        <div className='border-l-2 border-white w-[30%] text-4xl font-bold h-full flex flex-col items-center justify-center'>
-                            <label className='underline mb-4'>AI Graded Score</label>
-                            <label className='text-6xl'>{lastQuestion * 5 - 9 * (lastQuestion - results["number_correct"])}</label>
-                            <label className='text-2xl text-center'>Make sure to check yourself! AI could be wrong.</label>
+                        <div className='border-l-2 border-white w-[30%] text-2xl md:text-4xl font-bold h-full flex flex-col items-center justify-center'>
+                            <label className='-mt-64 md:mt-0 underline mb-4'>AI Graded Score</label>
+                            <label className='text-4xl md:text-6xl'>{lastQuestion * 5 - 9 * (lastQuestion - results["number_correct"])}</label>
+                            <label className='text-xl md:text-2xl text-center'>Make sure to check yourself! AI could be wrong.</label>
                         </div>
                     </div>
                     {/* <p className='bg-white w-2/3 text-orange-300 rounded-2xl font-semibold p-4 text-5xl'>{JSON.stringify(results)}</p> */}
                 </main> : <main className='w-full h-screen bg-orange-300 items-center flex justify-center'>
                     <SpinnerDotted color="white" size={150} thickness={150} enabled={generating} />
                 </main> : (<main className='text-white text-2xl font-mono w-full overflow-y-scroll h-screen bg-orange-300 '>
-                    <button className='flex mx-auto p-4 text-6xl font-semibold' onClick={run}>Project Sense</button>
-                    <label className='flex mx-auto text-xl font-semibold justify-center' onClick={run}>Press Tab to Go to Next Question Faster</label>
-                    <div className='flex w-[80%] flex-col mx-auto items-start font-bold text-3xl'>
+                    <button className='flex mx-auto p-4 text-4xl md:text-6xl font-semibold' onClick={run}>Project Sense</button>
+                    <label className='flex ml-4 md:ml-0 mx-0 md:mx-auto text-lg md:text-xl font-semibold md:justify-center' onClick={run}>Press Tab to Go to Next Question Faster</label>
+                    <div className='flex w-[90%] md:w-[80%] flex-col mx-auto items-start font-bold text-lg md:text-3xl'>
                         {text && Object.entries(text).map(([key, item], index) => (
                             <div className='w-full flex flex-row items-center' key={index}>
                                 {item ? <>
-                                    <p className="my-4 mr-4 shadow-xl p-4 w-[10%] text-center items-center  bg-white rounded-2xl text-orange-300" >{"(" + (index + 1) + ")\t"}</p>
-                                    <p className="my-4 shadow-xl p-4 mr-4 w-[80%] bg-white rounded-2xl text-orange-300" >
+                                    <p className="my-4 mr-4 shadow-xl p-2 md:p-4 w-[15%] md:w-[10%] text-center items-center  bg-white rounded-2xl text-orange-300" >{"(" + (index + 1) + ")\t"}</p>
+                                    <p className="my-2 md:my-4 shadow-xl p-1 md:p-4 mr-2 md:mr-4 w-[80%] bg-white rounded-2xl text-orange-300" >
                                         {item}
                                     </p>
                                     <input type='string' value={answers[index] || ''}
-                                        onChange={handleInputChange(index)} className='w-[10%] focus:outline-none text-black p-4 max-h-full'></input>
+                                        onChange={handleInputChange(index)} className='w-[15%] md:w-[10%] focus:outline-none rounded-2xl text-black p-2 md:p-4 h-10 md:max-h-full'></input>
                                 </> : null}
                             </div>
                         ))}
                     </div>
-                    <button onClick={handleSubmit} className='mx-auto flex font-bold font-mono underline text-6xl p-8 hover:decoration-4'>Submit</button>
+                    <button onClick={handleSubmit} className='mx-auto flex font-bold font-mono underline text-4xl md:text-6xl p-8 hover:decoration-4'>Submit</button>
                 </main>)
     );
 }
