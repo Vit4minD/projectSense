@@ -103,6 +103,13 @@ export default function Home() {
             >
               <FaTrophy />
             </button>
+            <button
+              onClick={() => router.push(`/api`)}
+              className="hover:text-2xl md:hover:text-5xl hover:p-3 duration-300 ease-in-out absolute left-[51%] md:left-[60%] m-3 hover:cursor-pointer p-2 rounded-3xl text-white text-xl md:text-4xl flex items-center"
+            >
+              🤖
+            </button>
+
             <div className="ml-[-100px] md:ml-[0px] absolute text-xl md:text-3xl">
               Project Sense
             </div>
