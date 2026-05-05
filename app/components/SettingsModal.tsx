@@ -14,13 +14,14 @@ import { IoMdSettings } from "react-icons/io";
 import { TbLogout2 } from "react-icons/tb";
 
 interface User {
+  uid: string;
   email: string | null;
 }
 
 interface SettingsModalProps {
   loading: boolean;
   rightLeft: boolean;
-  updateUser: (userId: string, newData: Record<string, boolean>) => Promise<void>;
+  updateUser: (uid: string, newData: Record<string, boolean>) => Promise<void>;
   user: User | null;
   setRightLeft: (value: boolean) => void;
   questionLimited: boolean;
@@ -81,7 +82,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     id="email-alerts"
                     size="lg"
                     onChange={() => {
-                      updateUser(user?.email ?? "", {
+                      updateUser(user?.uid ?? "", {
                         rightLeft: !rightLeft,
                       });
                       setRightLeft(!rightLeft);
@@ -104,7 +105,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                     id="email-alerts"
                     size="lg"
                     onChange={() => {
-                      updateUser(user?.email ?? "", {
+                      updateUser(user?.uid ?? "", {
                         questionLimited: !questionLimited,
                       });
                       setQuestionLimited(!questionLimited);

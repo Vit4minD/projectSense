@@ -1,30 +1,17 @@
-import { doc, updateDoc, increment } from "firebase/firestore";
-import { db } from "../../firebase/config"; // import your Firestore db instance
-
-const updateAnsweredQuestions = async () => {
+async function postIncrement(kind: "questions_answered" | "questions_generated", n = 1) {
   try {
-    // Reference the document in the collection
-    const docRef = doc(db, "statistics", "questions_answered");
-
-    // Update the 'questions_answered' field by incrementing it by 1
-    await updateDoc(docRef, {
-      total: increment(1), // Assumes the field you're incrementing is 'count'
+    await fetch("/api/stats", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind, n }),
     });
-  } catch (error) {
-    // update failed
+  } catch {
+    // best-effort counter; ignore failures
   }
-};
+}
 
-const updateGeneratedQuestions = async (num: number) => {
-  try {
-    const docRef = doc(db, "statistics", "questions_generated");
+const updateAnsweredQuestions = () => postIncrement("questions_answered", 1);
 
-    await updateDoc(docRef, {
-      total: increment(num),
-    });
-  } catch (error) {
-    // update failed
-  }
-};
+const updateGeneratedQuestions = (num: number) => postIncrement("questions_generated", num);
 
 export { updateAnsweredQuestions, updateGeneratedQuestions };

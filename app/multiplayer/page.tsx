@@ -2,18 +2,16 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   database,
-  createGameSession,
-  joinGameSession,
-  getAvailableGames,
+  createRoom,
+  joinRoom,
+  getAvailableRooms,
   auth,
-  db,
-  endGameSession,
-  startGameSession,
+  endRoom,
+  startRoom,
   setQuestions,
 } from "@/firebase/config";
 import { onValue, ref, remove, update } from "firebase/database";
 import { User } from "firebase/auth";
-import { collection } from "firebase/firestore";
 import { HiRefresh } from "react-icons/hi";
 import MathComponent from "../components/MathComponent";
 import { FaCrown } from "react-icons/fa";
@@ -24,6 +22,7 @@ import { useRouter } from "next/navigation";
 
 export interface Player {
   questionsSolved: number;
+  displayName?: string;
 }
 
 export interface GameState {
@@ -38,24 +37,16 @@ export interface GameState {
   }[];
 }
 
-export interface Matchmaking {
-  games: {
-    [key: string]: GameState;
-  };
-}
-
 export default function Multiplayer() {
-  const [availableGames, setAvailableGames] = useState<[string, GameState][]>([]);
+  const [availableRooms, setAvailableRooms] = useState<[string, GameState][]>([]);
   const [currentBoard, setCurrentBoard] = useState(1);
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [gameId, setGameId] = useState<string | null>(null);
-  const playerData = { questionsSolved: 1 };
+  const [roomCode, setRoomCode] = useState<string | null>(null);
   const [questionsSolved, setQuestionsSolved] = useState<number>(1);
   const [user, setUser] = useState<null | User>(null);
-  const colRef = collection(db, "users");
-  const [playerId, setEmail] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [refresh, setRefresh] = useState(0);
-  const [trick, setTrick] = useState("1");
+  const [trick] = useState("1");
   const [index, setIndex] = useState(0);
   const [userAns, setUserAns] = useState("");
   const [winner, setWinner] = useState("");
@@ -66,21 +57,37 @@ export default function Multiplayer() {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+    const unsubscribe = auth.onAuthStateChanged((authUser) => {
       if (authUser) {
         setUser(authUser);
         const email = authUser.email;
-        if (email) setEmail(email.substring(0, email.indexOf("@")));
+        if (email) {
+          const at = email.indexOf("@");
+          setDisplayName(at > 0 ? email.substring(0, at) : email);
+        } else {
+          setDisplayName(authUser.uid.substring(0, 6));
+        }
+      } else {
+        setUser(null);
+        router.push("/");
       }
     });
     return () => unsubscribe();
-  }, [colRef]);
+  }, [router]);
 
   useEffect(() => {
-    if (gameState && gameState.questions && userAns === gameState.questions[questionsSolved].ans) {
-      setQuestionsSolved(questionsSolved + 1);
-      const playerPositionRef = ref(database, `games/${gameId}/players/${playerId}`);
-      update(playerPositionRef, { questionsSolved: questionsSolved + 1 });
+    if (
+      gameState &&
+      gameState.questions &&
+      user &&
+      roomCode &&
+      userAns === gameState.questions[questionsSolved].ans
+    ) {
+      const next = questionsSolved + 1;
+      setQuestionsSolved(next);
+      update(ref(database, `rooms/${roomCode}/players/${user.uid}`), {
+        questionsSolved: next,
+      });
       setUserAns("");
     }
   }, [userAns]);
@@ -94,47 +101,42 @@ export default function Multiplayer() {
   };
 
   useEffect(() => {
-    const fetchAvailableGames = async () => {
-      const games = await getAvailableGames();
-      setAvailableGames(games);
+    const fetchAvailableRooms = async () => {
+      const rooms = await getAvailableRooms();
+      setAvailableRooms(rooms as [string, GameState][]);
     };
 
-    fetchAvailableGames();
+    fetchAvailableRooms();
   }, [refresh]);
 
-  const handleCreateGame = async () => {
-    const newGameId = await createGameSession();
-    await joinGameSession(newGameId, playerId, playerData);
-    setGameId(newGameId);
-    listenToGameUpdates(newGameId);
+  const playerLabel = (uid: string) => gameState?.players[uid]?.displayName ?? uid.substring(0, 6);
+
+  const handleCreateRoom = async () => {
+    if (!user) return;
+    const code = await createRoom();
+    await joinRoom(code, user.uid, { questionsSolved: 1, displayName });
+    setRoomCode(code);
+    listenToRoomUpdates(code);
   };
 
-  const handleJoinGame = async (gameId: string) => {
-    await joinGameSession(gameId, playerId, { questionsSolved: 1 });
+  const handleJoinRoom = async (code: string) => {
+    if (!user) return;
+    await joinRoom(code, user.uid, { questionsSolved: 1, displayName });
     setQuestionsSolved(1);
-    setGameId(gameId);
-    listenToGameUpdates(gameId);
-  };
-
-  const handleEndGame = async () => {
-    if (gameId) {
-      await endGameSession(gameId);
-      setGameState(null);
-      setGameId(null);
-    }
+    setRoomCode(code);
+    listenToRoomUpdates(code);
   };
 
   const handleStartGame = async () => {
-    if (gameId) {
-      await startGameSession(gameId);
-      await setQuestions(gameId, String(currentBoard));
-      // Optionally, you may want to fetch the updated game state here after starting the game
+    if (roomCode) {
+      await startRoom(roomCode);
+      await setQuestions(roomCode, String(currentBoard));
     }
   };
 
-  const listenToGameUpdates = (gameId: string) => {
-    const gameRef = ref(database, `games/${gameId}`);
-    onValue(gameRef, (snapshot) => {
+  const listenToRoomUpdates = (code: string) => {
+    const roomRef = ref(database, `rooms/${code}`);
+    onValue(roomRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         setGameState(data as GameState);
@@ -144,21 +146,19 @@ export default function Multiplayer() {
   useEffect(() => {
     if (gameState && gameState.state === "in_progress") {
       setStopTimer(false);
-      setStartTime(Date.now()); // Reset the startTime to the current timestamp
+      setStartTime(Date.now());
       setElapsedTime(0);
-    } else if (gameState && gameState.state === "ended") {
+    } else if (gameState && gameState.state === "ended" && roomCode) {
       setStopTimer(true);
-      setStartTime(Date.now()); // Reset the startTime to the current timestamp
+      setStartTime(Date.now());
       setElapsedTime(0);
       setUserAns("");
-      const gameRef = ref(database, `games/${gameId}`);
-      update(gameRef, { state: "ended" });
-      gameState
-        ? Object.keys(gameState.players).map((playerIdd) => {
-            gameState.players[playerIdd]?.questionsSolved === 6 ? setWinner(playerIdd) : null;
-          })
-        : null;
-      remove(gameRef);
+      const roomRef = ref(database, `rooms/${roomCode}`);
+      update(roomRef, { state: "ended" });
+      Object.keys(gameState.players).forEach((uid) => {
+        if (gameState.players[uid]?.questionsSolved === 6) setWinner(playerLabel(uid));
+      });
+      endRoom(roomCode);
     } else if (gameState && gameState.state === "end_clicked") {
       setIndex(0);
     }
@@ -182,18 +182,18 @@ export default function Multiplayer() {
   }, [startTime, stopTimer]);
 
   useEffect(() => {
-    if (questionsSolved === 6) {
-      const gameRef = ref(database, `games/${gameId}`);
-      update(gameRef, { state: "ended" });
-      gameState
-        ? Object.keys(gameState.players).map((playerId) => {
-            gameState.players[playerId]?.questionsSolved === 6 ? setWinner(playerId) : null;
-          })
-        : null;
+    if (questionsSolved === 6 && roomCode) {
+      const roomRef = ref(database, `rooms/${roomCode}`);
+      update(roomRef, { state: "ended" });
+      if (gameState) {
+        Object.keys(gameState.players).forEach((uid) => {
+          if (gameState.players[uid]?.questionsSolved === 6) setWinner(playerLabel(uid));
+        });
+      }
       setTimeout(() => {
-        remove(gameRef);
+        remove(roomRef);
         setIndex(0);
-      }, 7500); // 10000 milliseconds = 10 seconds
+      }, 7500);
     }
   }, [questionsSolved]);
 
@@ -225,18 +225,18 @@ export default function Multiplayer() {
                 setRefresh(refresh + 1);
               }}
             >
-              FIND GAME
+              FIND ROOM
               <span className="absolute  -bottom-1 left-0 w-0 h-2 bg-white transition-all group-hover:w-full duration-700"></span>
             </button>
             <button
               className="relative group"
               onClick={() => {
                 setIndex(2);
-                handleCreateGame();
+                handleCreateRoom();
                 setQuestionsSolved(1);
               }}
             >
-              CREATE GAME
+              CREATE ROOM
               <span className="absolute -bottom-1 left-0 w-0 h-2 bg-white transition-all group-hover:w-full duration-700"></span>
             </button>
           </div>
@@ -245,11 +245,10 @@ export default function Multiplayer() {
             <button
               onClick={() => {
                 setIndex(0);
-                if (gameId) {
-                  const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
-                  remove(playerRef); // Remove the player from the game session
+                if (roomCode && user) {
+                  remove(ref(database, `rooms/${roomCode}/players/${user.uid}`));
                   setGameState(null);
-                  setGameId(null);
+                  setRoomCode(null);
                   setQuestionsSolved(1);
                   setIndex(0);
                 }
@@ -268,15 +267,15 @@ export default function Multiplayer() {
                   REFRESH <HiRefresh />
                 </button>
                 <hr className="text-black mt-4 w-full mb-4 "></hr>
-                {availableGames.length > 0 ? (
+                {availableRooms.length > 0 ? (
                   <ul className="flex flex-wrap gap-x-8 ">
-                    {availableGames.map(([id, game]) => (
+                    {availableRooms.map(([id]) => (
                       <li key={id} className="">
                         <button
                           key={id + ""}
                           className="underline underline-offset-2 decoration-[2px] hover:decoration-[3px]  "
                           onClick={() => {
-                            handleJoinGame(id);
+                            handleJoinRoom(id);
                             setIndex(2);
                           }}
                         >
@@ -287,7 +286,7 @@ export default function Multiplayer() {
                   </ul>
                 ) : (
                   <p className="text-center font-semibold text-black text-3xl mt-4 mb-4">
-                    No available games. Create a new one or try Refreshing!
+                    No available rooms. Create a new one or try Refreshing!
                   </p>
                 )}
               </div>
@@ -298,39 +297,31 @@ export default function Multiplayer() {
             {gameState && gameState.state === "in_progress" ? (
               <div>
                 <div className="absolute flex flex-col right-0 text-right p-4 justify-between">
-                  {gameState ? (
-                    Object.keys(gameState.players).map((playerId, index) => (
-                      <>
+                  {gameState
+                    ? Object.keys(gameState.players).map((uid, idx) => (
                         <div
-                          key={index}
+                          key={idx}
                           className="flex flex-row items-center justify-between text-right"
                         >
                           <label className="mr-2 font-semibold text-lg text-slate-100">
-                            {playerId}
+                            {playerLabel(uid)}
                           </label>
                           <progress
                             className="progress progress-info w-72 h-4"
-                            value={gameState.players[playerId]?.questionsSolved - 1}
+                            value={gameState.players[uid]?.questionsSolved - 1}
                             max="5"
                           ></progress>
                         </div>
-                      </>
-                    ))
-                  ) : (
-                    <></>
-                  )}
+                      ))
+                    : null}
                 </div>
                 <button
                   onClick={() => {
                     setIndex(0);
-                    if (gameId) {
-                      const playerRef = ref(
-                        database,
-                        `games/${gameId}/players/${playerId.replace(/[.#$[\]]/g, "_")}`
-                      );
-                      remove(playerRef); // Remove the player from the game session
+                    if (roomCode && user) {
+                      remove(ref(database, `rooms/${roomCode}/players/${user.uid}`));
                       setGameState(null);
-                      setGameId(null);
+                      setRoomCode(null);
                       setQuestionsSolved(1);
                       setIndex(0);
                     }
@@ -377,11 +368,10 @@ export default function Multiplayer() {
                 <button
                   onClick={() => {
                     setIndex(0);
-                    if (gameId) {
-                      const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
-                      remove(playerRef); // Remove the player from the game session
+                    if (roomCode && user) {
+                      remove(ref(database, `rooms/${roomCode}/players/${user.uid}`));
                       setGameState(null);
-                      setGameId(null);
+                      setRoomCode(null);
                       setQuestionsSolved(1);
                       setIndex(0);
                     }
@@ -400,11 +390,10 @@ export default function Multiplayer() {
                 <button
                   onClick={() => {
                     setIndex(0);
-                    if (gameId) {
-                      const playerRef = ref(database, `games/${gameId}/players/${playerId}`);
-                      remove(playerRef); // Remove the player from the game session
+                    if (roomCode && user) {
+                      remove(ref(database, `rooms/${roomCode}/players/${user.uid}`));
                       setGameState(null);
-                      setGameId(null);
+                      setRoomCode(null);
                       setQuestionsSolved(1);
                       setIndex(0);
                     }
@@ -414,14 +403,14 @@ export default function Multiplayer() {
                   {"<"}
                 </button>
                 <div className=" mt-0 md:-mt-20 w-screen text-center text-white font-extrabold text-4xl md:text-7xl">
-                  LOBBY {gameId}
+                  LOBBY {roomCode}
                   <div className="mx-auto h-[60vh] overflow-y-auto overflow-x-hidden w-3/4 md:w-1/2 mt-2 md:mt-0 rounded-2xl shadow-xl border-8 border-orange-500  bg-white text-black text-2xl md:text-4xl p-4">
                     <p className="text-left underline">Players:</p>
                     <div className="text-left mr-auto mt-3">
                       {gameState
-                        ? Object.keys(gameState.players).map((playerId) => (
-                            <div key={playerId} className="text-left ml-4">
-                              <p>{playerId}</p>
+                        ? Object.keys(gameState.players).map((uid) => (
+                            <div key={uid} className="text-left ml-4">
+                              <p>{playerLabel(uid)}</p>
                             </div>
                           ))
                         : "Empty"}
@@ -443,9 +432,10 @@ export default function Multiplayer() {
                   <button
                     className="hover:bg-gray-300 mt-4  block font-extrabold px-6 py-3 bg-white text-orange-300  transition-all duration-300 text-2xl rounded"
                     onClick={() => {
-                      const gameRef = ref(database, `games/${gameId}`);
-                      update(gameRef, { state: "end_clicked" });
-                      remove(gameRef);
+                      if (!roomCode) return;
+                      const roomRef = ref(database, `rooms/${roomCode}`);
+                      update(roomRef, { state: "end_clicked" });
+                      remove(roomRef);
                     }}
                   >
                     End Game
