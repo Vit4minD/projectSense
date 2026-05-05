@@ -6,6 +6,7 @@ import {
   DocumentSnapshot,
   writeBatch,
 } from "firebase/firestore";
+import { trackEvent } from "@/firebase/config";
 
 interface Leaderboard {
   scores: { [key: string]: string };
@@ -47,6 +48,7 @@ export default async function updateLeaderboard(
         batch.set(scoresRef, newScores);
       }
       await batch.commit();
+      trackEvent("leaderboard_submitted", { trick_id: trick, time });
     }
   } catch (error) {
     console.error("Error updating leaderboard:", error);

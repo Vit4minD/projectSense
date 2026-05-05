@@ -10,6 +10,7 @@ import {
   endGameSession,
   startGameSession,
   setQuestions,
+  trackEvent,
 } from "@/firebase/config";
 import { onValue, ref, remove, update } from "firebase/database";
 import { User } from "firebase/auth";
@@ -159,6 +160,13 @@ export default function Multiplayer() {
           })
         : null;
       remove(gameRef);
+      const myKey = playerId ? playerId.replace(/[.#$[\]]/g, "_") : "";
+      trackEvent("multiplayer_game_completed", {
+        won: !!myKey && gameState.players[myKey]?.questionsSolved === 6,
+        players_count: Object.keys(gameState.players).length,
+        trick_id: trick,
+        duration_ms: elapsedTime,
+      });
     } else if (gameState && gameState.state === "end_clicked") {
       setIndex(0);
     }

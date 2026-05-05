@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FaInfinity } from "react-icons/fa";
 import { VscDebugRestart } from "react-icons/vsc";
 import Trick from "@/app/components/Trick";
-import { auth, db } from "@/firebase/config";
+import { auth, db, trackEvent } from "@/firebase/config";
 import { User } from "firebase/auth";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
@@ -76,6 +76,11 @@ const Home = ({ params }: { params: { id: string } }) => {
       if (user) {
         const email: string = user.email ? user.email : "";
         updateLeaderboard(email, db, Number(params.id), formatTime(elapsedTime));
+        trackEvent("practice_session_completed", {
+          trick_id: Number(params.id),
+          duration_ms: elapsedTime,
+          questions_answered: questions,
+        });
       }
     }
   }, [questions, questionLimited, user?.email, params.id, elapsedTime, user, randomizer]);

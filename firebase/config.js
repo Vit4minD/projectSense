@@ -3,7 +3,7 @@ import { initializeApp } from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
-import "firebase/analytics";
+import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
 import "firebase/performance";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -134,4 +134,20 @@ export const Firebase = initializeApp(firebaseConfig);
 export const database = getDatabase(Firebase);
 export const auth = getAuth(Firebase);
 export const db = getFirestore(Firebase);
+
+let analyticsInstance = null;
+export async function getAnalyticsClient() {
+  if (typeof window === "undefined") return null;
+  if (analyticsInstance) return analyticsInstance;
+  if (!(await isSupported())) return null;
+  analyticsInstance = getAnalytics(Firebase);
+  return analyticsInstance;
+}
+
+export async function trackEvent(name, params) {
+  const analytics = await getAnalyticsClient();
+  if (!analytics) return;
+  logEvent(analytics, name, params);
+}
+
 export default Firebase;

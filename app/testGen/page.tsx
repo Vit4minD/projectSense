@@ -8,6 +8,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
 
 import { updateGeneratedQuestions } from "../components/QuestionCount";
+import { trackEvent } from "@/firebase/config";
 
 interface TestQuestion {
   [key: string]: string;
@@ -93,6 +94,11 @@ function Gemini() {
       const gradeText = grade.response.text();
       const gradeResult = JSON.parse(gradeText);
       setResults(gradeResult);
+      trackEvent("ai_test_graded", {
+        score: gradeResult.score,
+        number_correct: gradeResult.number_correct,
+        total: lastQuestion,
+      });
     } catch (error) {
       setSubmitting(false);
     }
@@ -197,6 +203,9 @@ function Gemini() {
       const accumulatedText = result.response.text();
       const json = JSON.parse(accumulatedText);
       setText(json);
+      trackEvent("ai_test_generated", {
+        question_count: Object.keys(json).length,
+      });
     } catch (error) {
       setGenerating(false);
     } finally {
