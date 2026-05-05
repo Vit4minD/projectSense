@@ -3,7 +3,13 @@ import { initializeApp } from "firebase/app";
 import "firebase/auth";
 import "firebase/firestore";
 import "firebase/storage";
-import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
+import {
+  getAnalytics,
+  isSupported,
+  logEvent,
+  setUserId,
+  setUserProperties,
+} from "firebase/analytics";
 import "firebase/performance";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
@@ -148,6 +154,18 @@ export async function trackEvent(name, params) {
   const analytics = await getAnalyticsClient();
   if (!analytics) return;
   logEvent(analytics, name, params);
+}
+
+export async function setAnalyticsUser(uid) {
+  const analytics = await getAnalyticsClient();
+  if (!analytics) return;
+  setUserId(analytics, uid);
+}
+
+export async function setAnalyticsUserProperties(props) {
+  const analytics = await getAnalyticsClient();
+  if (!analytics) return;
+  setUserProperties(analytics, props);
 }
 
 export default Firebase;

@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
-import { auth, db } from "@/firebase/config";
+import { auth, db, trackEvent } from "@/firebase/config";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { ParticleBackground } from "./components/ParticleBackground";
@@ -21,6 +21,7 @@ const Home = () => {
     setError(null);
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      trackEvent("login", { method: "password" });
       router.push("/home");
     } catch {
       setError("Incorrect Email or Password");
@@ -36,13 +37,15 @@ const Home = () => {
         if (email) {
           const docRef = doc(colRef, email);
           const docSnap = await getDoc(docRef);
-          if (!docSnap.exists()) {
+          const isNewUser = !docSnap.exists();
+          if (isNewUser) {
             await setDoc(docRef, {
               questionLimited: true,
               rightLeft: false,
               autoEnter: true,
             });
           }
+          trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
           router.push("/home");
         } else {
           console.error("Email is null or undefined");

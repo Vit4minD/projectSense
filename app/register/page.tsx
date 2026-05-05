@@ -1,9 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { auth } from "../../firebase/config";
+import { auth, db, trackEvent } from "../../firebase/config";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { db } from "../../firebase/config";
 import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import { FcGoogle } from "react-icons/fc";
 import { MdMenuBook } from "react-icons/md";
@@ -26,13 +25,15 @@ const Register = () => {
         if (email) {
           const docRef = doc(colRef, email);
           const docSnap = await getDoc(docRef);
-          if (!docSnap.exists()) {
+          const isNewUser = !docSnap.exists();
+          if (isNewUser) {
             await setDoc(docRef, {
               questionLimited: true,
               rightLeft: false,
               autoEnter: true,
             });
           }
+          trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
           router.push("/home");
         } else {
           console.error("Email is null or undefined");
@@ -63,6 +64,7 @@ const Register = () => {
               autoEnter: true,
             });
           }
+          trackEvent("sign_up", { method: "password" });
           router.push("/home");
         } else {
           console.error("Email is null or undefined");
