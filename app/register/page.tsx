@@ -3,7 +3,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { auth, db, trackEvent } from "../../firebase/config";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { FcGoogle } from "react-icons/fc";
 import { MdMenuBook } from "react-icons/md";
 import { ParticleBackground } from "../components/ParticleBackground";
@@ -13,65 +13,44 @@ const Register = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
-  const colRef = collection(db, "users");
   const provider = new GoogleAuthProvider();
+
+  const ensureProfile = async (uid: string, userEmail: string | null): Promise<boolean> => {
+    const userRef = doc(db, "users", uid);
+    const snap = await getDoc(userRef);
+    const isNewUser = !snap.exists();
+    if (isNewUser) {
+      await setDoc(userRef, {
+        email: userEmail ?? null,
+        questionLimited: true,
+        rightLeft: false,
+        autoEnter: true,
+      });
+    }
+    return isNewUser;
+  };
 
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      if (user) {
-        const email = user.email;
-        if (email) {
-          const docRef = doc(colRef, email);
-          const docSnap = await getDoc(docRef);
-          const isNewUser = !docSnap.exists();
-          if (isNewUser) {
-            await setDoc(docRef, {
-              questionLimited: true,
-              rightLeft: false,
-              autoEnter: true,
-            });
-          }
-          trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
-          router.push("/home");
-        } else {
-          console.error("Email is null or undefined");
-        }
-      } else {
-        console.error("User is null or undefined");
-      }
+      const isNewUser = await ensureProfile(user.uid, user.email);
+      trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
+      router.push("/home");
     } catch (error) {
       console.error("Error during sign-in:", error);
       setError("An error occurred during sign-in. Please try again.");
     }
   };
+
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      const user = result.user;
-      if (user) {
-        const email = user.email;
-        if (email) {
-          const docRef = doc(colRef, email);
-          const docSnap = await getDoc(docRef);
-          if (!docSnap.exists()) {
-            await setDoc(docRef, {
-              questionLimited: true,
-              rightLeft: false,
-              autoEnter: true,
-            });
-          }
-          trackEvent("sign_up", { method: "password" });
-          router.push("/home");
-        } else {
-          console.error("Email is null or undefined");
-        }
-      } else {
-        console.error("User is null or undefined");
-      }
+      await ensureProfile(result.user.uid, result.user.email);
+      trackEvent("sign_up", { method: "password" });
+      router.push("/home");
     } catch (error) {
       console.error("Error during sign-in:", error);
       setError(

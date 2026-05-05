@@ -5,7 +5,7 @@ import { VscDebugRestart } from "react-icons/vsc";
 import Trick from "@/app/components/Trick";
 import { auth, db, trackEvent } from "@/firebase/config";
 import { User } from "firebase/auth";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { problemSet } from "@/app/utils/problemGenerator";
 import updateLeaderboard from "@/app/components/updateLeaderboard";
@@ -21,7 +21,6 @@ const Home = ({ params }: { params: { id: string } }) => {
   const [rightLeft, setRightLeft] = useState(false);
   const [questionLimited, setQuestionLimited] = useState(true);
   const [autoEnter, setAutoEnter] = useState(true);
-  const colRef = collection(db, "users");
   const [questions, setQuestions] = useState(0);
   const [stopTimer, setStopTimer] = useState(false);
   const [questionTimes, setQuestionTimes] = useState<string[]>([]);
@@ -32,18 +31,12 @@ const Home = ({ params }: { params: { id: string } }) => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (authUser) {
         setUser(authUser);
-        const email = authUser.email;
-        if (email) {
-          const docRef = doc(colRef, email);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setQuestionLimited(data?.questionLimited ?? true);
-            setRightLeft(data?.rightLeft ?? false);
-            setAutoEnter(data?.autoEnter ?? true);
-          }
-        } else {
-          console.error("Email is null or undefined");
+        const docSnap = await getDoc(doc(db, "users", authUser.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setQuestionLimited(data?.questionLimited ?? true);
+          setRightLeft(data?.rightLeft ?? false);
+          setAutoEnter(data?.autoEnter ?? true);
         }
       } else {
         setUser(null);
@@ -51,7 +44,7 @@ const Home = ({ params }: { params: { id: string } }) => {
     });
 
     return () => unsubscribe();
-  }, [colRef, params.id]);
+  }, [params.id]);
 
   useEffect(() => {
     let animationFrameId: number;
@@ -74,8 +67,7 @@ const Home = ({ params }: { params: { id: string } }) => {
     if (questions === 5 && questionLimited && !randomizer) {
       setStopTimer(true);
       if (user) {
-        const email: string = user.email ? user.email : "";
-        updateLeaderboard(email, db, Number(params.id), formatTime(elapsedTime));
+        updateLeaderboard(user, db, Number(params.id), formatTime(elapsedTime));
         trackEvent("practice_session_completed", {
           trick_id: Number(params.id),
           duration_ms: elapsedTime,
@@ -83,7 +75,7 @@ const Home = ({ params }: { params: { id: string } }) => {
         });
       }
     }
-  }, [questions, questionLimited, user?.email, params.id, elapsedTime, user, randomizer]);
+  }, [questions, questionLimited, user?.uid, params.id, elapsedTime, user, randomizer]);
 
   const formatTime = (time: number) => {
     const milliseconds = Math.floor((time % 1000) / 10);

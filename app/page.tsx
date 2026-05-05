@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { FcGoogle } from "react-icons/fc";
 import { auth, db, trackEvent } from "@/firebase/config";
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { ParticleBackground } from "./components/ParticleBackground";
 import { MdMenuBook } from "react-icons/md";
 
@@ -14,7 +14,6 @@ const Home = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const provider = new GoogleAuthProvider();
-  const colRef = collection(db, "users");
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,27 +31,19 @@ const Home = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      if (user) {
-        const email = user.email;
-        if (email) {
-          const docRef = doc(colRef, email);
-          const docSnap = await getDoc(docRef);
-          const isNewUser = !docSnap.exists();
-          if (isNewUser) {
-            await setDoc(docRef, {
-              questionLimited: true,
-              rightLeft: false,
-              autoEnter: true,
-            });
-          }
-          trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
-          router.push("/home");
-        } else {
-          console.error("Email is null or undefined");
-        }
-      } else {
-        console.error("User is null or undefined");
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      const isNewUser = !snap.exists();
+      if (isNewUser) {
+        await setDoc(userRef, {
+          email: user.email ?? null,
+          questionLimited: true,
+          rightLeft: false,
+          autoEnter: true,
+        });
       }
+      trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
+      router.push("/home");
     } catch (error) {
       console.error("Error during sign-in:", error);
       setError("An error occurred during sign-in. Please try again.");

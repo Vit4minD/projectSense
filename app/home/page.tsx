@@ -5,7 +5,7 @@ import { User, signOut } from "firebase/auth";
 import { auth } from "@/firebase/config";
 import { FaTrophy } from "react-icons/fa";
 import { useState, useEffect } from "react";
-import { collection, doc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { problemSet } from "../utils/problemGenerator";
 import MathComponent from "../components/MathComponent";
@@ -22,7 +22,6 @@ import { MdOutlineHelpOutline } from "react-icons/md";
 
 export default function Home() {
   const router = useRouter();
-  const colRef = collection(db, "users");
   const [user, setUser] = useState<null | User>(null);
   const [rightLeft, setRightLeft] = useState(false);
   const [questionLimited, setQuestionLimited] = useState(true);
@@ -46,8 +45,8 @@ export default function Home() {
     }
   }, [inView]);
 
-  const updateUser = async (userId: string, newData: Record<string, boolean>) => {
-    const userRef = doc(db, "users", userId);
+  const updateUser = async (uid: string, newData: Record<string, boolean>) => {
+    const userRef = doc(db, "users", uid);
     try {
       await updateDoc(userRef, newData);
     } catch (error) {
@@ -68,27 +67,21 @@ export default function Home() {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (authUser) {
         setUser(authUser);
-        const email = authUser.email;
-        if (email) {
-          const docRef = doc(colRef, email);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            const data = docSnap.data();
-            setQuestionLimited(data.questionLimited);
-            setRightLeft(data.rightLeft);
-            setAutoEnter(data.autoEnter);
-            setLoading(false);
-          }
-        } else {
-          console.error("Email is null or undefined");
+        const docSnap = await getDoc(doc(db, "users", authUser.uid));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setQuestionLimited(data.questionLimited);
+          setRightLeft(data.rightLeft);
+          setAutoEnter(data.autoEnter);
         }
+        setLoading(false);
       } else {
         setUser(null);
         setLoading(false);
       }
     });
     return () => unsubscribe();
-  }, [colRef]);
+  }, []);
 
   return (
     // <MathJaxContext>

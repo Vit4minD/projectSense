@@ -1,8 +1,4 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import "firebase/auth";
-import "firebase/firestore";
-import "firebase/storage";
 import {
   getAnalytics,
   isSupported,
@@ -10,17 +6,15 @@ import {
   setUserId,
   setUserProperties,
 } from "firebase/analytics";
-import "firebase/performance";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getDatabase, ref, set, update, get, push } from "firebase/database";
+import { getDatabase, ref, set, update, get, remove } from "firebase/database";
 import { problemFunction } from "@/app/utils/problemGenerator";
 
-function generateRandomNumbers() {
+function generateRoomCode() {
   let result = "";
   for (let i = 0; i < 5; i++) {
-    const randomDigit = Math.floor(Math.random() * 10); // Generate a random number between 0 and 9
-    result += randomDigit.toString(); // Convert the random number to string and append to result
+    result += Math.floor(Math.random() * 10).toString();
   }
   return result;
 }
@@ -28,17 +22,22 @@ function generateRandomNumbers() {
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  databaseURL: process.env.FIREBASE_DATABASEURL,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.FIREBASE_APP_ID,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-function setQuestions(gameId, trick) {
-  const questionRef = ref(database, `games/${gameId}/questions`);
-  let questionJson = {
+export const Firebase = initializeApp(firebaseConfig);
+export const database = getDatabase(Firebase);
+export const auth = getAuth(Firebase);
+export const db = getFirestore(Firebase);
+
+export function setQuestions(code, trick) {
+  const questionsRef = ref(database, `rooms/${code}/questions`);
+  const payload = {
     1: problemFunction[trick].function(),
     2: problemFunction[trick].function(),
     3: problemFunction[trick].function(),
@@ -46,100 +45,52 @@ function setQuestions(gameId, trick) {
     5: problemFunction[trick].function(),
     6: problemFunction[trick].function(),
   };
-  return update(questionRef, questionJson);
+  return update(questionsRef, payload);
 }
 
-function createGameSession() {
-  const gameId = generateRandomNumbers();
-  const gameData = {
+export function createRoom() {
+  const code = generateRoomCode();
+  const room = {
     state: "waiting",
     startTime: new Date().toISOString(),
     players: {},
   };
-  const gameRef = ref(database, `games/${gameId}`);
-  return set(gameRef, gameData).then(() => gameId);
+  return set(ref(database, `rooms/${code}`), room).then(() => code);
 }
 
-function joinGameSession(gameId, playerId, playerData) {
-  const playerRef = ref(
-    database,
-    `games/${gameId}/players/${playerId.replace(/[.#$[\]]/g, "_")}`
-  );
-  return set(playerRef, playerData);
+export function joinRoom(code, uid, playerData) {
+  return set(ref(database, `rooms/${code}/players/${uid}`), playerData);
 }
 
-function updatePlayerPosition(gameId, playerId, position) {
-  const playerPositionRef = ref(
-    database,
-    `games/${gameId}/players/${playerId.replace(/[.#$[\]]/g, "_")}/position`
-  );
-  return update(playerPositionRef, position);
+export function updatePlayerPosition(code, uid, position) {
+  return update(ref(database, `rooms/${code}/players/${uid}/position`), position);
 }
 
-async function getAvailableGames() {
-  const gamesRef = ref(database, `games`);
-  const snapshot = await get(gamesRef);
-  const games = snapshot.val();
-  return games
-    ? Object.entries(games).filter(([gameId, game]) => game.state === "waiting")
-    : [];
+export async function getAvailableRooms() {
+  const snapshot = await get(ref(database, `rooms`));
+  const rooms = snapshot.val();
+  if (!rooms) return [];
+  return Object.entries(rooms).filter(([, room]) => room.state === "waiting");
 }
 
-function endGameSession(gameId) {
-  const gameRef = ref(database, `games/${gameId}`);
-  remove(gameRef);
-  return update(gameRef, { state: "ended" });
+export function endRoom(code) {
+  return remove(ref(database, `rooms/${code}`));
 }
 
-function startGameSession(gameId) {
-  const gameRef = ref(database, `games/${gameId}`);
-  return update(gameRef, { state: "in_progress" });
+export function startRoom(code) {
+  return update(ref(database, `rooms/${code}`), { state: "in_progress" });
 }
 
-async function getGameSession(gameId) {
-  const gameRef = ref(database, `games/${gameId}`);
-
-  try {
-    const snapshot = await get(gameRef);
-    if (snapshot.exists()) {
-      const gameData = snapshot.val();
-      const players = [];
-
-      // Iterate over players object and construct player data with questions solved
-      if (gameData && gameData.players) {
-        Object.entries(gameData.players).forEach(([playerId, playerData]) => {
-          players.push({
-            playerId,
-            questionsSolved: playerData.questionsSolved, // Default to 0 if questionsSolved not present
-          });
-        });
-      }
-
-      return players;
-    } else {
-      return null; // No game session found with the given gameId
-    }
-  } catch (error) {
-    console.error("Error fetching game session:", error);
-    return null; // Handle error gracefully
-  }
+export async function getRoom(code) {
+  const snapshot = await get(ref(database, `rooms/${code}`));
+  if (!snapshot.exists()) return null;
+  const data = snapshot.val();
+  if (!data?.players) return [];
+  return Object.entries(data.players).map(([uid, playerData]) => ({
+    uid,
+    questionsSolved: playerData.questionsSolved,
+  }));
 }
-
-export {
-  getGameSession,
-  createGameSession,
-  joinGameSession,
-  updatePlayerPosition,
-  getAvailableGames,
-  endGameSession,
-  startGameSession,
-  setQuestions,
-};
-
-export const Firebase = initializeApp(firebaseConfig);
-export const database = getDatabase(Firebase);
-export const auth = getAuth(Firebase);
-export const db = getFirestore(Firebase);
 
 let analyticsInstance = null;
 export async function getAnalyticsClient() {
@@ -167,5 +118,3 @@ export async function setAnalyticsUserProperties(props) {
   if (!analytics) return;
   setUserProperties(analytics, props);
 }
-
-export default Firebase;

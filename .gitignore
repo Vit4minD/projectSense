@@ -27,7 +27,7 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env 
+.env
 # vercel
 .vercel
 
@@ -35,6 +35,13 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/firebase
-/firebase/config.js
+# firebase
+firebase-debug.log
+firestore-debug.log
+database-debug.log
+ui-debug.log
+.firebase/
 .env
+
+# claude code workspace
+.claude/

@@ -1,72 +1,50 @@
 "use client";
 import { db } from "@/firebase/config";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useMemo } from "react";
 import { problemSet } from "@/app/utils/problemGenerator";
 import { Menu, MenuButton, MenuList, MenuItem, Button, ChakraProvider } from "@chakra-ui/react";
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import { FaTrophy } from "react-icons/fa";
-import { BlockMath } from "react-katex";
 import MathComponent from "../components/MathComponent";
+
+interface LeaderboardRow {
+  email: string;
+  time: string;
+}
 
 const Home = () => {
   const [currentBoard, setCurrentBoard] = useState(1);
   const keys = useMemo(() => Object.keys(problemSet).map(Number), []);
   const router = useRouter();
-  const [sortedScores, setSortedScores] = useState<string[]>([]);
-  // Helper function to compare time strings ("MM:SS.mm")
-  const compareTimes = (time1: string, time2: string): number => {
-    const [min1, secMs1] = time1.split(":");
-    const [sec1, ms1] = secMs1.split(".").map(parseFloat);
-    const [min2, secMs2] = time2.split(":");
-    const [sec2, ms2] = secMs2.split(".").map(parseFloat);
+  const [rows, setRows] = useState<LeaderboardRow[]>([]);
 
-    const totalMs1 = parseFloat(min1) * 60000 + sec1 * 1000 + ms1;
-    const totalMs2 = parseFloat(min2) * 60000 + sec2 * 1000 + ms2;
-
-    return totalMs1 - totalMs2; // Negative if time1 is smaller, positive if time2 is smaller
-  };
   useEffect(() => {
-    const sortScoresByTime = (scores: string[]): string[] => {
-      // Convert the array of strings into an array of ScoreEntry objects
-      const scoreEntries: ScoreEntry[] = scores.map((score) => {
-        const [time, email] = score.split(" ");
-        return { time, email };
-      });
-
-      // Sort the array based on the time values
-      scoreEntries.sort((a, b) => compareTimes(a.time, b.time));
-
-      // Convert back to an array of strings
-      const sortedScores = scoreEntries.map((entry) => `${entry.time} ${entry.email}`);
-
-      return sortedScores;
-    };
     const fetchData = async () => {
       try {
-        const docRef = doc(collection(db, "leaderboard"), String(currentBoard));
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          const map = data.scores;
-          const resultArray = Object.entries(map).map(([key, value]) => `${value} ${key}`);
-          const performSort = sortScoresByTime(resultArray);
-          setSortedScores(performSort);
-        } else {
-          console.log("No such document!");
-        }
+        const entriesQ = query(
+          collection(db, "leaderboards", String(currentBoard), "entries"),
+          orderBy("time", "asc"),
+          limit(50)
+        );
+        const snap = await getDocs(entriesQ);
+        const next: LeaderboardRow[] = snap.docs.map((d) => {
+          const data = d.data() as { email?: string | null; time?: string };
+          return {
+            email: data.email ?? "anonymous",
+            time: data.time ?? "00:00.00",
+          };
+        });
+        setRows(next);
       } catch (error) {
-        console.error("Error fetching document:", error);
+        console.error("Error fetching leaderboard:", error);
+        setRows([]);
       }
     };
     fetchData();
   }, [currentBoard]);
 
-  interface ScoreEntry {
-    time: string;
-    email: string;
-  }
   const disableScroll = () => {
     document.body.style.overflow = "hidden";
   };
@@ -127,18 +105,19 @@ const Home = () => {
         <FaTrophy className="mx-auto text-[8rem] md:text-[12rem] text-white" />
         <hr className="w-5/6 mx-auto mt-2 mb-3" />
         <div className="w-full flex flex-col items-center">
-          {sortedScores.map((score, index) => {
-            const [time, email] = score.split(" ");
+          {rows.map(({ email, time }, index) => {
+            const atIdx = email.indexOf("@");
+            const display = atIdx > 0 ? email.substring(0, atIdx) : email;
             return (
               <div
-                key={index}
+                key={`${email}-${index}`}
                 className="my-3 gap-x-2 md:gap-x-4 w-[90%] md:w-[80%] mx-auto text-lg md:text-2xl flex flex-row items-center justify-between "
               >
                 <p className="bg-white px-4 text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center md:w-[4.1rem]">
                   {index + 1}
                 </p>
                 <p className="bg-white text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center flex-grow">
-                  {email.substring(0, email.indexOf("@"))}
+                  {display}
                 </p>
                 <p className="bg-white px-2 md:px-4 text-orange-300 py-2 md:py-3 rounded-2xl font-bold text-center w-fit">
                   {time}
