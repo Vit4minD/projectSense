@@ -9,6 +9,46 @@ Last updated: 2026-05-05.
 
 ---
 
+## 0. Pickup point for the next session
+
+**Where we are right now:**
+- Branch: `entirelyNew`. Latest pushed commit: see `git log --oneline -5`.
+- Phase 1 (login/home/drill/results) and Phase 2 (Trick Detail, Profile, Leaderboard, server `/api/leaderboard`) **complete and verified** on the rebuild — `pnpm typecheck` clean, `pnpm test` 70/70, `pnpm build` 9 routes.
+- 52-trick catalog ported from legacy `main` — IDs `"1"`–`"52"`, all generators deterministic.
+- **Production data has been migrated** (2026-05-05) on Firebase project `csmidterm-5f652`. Every doc is now in **dual-shape state**: legacy fields (`time`, `email`, legacy settings) AND rebuild fields (`bestMs`, `displayName`, `school`, etc.) coexist. 1670 profiles / 3194 bests / 3130 leaderboard entries touched. 2 docs skipped due to malformed legacy `time` strings (single user `x7LAlhSshua1oPHNGyLZPrREVqf1`).
+- Legacy `main` deployment **is still live on Vercel** — that's intentional, the rebuild has not been cut over yet.
+
+**What the next session should know about the rebuild's readiness:**
+
+The rebuild has feature parity with legacy on the **practice + leaderboard** surface, but **not** on:
+- Multiplayer (`/multiplayer` exists in Sidebar nav but route doesn't exist on rebuild → 404)
+- AI Test Generator (`/test` linked but missing)
+- Twenty-Four mini-game (`/games`)
+- Zetamac mini-game (`/games`)
+- Settings full wiring (sound effects, haptics, keypad orientation, theme variants beyond sage)
+- Firebase Analytics + GA4 events + Vercel Speed Insights + sitemap/JSON-LD (these live on `main` already, not yet ported to the rebuild)
+- Sentry / error reporting
+
+If users actively rely on the missing surfaces, **a full Vercel-branch cutover would break those features for them**. Soft-launch / preview-deploy / friends-only testing is fine right now; full production replacement is not.
+
+**Two things have NOT been verified by an agent in any session yet:**
+1. Whether legacy `main`'s production deployment still functions correctly post-migration. The migration was designed to preserve legacy fields, the tests cover preservation, the `--apply` ran with 0 unexpected errors — but no one has actually visited the live URL to confirm best times render, leaderboard sorts correctly, settings load. **Have the user do a 60-second browser smoke test on `main` before any cutover decision.**
+2. The rebuild's UI hasn't been walked through in a real browser. `pnpm typecheck` + `pnpm test` + `pnpm build` are green but that doesn't catch UX issues. Worth a Vercel preview deploy and a manual walk before cutover.
+
+**Likely next-session asks (probability descending):**
+1. Phase 3 work — port multiplayer, AI test, mini-games from `main` to the rebuild's structure (`app/(app)/...`). Needed before cutover.
+2. Phase 4 polish — port analytics/SEO/Speed Insights from `main`'s `worktree-analytics` work. Easy port; the patterns (`getAnalyticsClient`, `trackEvent`, `AnalyticsProvider`, `app/sitemap.ts`, JSON-LD) are documented in §4 below.
+3. Cutover — execute step 10 in §14 (re-run migration `--apply` then flip Vercel Production Branch). Only if Phase 3 isn't a blocker for the user's audience.
+4. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
+5. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
+
+**Open decisions / loose ends:**
+- Whether the leaderboard should expose `school` publicly. We chose yes for the school-competition use case; revisit if privacy concerns surface.
+- Whether to run the legacy migration's `--delete-old` to reclaim Firestore quota on the old `users/{email}` and `leaderboard/{trickId}` map docs. Safe to skip indefinitely.
+- The legacy `setDoc(bestRef, { time })` / `entryRef.set({ ... })` calls in `worktree-analytics/app/components/updateLeaderboard.ts:39` and `app/api/leaderboard/route.ts:67` overwrite without merge — meaning every legacy-app submission post-migration drops the rebuild's new fields on that doc. Re-running the migration before cutover refreshes drift. Not a problem until cutover day.
+
+---
+
 ## 1. What this is
 
 A practice gym for **UIL Number Sense** — drill canonical math tricks, race friends in real time, sit AI-generated full-length papers. The codebase is a complete from-scratch rewrite of an older app, built off a Claude Design handoff bundle (`app v2.html` + JSX prototype).
