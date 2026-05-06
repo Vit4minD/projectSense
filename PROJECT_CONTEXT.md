@@ -58,9 +58,33 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 
 Most recent first.
 
+### 2026-05-05 — Production migration applied
+
+`scripts/migrate-data-to-rebuild.mjs --apply` ran against `csmidterm-5f652`. Production data is now in **dual-shape state**: every doc has both legacy (`time`, `email`, legacy settings) and rebuild (`bestMs`, `displayName`, `school`, etc.) fields. Legacy app on `main` keeps working unchanged.
+
+| Metric | Count |
+|---|---|
+| User profiles touched | 1670 |
+| Bests reshaped | 3194 (3192 written, 2 skipped malformed) |
+| Leaderboard entries reshaped | 3130 |
+| Errors | 2 (malformed `time` strings) |
+| Elapsed | 14m41s |
+
+**The 2 errors** belong to a single user `x7LAlhSshua1oPHNGyLZPrREVqf1` — bests docs `1` and `11` had corrupted negative-component time values (`"-1:-11.-63"` and similar). The runner skipped them; their broken `time` is preserved as-is. Practical impact: those two best times don't migrate to `bestMs`. Everything else for that user migrated normally. Safe to ignore unless you want to clean them up manually in Firebase Console.
+
+**Operational note for migrations on this machine**: required `NODE_OPTIONS=--use-system-ca` because of the corp SSL inspection — without it, both the emulator JAR download and the Admin SDK's gRPC connection to Google APIs fail with "unable to verify the first certificate." Set it permanently per §11.
+
+Pre-flight steps completed during this session:
+- Step 6 — local emulator smoke test verified migration is idempotent (re-run yields 0 errors and same final state)
+- Step 7 — `firebase deploy --only firestore:indexes` deployed the `(trickId, startedAt desc)` composite on `drills`
+- Step 8 — production dry-run reported the counts above with 0 unexpected anomalies
+- Step 9 — production `--apply` completed cleanly (the run summarized in this entry)
+
+**Remaining**: only step 10 — the cutover (Vercel Production Branch flip from `main` to `entirelyNew`). Whenever you decide.
+
 ### 2026-05-05 — Firebase data carry-over (Phase 2 + catalog port + migration tooling)
 
-**Branch**: `entirelyNew`. Two commits pushed: `e1d4a11`, `7b0bfa1`.
+**Branch**: `entirelyNew`. Three commits pushed: `e1d4a11`, `7b0bfa1`, `c793dad`. User also added `74d0840 Add tsx for migration script` between commits.
 
 **Phase 2 vertical slice** (commit `e1d4a11`):
 - `/trick/[trickId]` — header stats, "How to" tips, your-history list, top-10 leaderboard inset, related tricks. Reads `users/{uid}/drills` + `users/{uid}/bests/{trickId}` + `leaderboards/{trickId}/entries`.
@@ -204,7 +228,7 @@ service cloud.firestore {
 ### Composite indexes
 
 `firestore.indexes.json` declares:
-- `drills` collection: `(trickId asc, startedAt desc)` — required by `getDrillsForTrick` on `entirelyNew`. **Not yet deployed.** Run `firebase deploy --only firestore:indexes` before promoting `entirelyNew` to production. Additive — doesn't affect `main` reads.
+- `drills` collection: `(trickId asc, startedAt desc)` — required by `getDrillsForTrick` on `entirelyNew`. **Deployed 2026-05-05.** Additive — doesn't affect `main` reads.
 
 ### Server routes (live on `main`, mirrored on `entirelyNew`)
 
@@ -383,6 +407,9 @@ NEXT_PUBLIC_GEMINI_API_KEY
 | `npm install` hangs forever, no progress | Corp SSL inspection (Zscaler-style) — Node doesn't trust the substituted root CA | Set `NODE_OPTIONS=--use-system-ca`. Permanently: `[System.Environment]::SetEnvironmentVariable("NODE_OPTIONS", "--use-system-ca", "User")`, restart shell |
 | `pnpm install` shows `UNABLE_TO_VERIFY_LEAF_SIGNATURE` | Same SSL issue | Same flag. Pnpm surfaces the error more clearly |
 | `firebase login` fails with `auth.firebase.tools/attest` | Same SSL issue | Same flag. Use `firebase login --no-localhost` if needed |
+| `firebase login --reauth` succeeds in browser but errors `Unable to fetch the CLI MOTD and remote config` | Non-fatal; corp SSL blocks the motd fetch but the auth itself worked | Verify with `firebase login:list`. If actually broken, set `NODE_OPTIONS=--use-system-ca` and retry |
+| `firebase emulators:exec` fails to download `cloud-firestore-emulator-*.jar` | Same SSL issue blocking `storage.googleapis.com` | Set `NODE_OPTIONS=--use-system-ca` for that command |
+| `migrate-data-to-rebuild.mjs --dry-run` errors `unable to verify the first certificate` | Same SSL issue blocking the Admin SDK's gRPC to Google APIs | Same flag |
 | `firebase emulators:start` errors `Java version before 21` | Old/missing JDK | `winget install Microsoft.OpenJDK.21`, restart shell. JDK 21.0.10 is currently installed |
 | `pnpm build` exits with code `3221225477` | Windows access violation in Turbopack worker — usually Defender/OneDrive locking files mid-build | Clear `.next/`, exclude project folder from Defender realtime scan, or pause OneDrive sync |
 | Vercel: "invalid Node.js Version: '18.x'" | Vercel project pinned to retired Node 18 | Vercel dashboard → Settings → General → Node.js Version → switch to 22.x. `engines.node >=20.18` already declared |
@@ -442,21 +469,38 @@ pnpm add -D <pkg>                                   # dev only
 
 ## 14. Operational checklist (cutover)
 
-In order. Steps 1–9 are safe; only step 10 (the production `--apply`) actually changes prod data.
+| # | Step | Status |
+|---|---|---|
+| 1 | Save work to `origin/entirelyNew` | ✅ commits `e1d4a11`, `7b0bfa1`, `74d0840`, `c793dad` |
+| 2 | Verify Vercel's Production Branch is `main` | ✅ |
+| 3 | `pnpm add -D tsx` | ✅ commit `74d0840` |
+| 4 | Generate service account key in Firebase Console | ✅ |
+| 5 | Set `FIREBASE_SERVICE_ACCOUNT_KEY` in Vercel + `.env.local` | ✅ |
+| 6 | Local emulator smoke test | ✅ idempotency verified — 2026-05-05 |
+| 7 | `firebase deploy --only firestore:indexes` | ✅ |
+| 8 | Production `--dry-run` | ✅ 1670 profiles / 3194 bests / 3130 entries / 2 known errors |
+| 9 | Production `--apply` | ✅ 14m41s, exit 0 — 2026-05-05 |
+| 10 | Cutover — re-run `--apply` then flip Vercel Production Branch to `entirelyNew` | ⏳ deferred |
 
-1. **Save work** — already done (commits `e1d4a11`, `7b0bfa1` pushed to `entirelyNew`).
-2. **Verify Vercel's Production Branch is `main`** — Vercel Dashboard → Project → Settings → Git. So pushing `entirelyNew` only creates preview deploys.
-3. **Install `tsx`** — `pnpm add -D tsx`. Required by the migration script.
-4. **Generate a service account key** — Firebase Console → Project Settings → Service accounts → "Generate new private key". Save the JSON locally.
-5. **Set `FIREBASE_SERVICE_ACCOUNT_KEY`**:
-   - **Vercel**: Project → Settings → Environment Variables → add the JSON as a single-line string, scope: Production + Preview, server-only (do NOT prefix `NEXT_PUBLIC_`).
-   - **Local `.env.local`**: same line, lets you run the migration script.
-   - After adding to Vercel, redeploy `main` once so its `/api/leaderboard` and `/api/stats` finally work (they were 500-ing without the key).
-6. **Local smoke test against emulator** (recommended): `pnpm emulators` + `node scripts/seed-emulator.mjs` + `pnpm exec tsx scripts/migrate-data-to-rebuild.mjs --apply` + `pnpm dev`. Walk register → drill → profile → leaderboard.
-7. **Deploy the new Firestore composite index**: `firebase deploy --only firestore:indexes`. Additive, doesn't affect `main`.
-8. **Production dry-run**: `pnpm exec tsx scripts/migrate-data-to-rebuild.mjs --dry-run`. Inspect the counts. Investigate any non-zero `errors`.
-9. **Production apply**: `pnpm exec tsx scripts/migrate-data-to-rebuild.mjs --apply`. **Legacy `main` keeps working** — `time`/`email`/legacy settings are preserved on every doc.
-10. **When ready to cut over**: re-run `--apply` once more (refreshes any docs the legacy app overwrote since step 9), then change Vercel's Production Branch to `entirelyNew`. The rebuild's URL replaces the legacy app on the same domain.
+### Step 10 (when ready)
+
+```sh
+NODE_OPTIONS=--use-system-ca pnpm exec tsx --env-file=.env.local scripts/migrate-data-to-rebuild.mjs --apply
+```
+
+Then in Vercel: Settings → Git → change Production Branch from `main` to `entirelyNew`. Same domain serves the rebuild.
+
+The re-run refreshes any docs the legacy app on `main` has overwritten since step 9 (legacy writes are non-merge `setDoc`, so they drop the rebuild's new fields on the docs they touch). Idempotent skip on already-migrated docs makes this fast.
+
+### Reference command (migrations on this machine)
+
+The migration script needs both the system-CA flag (corp SSL) and the env-file flag (Node CLI doesn't auto-load `.env.local`):
+
+```sh
+NODE_OPTIONS=--use-system-ca pnpm exec tsx --env-file=.env.local scripts/migrate-data-to-rebuild.mjs <flag>
+```
+
+Replace `<flag>` with `--dry-run`, `--apply`, or `--apply --verbose`.
 
 ---
 
@@ -504,6 +548,8 @@ In order. Steps 1–9 are safe; only step 10 (the production `--apply`) actually
 - Latest commits on `entirelyNew`:
   - `e1d4a11` Phase 2 + 52-trick catalog port
   - `7b0bfa1` Migration tooling
+  - `74d0840` Add tsx for migration script
+  - `c793dad` docs: consolidate context dumps into a single source of truth
 - Firebase Console: <https://console.firebase.google.com/project/csmidterm-5f652>
 - Firestore data: <https://console.firebase.google.com/project/csmidterm-5f652/firestore/data>
 - Auth users: <https://console.firebase.google.com/project/csmidterm-5f652/authentication/users>
