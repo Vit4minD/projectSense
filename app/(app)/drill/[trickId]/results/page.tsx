@@ -56,6 +56,13 @@ export default function ResultsPage() {
         crumbs={["sense", "Practice", trick.name, "Results"]}
         right={
           <>
+            <button
+              className="btn"
+              type="button"
+              onClick={() => router.push(`/trick/${trick.id}`)}
+            >
+              Trick stats
+            </button>
             <button className="btn" type="button" onClick={() => router.push("/")}>
               Back to tricks
             </button>

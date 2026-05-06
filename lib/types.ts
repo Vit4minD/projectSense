@@ -69,3 +69,11 @@ export type Tweaks = {
   density: "comfortable" | "dense" | "list";
   monoNumerals: boolean;
 };
+
+export type LeaderboardEntry = {
+  uid: string;
+  bestMs: number;
+  displayName: string;
+  school: string;
+  updatedAt: Timestamp;
+};

@@ -9,8 +9,9 @@ import {
   runTransaction,
   serverTimestamp,
   Timestamp,
+  where,
 } from "firebase/firestore";
-import { getDb } from "./client";
+import { getDb, getFirebaseAuth } from "./client";
 import type { Best, DrillResult, PerQuestion } from "@/lib/types";
 
 export type SavedDrill = DrillResult & { id: string };
@@ -30,6 +31,7 @@ export async function saveDrillResult(
 
   const bestRef = doc(db, "users", uid, "bests", trickId);
 
+  let isNewBest = false;
   await runTransaction(db, async (tx) => {
     tx.set(newDrillRef, {
       trickId,
@@ -49,13 +51,40 @@ export async function saveDrillResult(
     };
     if (allCorrect && (!prevData || totalMs < prevData.bestMs)) {
       next.bestMs = totalMs;
+      isNewBest = true;
     } else if (prevData?.bestMs !== undefined) {
       next.bestMs = prevData.bestMs;
     }
     tx.set(bestRef, next, { merge: true });
   });
 
+  if (isNewBest) {
+    void publishToLeaderboard(trickId, newDrillRef.id, totalMs);
+  }
+
   return newDrillRef.id;
+}
+
+async function publishToLeaderboard(
+  trickId: string,
+  drillId: string,
+  bestMs: number,
+): Promise<void> {
+  try {
+    const user = getFirebaseAuth().currentUser;
+    if (!user) return;
+    const token = await user.getIdToken();
+    await fetch("/api/leaderboard", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ trickId, drillId, bestMs }),
+    });
+  } catch {
+    // Local data is already consistent — leaderboard publish is best-effort.
+  }
 }
 
 export async function getDrillById(uid: string, drillId: string): Promise<SavedDrill | null> {
@@ -69,6 +98,22 @@ export async function getRecentDrills(uid: string, max: number = 5): Promise<Sav
   const db = getDb();
   const q = query(
     collection(db, "users", uid, "drills"),
+    orderBy("startedAt", "desc"),
+    limit(max),
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as DrillResult) }));
+}
+
+export async function getDrillsForTrick(
+  uid: string,
+  trickId: string,
+  max: number = 10,
+): Promise<SavedDrill[]> {
+  const db = getDb();
+  const q = query(
+    collection(db, "users", uid, "drills"),
+    where("trickId", "==", trickId),
     orderBy("startedAt", "desc"),
     limit(max),
   );

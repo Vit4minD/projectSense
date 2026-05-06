@@ -31,6 +31,10 @@ export default defineConfig({
       NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "1",
       NEXT_PUBLIC_FIREBASE_APP_ID: "1:1:web:1",
       NEXT_PUBLIC_FIREBASE_DATABASE_URL: "http://127.0.0.1:9000/?ns=demo-project",
+      // Admin SDK (server) auto-detects these and routes /api/leaderboard
+      // writes through the emulator instead of needing a service account.
+      FIRESTORE_EMULATOR_HOST: "127.0.0.1:8080",
+      FIREBASE_AUTH_EMULATOR_HOST: "127.0.0.1:9099",
     },
   },
 });

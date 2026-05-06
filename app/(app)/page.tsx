@@ -262,8 +262,10 @@ export default function HomePage() {
           recent.map((a, i) => {
             const trick = TRICKS.find((t) => t.id === a.trickId);
             return (
-              <div
+              <button
                 key={a.id}
+                type="button"
+                onClick={() => router.push(`/trick/${a.trickId}`)}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "80px 1fr 90px 90px",
@@ -272,6 +274,13 @@ export default function HomePage() {
                   borderBottom: i < recent.length - 1 ? "1px solid var(--bg-2)" : "none",
                   alignItems: "center",
                   fontSize: 14,
+                  width: "100%",
+                  background: "transparent",
+                  border: "none",
+                  textAlign: "left",
+                  cursor: "pointer",
+                  fontFamily: "inherit",
+                  color: "inherit",
                 }}
               >
                 <span className="caps" style={{ color: "var(--muted)" }}>
@@ -284,7 +293,7 @@ export default function HomePage() {
                 <span className="mono" style={{ textAlign: "right" }}>
                   {formatTime(a.totalMs)}
                 </span>
-              </div>
+              </button>
             );
           })
         )}

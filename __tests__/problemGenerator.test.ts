@@ -12,14 +12,14 @@ describe("problemGenerator", () => {
   });
 
   it("is deterministic given the same seed", () => {
-    const a = generate("01", 42, 5);
-    const b = generate("01", 42, 5);
+    const a = generate("1", 42, 5);
+    const b = generate("1", 42, 5);
     expect(a).toEqual(b);
   });
 
   it("returns different problems for different seeds", () => {
-    const a = generate("01", 1, 5);
-    const b = generate("01", 2, 5);
+    const a = generate("1", 1, 5);
+    const b = generate("1", 2, 5);
     expect(a).not.toEqual(b);
   });
 
@@ -41,15 +41,18 @@ describe("problemGenerator", () => {
   it("expected answers self-validate via the answer validator", () => {
     // For each numeric expected value, calling equals(String(expected), expected)
     // must be true. Catches mismatches between generator output and validator parsing.
+    // Coverage: 52 ids × 10 seeds × 5 problems = 2600 round-trips.
     const ids = supportedTrickIds();
     for (const id of ids) {
-      const problems = generate(id, 7, 5);
-      for (const p of problems) {
-        const userInput = typeof p.expected === "number" ? String(p.expected) : p.expected;
-        expect(
-          equals(userInput, p.expected),
-          `trick ${id}: validator could not match "${userInput}" against expected ${p.expected}`,
-        ).toBe(true);
+      for (let seed = 0; seed < 10; seed++) {
+        const problems = generate(id, seed, 5);
+        for (const p of problems) {
+          const userInput = typeof p.expected === "number" ? String(p.expected) : p.expected;
+          expect(
+            equals(userInput, p.expected),
+            `trick ${id} seed ${seed}: validator could not match "${userInput}" against expected ${p.expected}`,
+          ).toBe(true);
+        }
       }
     }
   });
