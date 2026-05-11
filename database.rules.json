@@ -1,9 +1,15 @@
 {
   "rules": {
     "rooms": {
+      ".indexOn": ["visibility", "state"],
       "$code": {
         ".read": "auth != null",
-        ".write": "auth != null"
+        ".write": "auth != null && (!data.exists() || data.child('host').val() === auth.uid)",
+        "players": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
       }
     }
   }

@@ -5,47 +5,52 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-05-05.
+Last updated: 2026-05-10.
 
 ---
 
 ## 0. Pickup point for the next session
 
 **Where we are right now:**
-- Branch: `entirelyNew`. Latest pushed commit: see `git log --oneline -5`.
-- Phase 1 (login/home/drill/results) and Phase 2 (Trick Detail, Profile, Leaderboard, server `/api/leaderboard`) **complete and verified** on the rebuild — `pnpm typecheck` clean, `pnpm test` 70/70, `pnpm build` 9 routes.
-- 52-trick catalog ported from legacy `main` — IDs `"1"`–`"52"`, all generators deterministic.
-- **Production data has been migrated** (2026-05-05) on Firebase project `csmidterm-5f652`. Every doc is now in **dual-shape state**: legacy fields (`time`, `email`, legacy settings) AND rebuild fields (`bestMs`, `displayName`, `school`, etc.) coexist. 1670 profiles / 3194 bests / 3130 leaderboard entries touched. 2 docs skipped due to malformed legacy `time` strings (single user `x7LAlhSshua1oPHNGyLZPrREVqf1`).
-- Legacy `main` deployment **is still live on Vercel** — that's intentional, the rebuild has not been cut over yet.
+- Branch: `entirelyNew`. Latest commit adds Phase 3 multiplayer.
+- Phase 1, Phase 2, and **Phase 3 multiplayer** all complete and verified — `pnpm typecheck` clean, `pnpm test` **87/87** across 9 suites, `pnpm build` **11 routes**.
+- 52-trick catalog and production data migration done as of 2026-05-05.
+- **Multiplayer (`/multiplayer` + `/multiplayer/[code]`) is live in the rebuild's code**, but the new `database.rules.json` rules have **NOT been deployed yet** — see warning below.
+- Legacy `main` deployment is still live on Vercel — intentional, the rebuild has not been cut over yet.
+
+**🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
+The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10.
 
 **What the next session should know about the rebuild's readiness:**
 
-The rebuild has feature parity with legacy on the **practice + leaderboard** surface, but **not** on:
-- Multiplayer (`/multiplayer` exists in Sidebar nav but route doesn't exist on rebuild → 404)
+The rebuild has feature parity with legacy on **practice, leaderboard, AND multiplayer**. Still missing:
 - AI Test Generator (`/test` linked but missing)
 - Twenty-Four mini-game (`/games`)
 - Zetamac mini-game (`/games`)
 - Settings full wiring (sound effects, haptics, keypad orientation, theme variants beyond sage)
-- Firebase Analytics + GA4 events + Vercel Speed Insights + sitemap/JSON-LD (these live on `main` already, not yet ported to the rebuild)
+- Firebase Analytics + GA4 events + Vercel Speed Insights + sitemap/JSON-LD
 - Sentry / error reporting
 
-If users actively rely on the missing surfaces, **a full Vercel-branch cutover would break those features for them**. Soft-launch / preview-deploy / friends-only testing is fine right now; full production replacement is not.
+A full Vercel-branch cutover still breaks the AI test + mini-games for any user who relies on them. Soft-launch / preview-deploy / friends-only testing is fine right now.
 
-**Two things have NOT been verified by an agent in any session yet:**
-1. Whether legacy `main`'s production deployment still functions correctly post-migration. The migration was designed to preserve legacy fields, the tests cover preservation, the `--apply` ran with 0 unexpected errors — but no one has actually visited the live URL to confirm best times render, leaderboard sorts correctly, settings load. **Have the user do a 60-second browser smoke test on `main` before any cutover decision.**
-2. The rebuild's UI hasn't been walked through in a real browser. `pnpm typecheck` + `pnpm test` + `pnpm build` are green but that doesn't catch UX issues. Worth a Vercel preview deploy and a manual walk before cutover.
+**Things NOT verified by an agent in any session yet:**
+1. Whether legacy `main`'s production deployment still functions correctly post-migration. 60-second browser smoke test recommended before any cutover decision.
+2. **The multiplayer rebuild UI has not been browser-tested.** Typecheck + units + build are green, but no one has actually opened 2 incognito windows and walked through lobby → race → ended. Smoke-test against the emulator (`pnpm emulators` + `pnpm dev` with `NEXT_PUBLIC_USE_EMULATOR=true`) before merging into anything or cutting over.
+3. The rebuild's UI for /home, /leaderboard, /trick/[id], /profile hasn't been walked through in a real browser either. Worth a Vercel preview deploy and a manual walk before cutover.
 
 **Likely next-session asks (probability descending):**
-1. Phase 3 work — port multiplayer, AI test, mini-games from `main` to the rebuild's structure (`app/(app)/...`). Needed before cutover.
+1. Browser smoke test multiplayer against the emulator, fix any UI issues found.
 2. Phase 4 polish — port analytics/SEO/Speed Insights from `main`'s `worktree-analytics` work. Easy port; the patterns (`getAnalyticsClient`, `trackEvent`, `AnalyticsProvider`, `app/sitemap.ts`, JSON-LD) are documented in §4 below.
-3. Cutover — execute step 10 in §14 (re-run migration `--apply` then flip Vercel Production Branch). Only if Phase 3 isn't a blocker for the user's audience.
-4. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
-5. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
+3. Phase 3 remainder — AI Test Generator (`/test`) and mini-games (Twenty-Four, Zetamac under `/games`). Multiplayer is done; these are what's left in Phase 3.
+4. Cutover — execute step 10 in §14 (re-run migration `--apply`, deploy new RTDB rules, flip Vercel Production Branch).
+5. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
+6. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
 
 **Open decisions / loose ends:**
 - Whether the leaderboard should expose `school` publicly. We chose yes for the school-competition use case; revisit if privacy concerns surface.
 - Whether to run the legacy migration's `--delete-old` to reclaim Firestore quota on the old `users/{email}` and `leaderboard/{trickId}` map docs. Safe to skip indefinitely.
 - The legacy `setDoc(bestRef, { time })` / `entryRef.set({ ... })` calls in `worktree-analytics/app/components/updateLeaderboard.ts:39` and `app/api/leaderboard/route.ts:67` overwrite without merge — meaning every legacy-app submission post-migration drops the rebuild's new fields on that doc. Re-running the migration before cutover refreshes drift. Not a problem until cutover day.
+- Multiplayer specifics: 5-char codes from a 31-letter alphabet (no `0/1/I/O/L`), seed-based deterministic problems, first-to-5 wins, no leaderboard tie-in, no server-side answer verification (client-trusted). Known v1 gaps: no Cloud Function for stale lobby cleanup, no mid-race reconnect/resume.
 
 ---
 
@@ -97,6 +102,40 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-05-10 — Phase 3 multiplayer port
+
+**Branch**: `entirelyNew`. Single commit on top of `e70f965`.
+
+Ported the legacy `/multiplayer` feature from `main` to the rebuild, redesigned around the rebuild's tooling. Key shape and improvements over the legacy implementation:
+- **Race format**: first to 5 questions wins (matches drill convention; legacy was 6).
+- **Problem distribution**: shared seed in the RTDB room doc. Every client calls `generate(trickId, seed, 5)` locally → identical problems, no host-trust, no answer leak in the room doc. Legacy stored the actual problems + answers in RTDB.
+- **Room discovery**: code-only invites for private games + a live public-game list (host picks visibility on create). Legacy showed everything to everyone.
+- **No leaderboard tie-in**: multiplayer wins don't touch `users/{uid}/bests` or `leaderboards/{trickId}/entries`. Matches legacy intent, avoids sandbag-to-farm incentives.
+- **Auto-cleanup**: 30s after `state === "ended"`, any subscribed viewer's cleanup `useEffect` deletes the room. No Cloud Function needed.
+
+**Files added** (12 net new + 2 modified):
+- `lib/types.ts` — appended `Room`, `RoomPlayer`, `RoomState`, `RoomVisibility`.
+- `lib/multiplayer/roomCode.ts` — pure `generateRoomCode()` / `normalizeRoomCode()`; 5-char codes from `ABCDEFGHJKMNPQRSTUVWXYZ23456789` (no `0/1/I/O/L`).
+- `lib/firebase/rooms.ts` — all RTDB ops (`createRoom`, `joinRoom`, `leaveRoom`, `incrementSolved`, `startRace`, `endRace`, `deleteRoom`, `subscribeRoom`, `subscribePublicRooms`, `setTrick`, `setVisibility`, `resetRoom`). Host-only transactions guard top-level mutations.
+- `hooks/useRoom.ts` — subscribes to `rooms/{code}`.
+- `hooks/usePublicRooms.ts` — subscribes to public lobby rooms.
+- `app/(app)/multiplayer/page.tsx` — main menu (Create / Join by Code / Find Public + live public-room list).
+- `app/(app)/multiplayer/[code]/page.tsx` — orchestrator that routes on `room.state`.
+- `components/sense/RoomLobby.tsx`, `RoomRace.tsx`, `RoomEnded.tsx`, `RoomLane.tsx` — UI subcomponents.
+- `database.rules.json` — tightened rules: host-only top-level writes, player-only own-write, `.indexOn ["visibility", "state"]`. **NOT yet deployed** — wait for cutover day per §14.
+- Tests: `__tests__/roomCode.test.ts` (5 specs), `__tests__/rooms.test.ts` (12 specs, `vi.mock("firebase/database")` based RTDB stub).
+
+**Reuses** (no changes): `generate(trickId, seed, count)` from `lib/drill/problemGenerator.ts:624`; `equals()` from `lib/drill/answerValidator.ts`; `DrillProblem`, `useTimer`, `useAuth`, `lib/firebase/client.ts:getRtdb()`.
+
+**Verified green**: `pnpm typecheck`, `pnpm test` (**87/87** across 9 suites, +17 from previous baseline of 70), `pnpm build` (**11 routes** — added `/multiplayer` static + `/multiplayer/[code]` dynamic).
+
+**NOT verified**: browser walk. Smoke test in 2 incognito windows against `pnpm emulators` before merging — typecheck and units don't catch UI issues.
+
+**Dispatch shape**: Built via the `/dispatching-parallel-agents` skill in 2 rounds of parallel agents:
+- Round 1 (3 agents): roomCode utility + tests, RTDB rules update, types + rooms.ts + tests.
+- Round 2 (2 agents): hooks + menu page, room view + 4 components.
+Each agent worked on disjoint file sets with locked-in contracts (hook signatures spec'd in both Round 2 prompts) so no merge conflicts.
 
 ### 2026-05-05 — Production migration applied
 
@@ -220,7 +259,8 @@ Subsequent commit `c69c9dd` pinned the Node engine to `>=20.18` for Vercel.
 | Firebase config + rules + indexes | ✅ committed; rules same as live; new index NOT yet deployed |
 | `firebase-admin@13.8.0` | ✅ |
 | Phase 4 polish (analytics, SEO, Sentry) | ❌ — see §11 |
-| Multiplayer / AI test / mini-games | ❌ — Phase 3 |
+| **Multiplayer (`/multiplayer`, `/multiplayer/[code]`, RTDB `rooms/{code}`)** | ✅ shipped 2026-05-10 |
+| AI test / mini-games | ❌ — Phase 3 remaining |
 | Settings full wiring (sound, haptics, keypad orientation, theme variants beyond sage) | ❌ — Phase 4 |
 
 **Verified green** at HEAD `7b0bfa1`: `pnpm typecheck`, `pnpm test` (70/70), `pnpm build` (9 routes).
@@ -500,7 +540,7 @@ pnpm add -D <pkg>                                   # dev only
 | Phase | Scope | Effort |
 |---|---|---|
 | **Cutover** | Run migration `--apply` on prod (legacy stays alive thanks to dual-shape preservation), promote `entirelyNew` in Vercel when ready | <1 day |
-| **Phase 3** | Multiplayer (RTDB-backed live race lanes, room codes, lobby), AI Test (`/api/generate-test` + `/api/grade-test` calling Anthropic, sticky side panel, 2-column paper layout), Mini-games (Twenty-Four, Zetamac) | ~2 weeks |
+| **Phase 3 (remaining)** | AI Test (`/api/generate-test` + `/api/grade-test` calling Anthropic, sticky side panel, 2-column paper layout), Mini-games (Twenty-Four, Zetamac). Multiplayer ✅ shipped 2026-05-10. | ~1 week |
 | **Phase 4** | Settings full wiring (sound effects, haptics, keypad orientation), theme variants beyond sage (arcade/ink/mono), Firebase Analytics + GA4 events (port the helpers from `main`'s `firebase/config.js`), Vercel Speed Insights, sitemap/JSON-LD/per-route metadata, Sentry | ~1 week |
 
 **Recommended order**: cut over to `entirelyNew` once you've verified the migration end-to-end against the emulator, then Phase 4 polish (especially analytics — easy port from `main`), then Phase 3.
@@ -520,15 +560,18 @@ pnpm add -D <pkg>                                   # dev only
 | 7 | `firebase deploy --only firestore:indexes` | ✅ |
 | 8 | Production `--dry-run` | ✅ 1670 profiles / 3194 bests / 3130 entries / 2 known errors |
 | 9 | Production `--apply` | ✅ 14m41s, exit 0 — 2026-05-05 |
-| 10 | Cutover — re-run `--apply` then flip Vercel Production Branch to `entirelyNew` | ⏳ deferred |
+| 10 | Cutover — re-run `--apply`, deploy new RTDB rules, then flip Vercel Production Branch to `entirelyNew` | ⏳ deferred |
 
 ### Step 10 (when ready)
 
 ```sh
 NODE_OPTIONS=--use-system-ca pnpm exec tsx --env-file=.env.local scripts/migrate-data-to-rebuild.mjs --apply
+firebase deploy --only database
 ```
 
 Then in Vercel: Settings → Git → change Production Branch from `main` to `entirelyNew`. Same domain serves the rebuild.
+
+**Order matters for the RTDB rules deploy**: do it at the same moment you flip the Vercel branch, not before. The new rules (added 2026-05-10 for multiplayer) require a `host` field on every `rooms/{code}` doc; legacy `main`'s multiplayer code doesn't write a `host` field, so deploying the rules while `main` is still live would `PERMISSION_DENIED` legacy multiplayer's top-level updates.
 
 The re-run refreshes any docs the legacy app on `main` has overwritten since step 9 (legacy writes are non-merge `setDoc`, so they drop the rebuild's new fields on the docs they touch). Idempotent skip on already-migrated docs makes this fast.
 

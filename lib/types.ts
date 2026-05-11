@@ -77,3 +77,28 @@ export type LeaderboardEntry = {
   school: string;
   updatedAt: Timestamp;
 };
+
+export type RoomVisibility = "public" | "private";
+export type RoomState = "lobby" | "racing" | "ended";
+
+export type RoomPlayer = {
+  displayName: string;
+  avatarInitials: string;
+  solved: number;
+  joinedAt: number;
+  finishedAt: number | null;
+};
+
+export type Room = {
+  host: string;
+  trickId: string;
+  seed: number;
+  questionCount: number;
+  visibility: RoomVisibility;
+  state: RoomState;
+  createdAt: number;
+  startedAt: number | null;
+  endedAt: number | null;
+  winnerUid: string | null;
+  players: Record<string, RoomPlayer>;
+};
