@@ -102,3 +102,103 @@ export type Room = {
   winnerUid: string | null;
   players: Record<string, RoomPlayer>;
 };
+
+// === Zetamac ===
+export type ZetamacOperator = "+" | "-" | "*" | "/";
+
+export type ZetamacRange = readonly [number, number];
+
+export type ZetamacConfig = {
+  operators: readonly ZetamacOperator[];
+  durationSeconds: number;
+  addRange: ZetamacRange;
+  subRange: ZetamacRange;
+  mulARange: ZetamacRange;
+  mulBRange: ZetamacRange;
+  divDivisorRange: ZetamacRange;
+  divQuotientRange: ZetamacRange;
+};
+
+export type ZetamacProblem = {
+  a: number;
+  op: ZetamacOperator;
+  b: number;
+  answer: number;
+};
+
+export type ZetamacStatus = "idle" | "running" | "ended";
+
+export type ZetamacState = {
+  config: ZetamacConfig;
+  seed: number;
+  current: ZetamacProblem;
+  input: string;
+  score: number;
+  secondsLeft: number;
+  status: ZetamacStatus;
+  startedAt: number | null;
+};
+
+// === AI Test ===
+export type AITestAnswerForm =
+  | "integer"
+  | "fraction"
+  | "mixed"
+  | "decimal"
+  | "base"
+  | "ratio"
+  | "other";
+
+export type AITestQuestion = {
+  number: number;
+  prompt: string;
+  answer: string;
+  form: AITestAnswerForm;
+  base?: number;
+  category: string;
+};
+
+export type AITestPaper = {
+  generatedAt: number;
+  questions: AITestQuestion[];
+};
+
+export type AITestGradeItem = {
+  number: number;
+  userAnswer: string;
+  correctAnswer: string;
+  correct: boolean;
+  blank: boolean;
+};
+
+export type AITestGrade = {
+  numberCorrect: number;
+  lastQuestion: number;
+  score: number;
+  items: AITestGradeItem[];
+};
+
+// === Twenty-Four ===
+export type TwentyFourOperator = "+" | "-" | "*" | "/";
+
+export type TwentyFourMove = {
+  a: string;
+  op: TwentyFourOperator;
+  b: string;
+  result: string;
+};
+
+export type TwentyFourStatus = "idle" | "running" | "ended";
+
+export type TwentyFourState = {
+  seed: number;
+  hand: string[];
+  history: TwentyFourMove[];
+  selected: number[];
+  operator: TwentyFourOperator | null;
+  score: number;
+  solvedCount: number;
+  secondsLeft: number;
+  status: TwentyFourStatus;
+  startedAt: number | null;
+};

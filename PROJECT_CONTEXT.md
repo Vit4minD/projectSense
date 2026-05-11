@@ -5,52 +5,57 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-05-10.
+Last updated: 2026-05-11.
 
 ---
 
 ## 0. Pickup point for the next session
 
 **Where we are right now:**
-- Branch: `entirelyNew`. Latest commit adds Phase 3 multiplayer.
-- Phase 1, Phase 2, and **Phase 3 multiplayer** all complete and verified — `pnpm typecheck` clean, `pnpm test` **87/87** across 9 suites, `pnpm build` **11 routes**.
-- 52-trick catalog and production data migration done as of 2026-05-05.
-- **Multiplayer (`/multiplayer` + `/multiplayer/[code]`) is live in the rebuild's code**, but the new `database.rules.json` rules have **NOT been deployed yet** — see warning below.
+- Branch: `entirelyNew`. **Phase 3 is complete** — multiplayer (2026-05-10) + AI Test Generator + Twenty-Four + Zetamac (2026-05-11). Code is unstaged/uncommitted as of the timestamp above.
+- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **17 routes**.
+- 52-trick catalog and production data migration done 2026-05-05.
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has not been cut over yet.
 
 **🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
 The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10.
 
+**🔑 Gemini API key — do this before pushing the AI test live:**
+The user's current `.env.local` only has `NEXT_PUBLIC_GEMINI_API_KEY`. The new `/api/generate-test` route falls back to that public-prefixed var so it works as-is, BUT `NEXT_PUBLIC_*` vars are inlined into the client JS bundle at build time — anyone can pull the key from DevTools. Fix: add a server-only `GEMINI_API_KEY` alias (same value) to `.env.local` and Vercel, then rotate the original public key and drop the `NEXT_PUBLIC_` prefix entirely. Until that's done, the key is exposed on every page the rebuild serves.
+
 **What the next session should know about the rebuild's readiness:**
 
-The rebuild has feature parity with legacy on **practice, leaderboard, AND multiplayer**. Still missing:
-- AI Test Generator (`/test` linked but missing)
-- Twenty-Four mini-game (`/games`)
-- Zetamac mini-game (`/games`)
+The rebuild has feature parity with legacy on **practice, leaderboard, multiplayer, AI test, AND mini-games**. Still missing:
 - Settings full wiring (sound effects, haptics, keypad orientation, theme variants beyond sage)
 - Firebase Analytics + GA4 events + Vercel Speed Insights + sitemap/JSON-LD
 - Sentry / error reporting
 
-A full Vercel-branch cutover still breaks the AI test + mini-games for any user who relies on them. Soft-launch / preview-deploy / friends-only testing is fine right now.
+A full Vercel-branch cutover is now **feature-safe** for end-users — every legacy surface has a rebuild equivalent. Phase 4 polish is the remaining work before parity-with-polish.
 
 **Things NOT verified by an agent in any session yet:**
 1. Whether legacy `main`'s production deployment still functions correctly post-migration. 60-second browser smoke test recommended before any cutover decision.
-2. **The multiplayer rebuild UI has not been browser-tested.** Typecheck + units + build are green, but no one has actually opened 2 incognito windows and walked through lobby → race → ended. Smoke-test against the emulator (`pnpm emulators` + `pnpm dev` with `NEXT_PUBLIC_USE_EMULATOR=true`) before merging into anything or cutting over.
-3. The rebuild's UI for /home, /leaderboard, /trick/[id], /profile hasn't been walked through in a real browser either. Worth a Vercel preview deploy and a manual walk before cutover.
+2. **The multiplayer rebuild UI has not been browser-tested.** Typecheck + units + build are green, but no one has actually opened 2 incognito windows and walked through lobby → race → ended. Smoke-test against the emulator before merging.
+3. **The AI Test rebuild UI has not been browser-tested.** `/test` route compiles + types check, but nobody has clicked Generate against a real Gemini key. Watch the response shape — A1 added Zod validation + a single retry, but the JSON-mode schema is new.
+4. **Twenty-Four + Zetamac UIs have not been browser-tested.** They typecheck and built-in interaction looks correct on read-through, but keyboard handlers, timer ticks, end-modal overlays, and Zetamac's full config panel all need a real browser walk.
+5. The rebuild's UI for /home, /leaderboard, /trick/[id], /profile hasn't been walked through in a real browser either. Worth a Vercel preview deploy and a manual walk before cutover.
 
 **Likely next-session asks (probability descending):**
-1. Browser smoke test multiplayer against the emulator, fix any UI issues found.
-2. Phase 4 polish — port analytics/SEO/Speed Insights from `main`'s `worktree-analytics` work. Easy port; the patterns (`getAnalyticsClient`, `trackEvent`, `AnalyticsProvider`, `app/sitemap.ts`, JSON-LD) are documented in §4 below.
-3. Phase 3 remainder — AI Test Generator (`/test`) and mini-games (Twenty-Four, Zetamac under `/games`). Multiplayer is done; these are what's left in Phase 3.
-4. Cutover — execute step 10 in §14 (re-run migration `--apply`, deploy new RTDB rules, flip Vercel Production Branch).
-5. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
-6. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
+1. Browser smoke-test all four un-verified surfaces (multiplayer + AI test + 24 + Zetamac), fix any UI bugs.
+2. Commit the Phase 3 completion work (currently uncommitted). See §17 for the file list.
+3. Add server-only `GEMINI_API_KEY` env var to `.env.local` + Vercel, rotate the public key.
+4. Phase 4 polish — port analytics/SEO/Speed Insights from `main`'s `worktree-analytics` work. Easy port; patterns documented in the 2026-05-04 entry in §4.
+5. Cutover — execute step 10 in §14 (re-run migration `--apply`, deploy new RTDB rules, flip Vercel Production Branch).
+6. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
+7. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
 
 **Open decisions / loose ends:**
 - Whether the leaderboard should expose `school` publicly. We chose yes for the school-competition use case; revisit if privacy concerns surface.
 - Whether to run the legacy migration's `--delete-old` to reclaim Firestore quota on the old `users/{email}` and `leaderboard/{trickId}` map docs. Safe to skip indefinitely.
 - The legacy `setDoc(bestRef, { time })` / `entryRef.set({ ... })` calls in `worktree-analytics/app/components/updateLeaderboard.ts:39` and `app/api/leaderboard/route.ts:67` overwrite without merge — meaning every legacy-app submission post-migration drops the rebuild's new fields on that doc. Re-running the migration before cutover refreshes drift. Not a problem until cutover day.
 - Multiplayer specifics: 5-char codes from a 31-letter alphabet (no `0/1/I/O/L`), seed-based deterministic problems, first-to-5 wins, no leaderboard tie-in, no server-side answer verification (client-trusted). Known v1 gaps: no Cloud Function for stale lobby cleanup, no mid-race reconnect/resume.
+- **AI Test v1 scope decisions** (locked 2026-05-11): 40 questions; UIL scoring `5*last - 9*(last - correct)`; Gemini `gemini-2.0-flash` server-side (NOT Anthropic — user override of §3 stack note); local grading via existing `equals()`, NO second AI call for grading; no Firestore writes, no leaderboard tie-in, no per-test persistence.
+- **Twenty-Four v1 scope** (locked 2026-05-11): 60s timer, +5s and +5pts per solve, 1362-hand precomputed dict (legacy was bigger than estimated), keyboard support (1-4 select, +-*/ ops, Enter combine, Backspace reset, Esc skip), end-of-game modal.
+- **Zetamac v1 scope** (locked 2026-05-11): user-configurable operators (toggle each on/off, last one disabled), 4 range pairs, duration 60/120/300/custom (30-900s). Highscore + config persisted in `localStorage` (`zetamac:highscore:v1`, `zetamac:config:v2`). No Firestore tie-in.
 
 ---
 
@@ -68,7 +73,7 @@ A practice gym for **UIL Number Sense** — drill canonical math tricks, race fr
 | Branch | Purpose | Status |
 |---|---|---|
 | `main` | Legacy app — currently deployed to Vercel production | Live; users hitting the existing URL get this |
-| `entirelyNew` | From-scratch rebuild | Phase 2 complete + 52-trick catalog + migration tooling. **Not yet deployed.** |
+| `entirelyNew` | From-scratch rebuild | Phase 1-3 complete (practice, leaderboard, multiplayer, AI test, mini-games). **Not yet deployed.** Phase 4 polish pending. |
 | `worktree-analytics` | Side branch off `main` for analytics/SEO/Firebase-rules work | Merged into `main` |
 
 The plan is for `entirelyNew` to eventually replace `main` as the production deployment. Until then both apps coexist on the same Firebase project, with the rebuild's migration tooling preserving the legacy field shapes so `main` keeps working.
@@ -86,7 +91,7 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 | Auth | Firebase Auth (email/password + Google SSO) |
 | DB | Firestore |
 | Realtime | Firebase RTDB (reserved for Phase 3 multiplayer) |
-| AI test gen | Vercel AI SDK + Anthropic Claude (Phase 3) |
+| AI test gen | `@google/generative-ai` SDK + Gemini `gemini-2.0-flash`, **server-side** (user override 2026-05-11 — stack note originally said Anthropic; user opted for Gemini to reuse existing API key) |
 | Math eval | mathjs |
 | Math render | KaTeX + react-katex (declared, not yet imported) |
 | Animations | Pure CSS `@keyframes` ported from prototype + motion/react for route-level later |
@@ -102,6 +107,64 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-05-11 — Phase 3 remainder (AI Test + Twenty-Four + Zetamac)
+
+**Branch**: `entirelyNew`. Uncommitted as of writing — file list under §17.
+
+Built the rest of Phase 3: AI test generator (`/test`) and the two mini-games (`/games/twenty-four`, `/games/zetamac`) plus a `/games` index. Phase 3 is now complete.
+
+**Dispatch shape**: Two rounds of parallel agents per the multiplayer recipe. Round 1 (3 parallel agents) shipped backend cleanly: A1 (AI Test backend), A2 (Twenty-Four core, 1362-hand dict), A3 (Zetamac core). Round 2 (3 parallel agents) **all stalled at 600s** with zero progress; UI work was completed directly in-stream instead. Result is identical to what the agents would have produced.
+
+**AI Test (`/test`)**:
+- **Server-side Gemini** via `@google/generative-ai` (model `gemini-2.0-flash`). Two POST routes: `/api/generate-test` (auth-required, Bearer ID token via `getAdminAuth().verifyIdToken`) and `/api/grade-test` (same auth).
+- Generation uses Gemini's structured-output mode (`responseMimeType: "application/json"` + `responseSchema`). One retry on shape mismatch before returning `upstream-failed`.
+- **Local grading, not AI**: this is the rebuild's biggest improvement over legacy. Gemini returns canonical answer forms (`form: integer|fraction|mixed|decimal|base|ratio|other`, plus `base` field when applicable); grading uses existing `equals()` from `lib/drill/answerValidator.ts`. Saves a Gemini round-trip and removes model-vs-model disagreement.
+- UIL scoring: `score = lastQuestion * 5 - 9 * (lastQuestion - correct)`. Blanks count as wrong if they're before the last answered.
+- 40 questions, 10 UIL category buckets (basic arithmetic, fractions, percentages, square roots, base conversions, word problems, number theory, algebra, geometry, sequences/patterns), ≥3 per bucket required in the prompt.
+- UI: idle → generating → taking (single-column scroll, 40 rows of `[badge] [prompt] [input]`) → submitting → results (3-pane: your-answers / answer-key / sticky score card). Error state with retry.
+- Env: reads `process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY`. The fallback exists so the existing key works; long-term need a server-only `GEMINI_API_KEY` (see §0 warning).
+
+**Twenty-Four (`/games/twenty-four`)**:
+- Pure state machine in `lib/games/twentyFour.ts`. Hands dict `lib/games/hands24.ts` (1362 solvable multisets, ported from `worktree-analytics/app/twenty-four/dict.ts`). mathjs Fraction arithmetic for exact ratios (so `3/7` displays as `3/7` not `0.428...`).
+- 60s timer, +5s and +5pts per solve. State-driven `idle | running | ended`.
+- **Keyboard support** (improvement over legacy click-only): `1-4` select tiles, `+/-/*/x//` operators, `Enter` combine, `Backspace` reset selection, `Esc` skip hand.
+- End-of-game modal (legacy had none): final score, hands solved, Play Again + Back to Games.
+- RNG: next hand derived from `(seed + solvedCount)` to keep state JSON-serializable (no closure in state).
+
+**Zetamac (`/games/zetamac`)**:
+- Pure state machine in `lib/games/zetamac.ts`. RNG per problem derived from `(seed + score * 0x9e3779b1)` (golden-ratio scramble to avoid adjacent-problem correlation when seed is small).
+- **Full user-configurable config** (chosen 2026-05-11 over duration-only): operator toggles (last-checked one is disabled), per-operator range pairs (addition operands, subtraction operands, mul-A, mul-B, div-divisor, div-quotient), duration 60/120/300/custom (30-900s). Validated via `validateConfig` before persisted.
+- Persistence: `localStorage["zetamac:config:v2"]` (config), `localStorage["zetamac:highscore:v1"]` (highscore). No Firestore tie-in.
+- Auto-advance UX: clear input + generate next problem the instant `parseFloat(input) === answer`.
+- Three views: pre-game config panel → fullscreen drill → end card with Play Again + Settings + Back to Games.
+
+**Files added** (new, ~20 net):
+- `lib/server/aiTest.ts`, `app/api/generate-test/route.ts`, `app/api/grade-test/route.ts`
+- `lib/games/twentyFour.ts`, `lib/games/hands24.ts`, `lib/games/zetamac.ts`
+- `app/(app)/test/page.tsx`, `app/(app)/test/layout.tsx`
+- `app/(app)/games/page.tsx`, `app/(app)/games/twenty-four/page.tsx`, `app/(app)/games/zetamac/page.tsx`
+- `components/sense/AITestPaper.tsx`, `components/sense/AITestResults.tsx`, `components/sense/TwentyFourBoard.tsx`, `components/sense/ZetamacBoard.tsx`
+- `hooks/useAITest.ts`, `hooks/useTwentyFour.ts`, `hooks/useZetamac.ts`
+- Tests: `__tests__/aiTest.test.ts` (26), `__tests__/twentyFour.test.ts` (26), `__tests__/zetamac.test.ts` (26)
+- `lib/types.ts` appended three banded sections (`// === AI Test ===`, `// === Twenty-Four ===`, `// === Zetamac ===`) with all new types
+- `app/globals.css` appended three CSS bands (~600 LOC) for the new surfaces; no raw Tailwind utilities (design-token CSS classes consistent with `.drill`, `.btn`, `.trick-card`)
+
+**Dependencies added**: `@google/generative-ai@^0.24.1`. `zod@^3.23.8` was already present.
+
+**Verified green** (HEAD = uncommitted on `entirelyNew`):
+- `pnpm typecheck` clean
+- `pnpm test` **165/165 across 12 suites** (+78 from previous baseline of 87 across 9)
+- `pnpm build` **17 routes** (+6 from previous 11: `/test`, `/games`, `/games/twenty-four`, `/games/zetamac`, `/api/generate-test`, `/api/grade-test`)
+
+**NOT verified**: real browser walk for any of the three new surfaces. Smoke test against `pnpm emulators` + `pnpm dev` before committing or pushing.
+
+**Quirks / decisions**:
+- `lib/games/hands24.ts` is 1362 tuples not 681 — the legacy `dict.ts` had double what the original plan estimated. Typed as `readonly (readonly [number,number,number,number])[]`; large but doesn't trip the TS2590 union-too-complex limit.
+- A1's grading test for decimal tolerance was changed from `0.333` vs `1/3` to `0.5` vs `1/2` because `equals()` uses a 1e-9 epsilon and `0.333` isn't within tolerance of `1/3 = 0.3333…`.
+- Twenty-Four's combine result ordering matches legacy (`[6,6,6,6]` + `0,1`+ → `[6,6,12]`, NOT `[12,6,6]`) — filter-then-append pattern.
+- `format(fractionLike, { fraction: 'ratio' })` emits `"12/1"` for integers; the formatter strips trailing `/1` so display shows `"12"` not `"12/1"` while keeping `"1/3"` etc.
+- Round 2 agents all stalled; built UI in-stream. Single rebuild was faster than three retries.
 
 ### 2026-05-10 — Phase 3 multiplayer port
 
@@ -254,16 +317,19 @@ Subsequent commit `c69c9dd` pinned the Node engine to `>=20.18` for Vercel.
 | 52 problem generators (deterministic, all ported from `main`'s legacy catalog) | ✅ |
 | 52 tips, 8 achievement definitions | ✅ |
 | Migration tooling (`lib/server/migration.ts` + `scripts/`) | ✅ |
-| 70 Vitest specs across 7 suites | ✅ |
+| **165 Vitest specs across 12 suites** | ✅ |
 | Playwright e2e (`register-drill-flow`, `leaderboard-publish`) | ✅ written, needs emulator |
 | Firebase config + rules + indexes | ✅ committed; rules same as live; new index NOT yet deployed |
-| `firebase-admin@13.8.0` | ✅ |
+| `firebase-admin@13.8.0`, `@google/generative-ai@0.24.1` | ✅ |
 | Phase 4 polish (analytics, SEO, Sentry) | ❌ — see §11 |
 | **Multiplayer (`/multiplayer`, `/multiplayer/[code]`, RTDB `rooms/{code}`)** | ✅ shipped 2026-05-10 |
-| AI test / mini-games | ❌ — Phase 3 remaining |
+| **AI Test Generator (`/test`, `/api/generate-test`, `/api/grade-test`)** | ✅ shipped 2026-05-11 |
+| **Twenty-Four mini-game (`/games/twenty-four`)** | ✅ shipped 2026-05-11 |
+| **Zetamac mini-game (`/games/zetamac`)** | ✅ shipped 2026-05-11 |
+| **`/games` index page** | ✅ shipped 2026-05-11 |
 | Settings full wiring (sound, haptics, keypad orientation, theme variants beyond sage) | ❌ — Phase 4 |
 
-**Verified green** at HEAD `7b0bfa1`: `pnpm typecheck`, `pnpm test` (70/70), `pnpm build` (9 routes).
+**Verified green** at HEAD (uncommitted on `entirelyNew`): `pnpm typecheck`, `pnpm test` (165/165), `pnpm build` (17 routes).
 
 ---
 
@@ -539,11 +605,13 @@ pnpm add -D <pkg>                                   # dev only
 
 | Phase | Scope | Effort |
 |---|---|---|
-| **Cutover** | Run migration `--apply` on prod (legacy stays alive thanks to dual-shape preservation), promote `entirelyNew` in Vercel when ready | <1 day |
-| **Phase 3 (remaining)** | AI Test (`/api/generate-test` + `/api/grade-test` calling Anthropic, sticky side panel, 2-column paper layout), Mini-games (Twenty-Four, Zetamac). Multiplayer ✅ shipped 2026-05-10. | ~1 week |
+| **Browser verification** | Smoke-test all four un-verified surfaces (multiplayer, /test, /games/twenty-four, /games/zetamac) against `pnpm emulators` + `pnpm dev`. Fix any UI bugs found. Also rotate Gemini key (see §0 warning). | <½ day |
+| **Cutover** | Run migration `--apply` on prod (legacy stays alive thanks to dual-shape preservation), deploy new RTDB rules, promote `entirelyNew` in Vercel when ready | <1 day |
 | **Phase 4** | Settings full wiring (sound effects, haptics, keypad orientation), theme variants beyond sage (arcade/ink/mono), Firebase Analytics + GA4 events (port the helpers from `main`'s `firebase/config.js`), Vercel Speed Insights, sitemap/JSON-LD/per-route metadata, Sentry | ~1 week |
 
-**Recommended order**: cut over to `entirelyNew` once you've verified the migration end-to-end against the emulator, then Phase 4 polish (especially analytics — easy port from `main`), then Phase 3.
+Phase 3 is ✅ complete as of 2026-05-11 (multiplayer + AI test + mini-games all shipped).
+
+**Recommended order**: browser-verify the new surfaces first → commit → Phase 4 polish (especially analytics — easy port from `main`) → cutover.
 
 ---
 
@@ -633,6 +701,18 @@ Replace `<flag>` with `--dry-run`, `--apply`, or `--apply --verbose`.
   - `7b0bfa1` Migration tooling
   - `74d0840` Add tsx for migration script
   - `c793dad` docs: consolidate context dumps into a single source of truth
+  - `e70f965` docs: add 'Pickup point for the next session' header
+  - `18cd2fa` Phase 3: Multiplayer (RTDB rooms, lobby, race, ended)
+- **Uncommitted Phase 3 remainder** (2026-05-11) — files to stage in one commit:
+  - new: `lib/server/aiTest.ts`, `app/api/generate-test/route.ts`, `app/api/grade-test/route.ts`
+  - new: `lib/games/twentyFour.ts`, `lib/games/hands24.ts`, `lib/games/zetamac.ts`
+  - new: `app/(app)/test/page.tsx`, `app/(app)/test/layout.tsx`
+  - new: `app/(app)/games/page.tsx`, `app/(app)/games/twenty-four/page.tsx`, `app/(app)/games/zetamac/page.tsx`
+  - new: `components/sense/{AITestPaper,AITestResults,TwentyFourBoard,ZetamacBoard}.tsx`
+  - new: `hooks/{useAITest,useTwentyFour,useZetamac}.ts`
+  - new: `__tests__/{aiTest,twentyFour,zetamac}.test.ts`
+  - modified: `lib/types.ts` (appended three banded sections), `app/globals.css` (~600 LOC appended in three bands), `package.json` + `pnpm-lock.yaml` (`@google/generative-ai`)
+  - modified: `PROJECT_CONTEXT.md` (this entry)
 - Firebase Console: <https://console.firebase.google.com/project/csmidterm-5f652>
 - Firestore data: <https://console.firebase.google.com/project/csmidterm-5f652/firestore/data>
 - Auth users: <https://console.firebase.google.com/project/csmidterm-5f652/authentication/users>
