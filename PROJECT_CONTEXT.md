@@ -5,48 +5,46 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-05-11.
+Last updated: 2026-05-14.
 
 ---
 
 ## 0. Pickup point for the next session
 
 **Where we are right now:**
-- Branch: `entirelyNew`. **Phase 3 is complete** — multiplayer (2026-05-10) + AI Test Generator + Twenty-Four + Zetamac (2026-05-11). Code is unstaged/uncommitted as of the timestamp above.
-- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **17 routes**.
+- Branch: `entirelyNew`. **Phase 4 is complete** — analytics, SEO, settings wiring, Sentry scaffold landed 2026-05-14 (commit `1a0d8ae`). Phase 3 work landed in `18cd2fa` (multiplayer) + `a000aeb` (AI test + mini-games).
+- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **19 routes** (added `/sitemap.xml` + `/robots.txt`).
 - 52-trick catalog and production data migration done 2026-05-05.
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has not been cut over yet.
 
+**The rebuild is feature-complete and production-ready.** Every remaining item is on the *operational* side — see §18 for the cutover checklist the user must run.
+
 **🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
-The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10.
+The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10 + §18.
 
 **🔑 Gemini API key — do this before pushing the AI test live:**
-The user's current `.env.local` only has `NEXT_PUBLIC_GEMINI_API_KEY`. The new `/api/generate-test` route falls back to that public-prefixed var so it works as-is, BUT `NEXT_PUBLIC_*` vars are inlined into the client JS bundle at build time — anyone can pull the key from DevTools. Fix: add a server-only `GEMINI_API_KEY` alias (same value) to `.env.local` and Vercel, then rotate the original public key and drop the `NEXT_PUBLIC_` prefix entirely. Until that's done, the key is exposed on every page the rebuild serves.
+The user's current `.env.local` only has `NEXT_PUBLIC_GEMINI_API_KEY`. The `/api/generate-test` route falls back to that public-prefixed var so it works as-is, BUT `NEXT_PUBLIC_*` vars are inlined into the client JS bundle at build time — anyone can pull the key from DevTools. Fix: add a server-only `GEMINI_API_KEY` (same value) to `.env.local` and Vercel, then rotate the original public key and drop the `NEXT_PUBLIC_` prefix entirely. Until that's done, the key is exposed on every page the rebuild serves.
 
 **What the next session should know about the rebuild's readiness:**
 
-The rebuild has feature parity with legacy on **practice, leaderboard, multiplayer, AI test, AND mini-games**. Still missing:
-- Settings full wiring (sound effects, haptics, keypad orientation, theme variants beyond sage)
-- Firebase Analytics + GA4 events + Vercel Speed Insights + sitemap/JSON-LD
-- Sentry / error reporting
+The rebuild has feature parity with legacy on **practice, leaderboard, multiplayer, AI test, AND mini-games**, plus parity-with-polish on **analytics, SEO, settings, Speed Insights**. Sentry SDK is installed and scaffolded but DSN-pending — see §18 step 5.
 
-A full Vercel-branch cutover is now **feature-safe** for end-users — every legacy surface has a rebuild equivalent. Phase 4 polish is the remaining work before parity-with-polish.
+A full Vercel-branch cutover is now **feature-safe** for end-users — every legacy surface has a rebuild equivalent.
 
 **Things NOT verified by an agent in any session yet:**
 1. Whether legacy `main`'s production deployment still functions correctly post-migration. 60-second browser smoke test recommended before any cutover decision.
 2. **The multiplayer rebuild UI has not been browser-tested.** Typecheck + units + build are green, but no one has actually opened 2 incognito windows and walked through lobby → race → ended. Smoke-test against the emulator before merging.
-3. **The AI Test rebuild UI has not been browser-tested.** `/test` route compiles + types check, but nobody has clicked Generate against a real Gemini key. Watch the response shape — A1 added Zod validation + a single retry, but the JSON-mode schema is new.
-4. **Twenty-Four + Zetamac UIs have not been browser-tested.** They typecheck and built-in interaction looks correct on read-through, but keyboard handlers, timer ticks, end-modal overlays, and Zetamac's full config panel all need a real browser walk.
+3. **The AI Test rebuild UI has not been browser-tested.** `/test` route compiles + types check, but nobody has clicked Generate against a real Gemini key.
+4. **Twenty-Four + Zetamac UIs have not been browser-tested.** They typecheck and built-in interaction looks correct on read-through, but keyboard handlers, timer ticks, end-modal overlays, sound + haptics on solve, and Zetamac's full config panel all need a real browser walk.
 5. The rebuild's UI for /home, /leaderboard, /trick/[id], /profile hasn't been walked through in a real browser either. Worth a Vercel preview deploy and a manual walk before cutover.
+6. **Phase 4 surfaces not browser-tested**: tweaks panel sound/haptics toggles, ink/mono theme variants visually, sitemap.xml + robots.txt served correctly, JSON-LD validates, GA4 events fire end-to-end.
 
 **Likely next-session asks (probability descending):**
-1. Browser smoke-test all four un-verified surfaces (multiplayer + AI test + 24 + Zetamac), fix any UI bugs.
-2. Commit the Phase 3 completion work (currently uncommitted). See §17 for the file list.
-3. Add server-only `GEMINI_API_KEY` env var to `.env.local` + Vercel, rotate the public key.
-4. Phase 4 polish — port analytics/SEO/Speed Insights from `main`'s `worktree-analytics` work. Easy port; patterns documented in the 2026-05-04 entry in §4.
-5. Cutover — execute step 10 in §14 (re-run migration `--apply`, deploy new RTDB rules, flip Vercel Production Branch).
-6. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
-7. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
+1. Browser smoke-test all surfaces (multiplayer, AI test, 24, Zetamac, tweaks panel sound/haptics/themes), fix any UI bugs.
+2. Run the cutover checklist in §18 — rotate Gemini key, deploy RTDB rules, flip Vercel branch, set Vercel env vars, mark GA4 conversions, register custom dimensions, resubmit sitemap.
+3. (Optional) Wire Sentry fully via `npx @sentry/wizard@latest -i nextjs` once a Sentry project exists.
+4. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
+5. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
 
 **Open decisions / loose ends:**
 - Whether the leaderboard should expose `school` publicly. We chose yes for the school-competition use case; revisit if privacy concerns surface.
@@ -107,6 +105,71 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-05-14 — Phase 4 (analytics, SEO, settings, Sentry scaffold)
+
+**Branch**: `entirelyNew`. Single commit `1a0d8ae` on top of `a000aeb`.
+
+Closed out Phase 4. Rebuild is now production-ready pending the operational checklist in §18. No production-side actions taken — every Firebase deploy, Vercel branch flip, key rotation, and migration re-run is left for the user.
+
+**SEO**:
+- `app/sitemap.ts` + `app/robots.ts` (Next.js conventions). Sitemap covers `/`, `/login`, `/leaderboard`, `/multiplayer`, `/test`, `/games`, `/games/{twenty-four,zetamac}`, `/profile`. Build outputs `/sitemap.xml` and `/robots.txt` as static routes.
+- Root layout: `metadataBase`, title template `%s | Project Sense`, full `openGraph` + `twitter` metadata, `robots: { index: true, follow: true }`. WebSite + Organization JSON-LD inline-rendered in body.
+- Per-route `layout.tsx` server components for `/login`, `/leaderboard`, `/multiplayer`, `/games`, `/games/twenty-four`, `/games/zetamac`, `/profile`. `/trick/[trickId]` uses `generateMetadata` to read the trick name from the catalog.
+- `/test` already had `layout.tsx` from Phase 3 — left alone.
+- `public/projectSenseLogo.png` copied from `main` for og/jsonld references.
+
+**Analytics**:
+- `lib/firebase/analytics.ts` — lazy `getAnalyticsClient` (dynamic-imports `firebase/analytics` only when measurementId is set + `isSupported()` succeeds), `trackEvent`, `setAnalyticsUser`, `setAnalyticsUserProperties`. Cleanly no-ops on SSR or when env var is absent.
+- `components/sense/AnalyticsProvider.tsx` — mounted in root layout, binds the user's UID on `onAuthStateChanged` and stamps `signup_date` user property.
+- `@vercel/analytics/next` `<Analytics />` and `@vercel/speed-insights/next` `<SpeedInsights />` mounted at the body root.
+
+**GA4 event taxonomy** (matches `main`'s patterns):
+| Event | Where | Params |
+|---|---|---|
+| `practice_session_completed` | `lib/firebase/drills.ts` after `runTransaction` commits | `trick_id`, `duration_ms`, `number_correct`, `total`, `score` |
+| `leaderboard_submitted` | `lib/firebase/drills.ts` after `/api/leaderboard` returns ok | `trick_id`, `time_ms` |
+| `multiplayer_game_completed` | `components/sense/RoomEnded.tsx` mount effect | `trick_id`, `players_count`, `won` |
+| `ai_test_generated` | `hooks/useAITest.ts` after `setPaper` | `question_count` |
+| `ai_test_graded` | `hooks/useAITest.ts` after `setGrade` | `score`, `number_correct`, `total` |
+| `login` | `lib/firebase/auth.ts` (email + Google existing user) | `method` = `password` \| `google` |
+| `sign_up` | `lib/firebase/auth.ts` (email + Google new user) | `method` = `password` \| `google` |
+
+`signInWithGoogle` returns the new-vs-existing flag from `ensureUserDoc` and routes to `sign_up` vs `login` accordingly.
+
+**Settings**:
+- `Tweaks` type gains `soundEffects: boolean` and `haptics: boolean`. `useTweaks` defaults both to `true`, persists to `localStorage["sense:tweaks"]`, reflects to `<html data-sound|data-haptics>`.
+- `lib/effects.ts` — `playCorrectSound()`, `pulseHaptic()`, `celebrateCorrect()`. Helpers read the live `data-*` attrs (no React hook needed). Sound preloads `/correctSound.mp3`; haptics calls `navigator.vibrate(20)`.
+- Wired into `app/(app)/drill/[trickId]/page.tsx` (`commitAnswer` on correct), `hooks/useZetamac.ts` (`setInputValue` when `correct === true`), `hooks/useTwentyFour.ts` (`combine` when `outcome === "solved"`).
+- `public/correctSound.mp3` copied from `main`.
+- `TweaksPanel` exposes Sound + Haptics rows alongside the existing Theme/Numerals/Density rows.
+- **Theme variants**: `globals.css` `[data-theme="ink"]` and `[data-theme="mono"]` previously inherited `:root` (no-op). Now both have real palette overrides — `ink` is high-contrast cream + deep orange, `mono` is pure black/white. `arcade` was already painted.
+- **Keypad orientation**: NOT wired. Legacy `main` had a `rightLeft` toggle for an on-screen numeric keypad; the rebuild's drill UI is a single text input with no on-screen keypad widget. Implementing this would be a fake setting until/unless we add a keypad widget. Dropped from scope; mention it in any roadmap discussion.
+
+**Sentry scaffold** (DSN-pending, safe by default):
+- `@sentry/nextjs@10.53.1` installed.
+- `sentry.client.config.ts` + `sentry.server.config.ts` + `sentry.edge.config.ts` each guard on the DSN env var — when unset, `Sentry.init` is never called, so the SDK no-ops entirely.
+- `instrumentation.ts` (Node.js + Edge) and `instrumentation-client.ts` (browser) wire the configs into Next.js's instrumentation hook. `captureRequestError` is re-exported as `onRequestError` per Next 16 convention.
+- `next.config.ts` is **NOT wrapped** with `withSentryConfig`. Source-map upload requires `SENTRY_AUTH_TOKEN` and a real org/project slug — leave that to the user to run `npx @sentry/wizard@latest -i nextjs` when they have a Sentry project.
+- `.env.local.example` documents `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_DSN`, `GEMINI_API_KEY`, `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID`.
+
+**Verified green** at HEAD (`1a0d8ae`):
+- `pnpm typecheck` clean
+- `pnpm test` 165/165 across 12 suites (no test changes; existing analytics no-op path means trackEvent stays inert in vitest's jsdom env)
+- `pnpm build` 19 routes (added `/sitemap.xml` + `/robots.txt`)
+
+**NOT verified**: browser walk for any of the new surfaces. Particularly:
+1. Tweaks panel toggling sound + haptics actually plays the chime / vibrates
+2. Switching theme to `ink` or `mono` re-paints the canvas correctly across all routes
+3. JSON-LD passes Google's Rich Results test
+4. `sitemap.xml` and `robots.txt` resolve correctly behind Vercel's routing
+5. GA4 events fire and land in the property (needs measurementId + GA4 DebugView)
+
+**Quirks / decisions**:
+- Analytics module dynamic-imports `firebase/analytics` only on first call to keep the initial JS bundle lean. The first `trackEvent` after sign-in pays a one-time ~25KB chunk fetch.
+- `trackEvent`/`setAnalyticsUser` swallow all errors — analytics must never affect product behavior. Tests pass without measurementId because the no-op short-circuit fires before any dynamic import.
+- Sentry left dormant intentionally. The wizard is the sanctioned way to wire the webpack plugin + auth token; running it is interactive (asks for project slug) so it can't be done in this session.
+- Keypad-orientation tweak intentionally dropped — see Settings note above.
 
 ### 2026-05-11 — Phase 3 remainder (AI Test + Twenty-Four + Zetamac)
 
@@ -304,7 +367,7 @@ Subsequent commit `c69c9dd` pinned the Node engine to `>=20.18` for Vercel.
 | Theme port (`app/globals.css`) — tokens, animations, reduced-motion, responsive | ✅ |
 | Three Google fonts via `next/font` (Space Grotesk + Instrument Serif + JetBrains Mono) | ✅ |
 | App shell (`app/(app)/layout.tsx`) — collapsible sidebar persisted, topbar slot | ✅ |
-| Tweaks panel — UI present, numerals + density wired live, theme switcher renders (sage default) | ✅ |
+| Tweaks panel — theme (sage/ink/mono/arcade — all paint distinct palettes), numerals, density, sound, haptics, all wired live | ✅ |
 | Login (`app/(auth)/login/page.tsx`) — split-panel, Sign in / Create account, Zod validation, Google SSO | ✅ |
 | Auth wiring (`hooks/useAuth.tsx`, `lib/firebase/auth.ts`, `lib/firebase/client.ts`) | ✅ |
 | Home (`app/(app)/page.tsx`) — hero, stat cards, search/filter/density, 52-trick catalog, recent activity (links to `/trick/[id]`) | ✅ |
@@ -321,15 +384,19 @@ Subsequent commit `c69c9dd` pinned the Node engine to `>=20.18` for Vercel.
 | Playwright e2e (`register-drill-flow`, `leaderboard-publish`) | ✅ written, needs emulator |
 | Firebase config + rules + indexes | ✅ committed; rules same as live; new index NOT yet deployed |
 | `firebase-admin@13.8.0`, `@google/generative-ai@0.24.1` | ✅ |
-| Phase 4 polish (analytics, SEO, Sentry) | ❌ — see §11 |
 | **Multiplayer (`/multiplayer`, `/multiplayer/[code]`, RTDB `rooms/{code}`)** | ✅ shipped 2026-05-10 |
 | **AI Test Generator (`/test`, `/api/generate-test`, `/api/grade-test`)** | ✅ shipped 2026-05-11 |
 | **Twenty-Four mini-game (`/games/twenty-four`)** | ✅ shipped 2026-05-11 |
 | **Zetamac mini-game (`/games/zetamac`)** | ✅ shipped 2026-05-11 |
 | **`/games` index page** | ✅ shipped 2026-05-11 |
-| Settings full wiring (sound, haptics, keypad orientation, theme variants beyond sage) | ❌ — Phase 4 |
+| **Settings — sound, haptics, theme variants (ink/mono/arcade with real palettes)** | ✅ shipped 2026-05-14 |
+| **Firebase Analytics + GA4 event taxonomy + AnalyticsProvider** | ✅ shipped 2026-05-14 |
+| **SEO — sitemap.ts, robots.ts, JSON-LD, per-route metadata** | ✅ shipped 2026-05-14 |
+| **Vercel Analytics + Speed Insights** | ✅ shipped 2026-05-14 |
+| **Sentry SDK + instrumentation scaffold (DSN-pending; wizard pending)** | ✅ shipped 2026-05-14 |
+| Settings: keypad orientation | ✖ dropped — rebuild's drill UI has no on-screen keypad widget; toggle would be inert. Revisit if a keypad widget is added. |
 
-**Verified green** at HEAD (uncommitted on `entirelyNew`): `pnpm typecheck`, `pnpm test` (165/165), `pnpm build` (17 routes).
+**Verified green** at HEAD (`1a0d8ae`): `pnpm typecheck`, `pnpm test` (165/165), `pnpm build` (19 routes — added `/sitemap.xml` + `/robots.txt`).
 
 ---
 
@@ -605,13 +672,13 @@ pnpm add -D <pkg>                                   # dev only
 
 | Phase | Scope | Effort |
 |---|---|---|
-| **Browser verification** | Smoke-test all four un-verified surfaces (multiplayer, /test, /games/twenty-four, /games/zetamac) against `pnpm emulators` + `pnpm dev`. Fix any UI bugs found. Also rotate Gemini key (see §0 warning). | <½ day |
-| **Cutover** | Run migration `--apply` on prod (legacy stays alive thanks to dual-shape preservation), deploy new RTDB rules, promote `entirelyNew` in Vercel when ready | <1 day |
-| **Phase 4** | Settings full wiring (sound effects, haptics, keypad orientation), theme variants beyond sage (arcade/ink/mono), Firebase Analytics + GA4 events (port the helpers from `main`'s `firebase/config.js`), Vercel Speed Insights, sitemap/JSON-LD/per-route metadata, Sentry | ~1 week |
+| **Browser verification** | Smoke-test the new + Phase-4 surfaces (multiplayer, /test, /games/twenty-four, /games/zetamac, tweaks panel sound/haptics/themes, JSON-LD validity, sitemap.xml/robots.txt) against `pnpm emulators` + `pnpm dev` or a Vercel preview. Fix any UI bugs found. | <½ day |
+| **Cutover** | See §18 for the operational checklist. The user owns these steps — they touch production. | <1 day |
+| **Sentry full integration** | Run `npx @sentry/wizard@latest -i nextjs`, set `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_AUTH_TOKEN` in Vercel. Scaffold is already in place; wizard will wrap `next.config.ts` and configure source-map upload. | ~30 min |
 
-Phase 3 is ✅ complete as of 2026-05-11 (multiplayer + AI test + mini-games all shipped).
+Phase 3 is ✅ complete as of 2026-05-11. Phase 4 is ✅ complete as of 2026-05-14 (commit `1a0d8ae`).
 
-**Recommended order**: browser-verify the new surfaces first → commit → Phase 4 polish (especially analytics — easy port from `main`) → cutover.
+**Recommended order**: browser-verify the rebuild on a Vercel preview → run §18 cutover checklist → optionally finish Sentry wizard.
 
 ---
 
@@ -703,18 +770,70 @@ Replace `<flag>` with `--dry-run`, `--apply`, or `--apply --verbose`.
   - `c793dad` docs: consolidate context dumps into a single source of truth
   - `e70f965` docs: add 'Pickup point for the next session' header
   - `18cd2fa` Phase 3: Multiplayer (RTDB rooms, lobby, race, ended)
-- **Uncommitted Phase 3 remainder** (2026-05-11) — files to stage in one commit:
-  - new: `lib/server/aiTest.ts`, `app/api/generate-test/route.ts`, `app/api/grade-test/route.ts`
-  - new: `lib/games/twentyFour.ts`, `lib/games/hands24.ts`, `lib/games/zetamac.ts`
-  - new: `app/(app)/test/page.tsx`, `app/(app)/test/layout.tsx`
-  - new: `app/(app)/games/page.tsx`, `app/(app)/games/twenty-four/page.tsx`, `app/(app)/games/zetamac/page.tsx`
-  - new: `components/sense/{AITestPaper,AITestResults,TwentyFourBoard,ZetamacBoard}.tsx`
-  - new: `hooks/{useAITest,useTwentyFour,useZetamac}.ts`
-  - new: `__tests__/{aiTest,twentyFour,zetamac}.test.ts`
-  - modified: `lib/types.ts` (appended three banded sections), `app/globals.css` (~600 LOC appended in three bands), `package.json` + `pnpm-lock.yaml` (`@google/generative-ai`)
-  - modified: `PROJECT_CONTEXT.md` (this entry)
+  - `a000aeb` Phase 3: AI Test + Twenty-Four + Zetamac
+  - `1a0d8ae` Phase 4: analytics, SEO, settings wiring, Sentry scaffold
 - Firebase Console: <https://console.firebase.google.com/project/csmidterm-5f652>
 - Firestore data: <https://console.firebase.google.com/project/csmidterm-5f652/firestore/data>
 - Auth users: <https://console.firebase.google.com/project/csmidterm-5f652/authentication/users>
 - Vercel dashboard: <https://vercel.com/dashboard>
 - Emulator UI (when running): <http://localhost:4000>
+
+---
+
+## 18. Cutover actions for the user
+
+These steps touch production — the rebuild leaves them for you intentionally. Run in this order on cutover day. Nothing here is required for the rebuild's local code or tests to work; everything below is purely operational.
+
+### Pre-flight (anytime before cutover, no impact on prod)
+
+1. **Browser smoke-test the rebuild** — push `entirelyNew` to GitHub, let Vercel build a preview, then walk through:
+   - Sign in (email + Google) → home → run a 5/5 drill → verify leaderboard publish
+   - `/multiplayer` → create + join in 2 incognito windows → race → ended state
+   - `/test` → generate (needs `GEMINI_API_KEY` in the preview env) → submit → results
+   - `/games/twenty-four` and `/games/zetamac` → keyboard handlers, timer, end modal
+   - Tweaks panel — toggle sound, haptics, switch themes (sage/ink/mono/arcade)
+   - DevTools → Application tab → confirm `sense:tweaks` persists
+   - View source on the home page → confirm WebSite + Organization JSON-LD blocks
+   - Visit `/sitemap.xml` and `/robots.txt` directly
+2. **Vercel env vars** — add anything missing to the preview/production environment in the Vercel dashboard:
+   - `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID`, `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET`, `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID`, `NEXT_PUBLIC_FIREBASE_APP_ID`, `NEXT_PUBLIC_FIREBASE_DATABASE_URL`
+   - `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (enables GA4)
+   - `FIREBASE_SERVICE_ACCOUNT_KEY` (server-only — `/api/leaderboard` returns 500 without it)
+   - `GEMINI_API_KEY` (server-only — see step 3)
+   - `NEXT_PUBLIC_SENTRY_DSN` + `SENTRY_DSN` (only if you've created a Sentry project)
+3. **Rotate the Gemini key** — `NEXT_PUBLIC_GEMINI_API_KEY` is currently exposed in the client bundle. Add a server-only `GEMINI_API_KEY` to `.env.local` + Vercel with the same value, then in Google AI Studio rotate the original key and remove the `NEXT_PUBLIC_` variant entirely. The `/api/generate-test` route reads `GEMINI_API_KEY` first, falls back to the public one — once both are set, it'll prefer the safe one transparently.
+
+### Cutover day (each step is irreversible without rollback)
+
+4. **Re-run the data migration** to refresh any drift from legacy writes since 2026-05-05:
+   ```sh
+   NODE_OPTIONS=--use-system-ca pnpm exec tsx --env-file=.env.local scripts/migrate-data-to-rebuild.mjs --apply
+   ```
+   Idempotent — already-migrated docs are skipped.
+
+5. **Deploy the new RTDB rules**:
+   ```sh
+   firebase deploy --only database
+   ```
+   ⚠ This is the moment legacy `main`'s multiplayer breaks (it doesn't write a `host` field, which the new rules require). Do this *immediately* before the Vercel branch flip, not before.
+
+6. **Flip the Vercel Production Branch** — Vercel dashboard → Settings → Git → Production Branch: change `main` → `entirelyNew`. Same domain serves the rebuild on the next deploy. Vercel will auto-deploy on the next push, or trigger one manually.
+
+### Post-cutover (anytime after)
+
+7. **Mark GA4 conversions** — in GA4 → Admin → Events, mark `login` and `sign_up` as conversions.
+8. **Register custom dimensions** — GA4 → Admin → Custom definitions → register these event-scoped params:
+   - `trick_id`, `duration_ms`, `time_ms`, `players_count`, `won`, `score`, `number_correct`, `total`, `method`, `question_count`
+   - And user-scoped: `signup_date`
+9. **Resubmit the sitemap** — Google Search Console → Sitemaps → submit `https://project-sense.vercel.app/sitemap.xml`.
+10. **(Optional) Wire Sentry fully** — once you've created a Sentry project:
+    ```sh
+    npx @sentry/wizard@latest -i nextjs
+    ```
+    The wizard wraps `next.config.ts` with `withSentryConfig`, sets up source-map upload, and adds `SENTRY_AUTH_TOKEN`. Scaffolding (`sentry.*.config.ts`, `instrumentation.ts`, `instrumentation-client.ts`) is already in place — the wizard will detect and reuse it.
+11. **(Optional)** Run the legacy migration's `--delete-old` to reclaim Firestore quota on the old `users/{email}` and `leaderboard/{trickId}` map docs. Safe to skip indefinitely.
+12. **(Optional)** Manually clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` from the Firebase Console — see §4 (2026-05-05 entry).
+
+### Rollback
+
+If the rebuild misbehaves after cutover, flip the Vercel Production Branch back to `main`. The data migration is additive (preserves all legacy fields), so legacy `main` keeps working. The only thing the legacy app loses on rollback is multiplayer — because the new RTDB rules now require a `host` field that legacy doesn't write. To fully rollback multiplayer, either re-deploy the old permissive rules or accept that multiplayer is dark on legacy until you patch it. (Single-player practice + leaderboard + AI test all keep working on `main` regardless.)
