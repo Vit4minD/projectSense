@@ -1,13 +1,14 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getAdminAuth } from "@/lib/firebase/admin";
 import { generatePaper, statusCodeFor } from "@/lib/server/aiTest";
+import { resolveGeminiKey } from "@/lib/server/geminiKey";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const key = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const key = resolveGeminiKey();
     const result = await generatePaper(
       {
         adminAuth: getAdminAuth(),

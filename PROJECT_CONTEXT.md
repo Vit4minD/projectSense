@@ -837,3 +837,83 @@ These steps touch production — the rebuild leaves them for you intentionally. 
 ### Rollback
 
 If the rebuild misbehaves after cutover, flip the Vercel Production Branch back to `main`. The data migration is additive (preserves all legacy fields), so legacy `main` keeps working. The only thing the legacy app loses on rollback is multiplayer — because the new RTDB rules now require a `host` field that legacy doesn't write. To fully rollback multiplayer, either re-deploy the old permissive rules or accept that multiplayer is dark on legacy until you patch it. (Single-player practice + leaderboard + AI test all keep working on `main` regardless.)
+
+---
+
+## 19. Security audit + env-var classification
+
+Last audit: 2026-05-14 (this session).
+
+### API routes
+
+| Route | Method | Auth | Validation | Notes |
+|---|---|---|---|---|
+| `/api/leaderboard` | POST | Bearer ID-token via `getAdminAuth().verifyIdToken` | Zod (`PublishBody`) + trick-ID whitelist + drill-doc verify (server reloads `users/{uid}/drills/{drillId}` and asserts `score === "5/5"` and `\|totalMs - claimed\| ≤ 50ms`) | Transactional upsert; skips when existing entry is faster. Server-only writes (Firestore rules deny client writes to leaderboards). Runtime: `nodejs`, `force-dynamic`. |
+| `/api/generate-test` | POST | Bearer ID-token | Auth-only (no body); Gemini structured output validated by Zod + custom checks | Reads Gemini key via `lib/server/geminiKey.ts` — production refuses to fall back to `NEXT_PUBLIC_GEMINI_API_KEY`. |
+| `/api/grade-test` | POST | Bearer ID-token | Zod (`GradeBody`, paper.questions length must be 40) | Local grading via `equals()`; no LLM call. |
+
+**No rate limiting** — all three routes rely on the auth gate (signed-in users only) plus upstream quotas (Gemini's per-key quota for generation, Firestore's per-project quota for leaderboard). For higher-traffic deploys, consider Vercel's Rate Limit middleware or `@upstash/ratelimit`.
+
+**Response shapes**: errors return `{ ok: false, code, message, issues? }` with HTTP statuses mapped via `statusCodeFor()` (401 no/bad token, 400 bad request / unknown trick, 409 stale-or-fabricated, 500 internal, 502 upstream-failed). Error messages never leak the bearer token, the service account key, or the Gemini key.
+
+### Firebase rules
+
+**Firestore** (`firestore.rules`): owner-only on `users/{uid}` + subcollections (`drills`, `bests`); leaderboards world-readable + write-denied (server-only via Admin SDK, which bypasses rules).
+
+**RTDB** (`database.rules.json`): `rooms/{code}` requires auth for read; writes require either (a) the doc doesn't exist AND the new payload's `host` equals the auth uid (initial create), or (b) the existing doc's `host` equals the auth uid (subsequent updates). Player slots scoped to own UID. Indexed on `visibility` + `state`. Tightened 2026-05-14: previously the create case allowed any auth user to assign `host` to anyone — minor griefing surface fixed.
+
+### Environment variable matrix
+
+| Var | Where | Visibility | Why | Set in Vercel as |
+|---|---|---|---|---|
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | `lib/firebase/client.ts` | **PUBLIC** | Firebase web SDK config; security comes from rules + Auth, not from secrecy. Designed to be public. | All envs (Production/Preview/Development) |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | `lib/firebase/client.ts` | **PUBLIC** | Same | All envs |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | `lib/firebase/client.ts`, `lib/firebase/admin.ts` (emulator path) | **PUBLIC** | Public identifier | All envs |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | `lib/firebase/client.ts` | **PUBLIC** | Public identifier | All envs |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | `lib/firebase/client.ts` | **PUBLIC** | Public identifier | All envs |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | `lib/firebase/client.ts` | **PUBLIC** | Public identifier | All envs |
+| `NEXT_PUBLIC_FIREBASE_DATABASE_URL` | `lib/firebase/client.ts` | **PUBLIC** | Public URL | All envs |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | `lib/firebase/analytics.ts` | **PUBLIC** | GA4 measurement ID; intended to be public | Production + Preview (omit Development) |
+| `NEXT_PUBLIC_USE_EMULATOR` | `lib/firebase/client.ts` | **PUBLIC** | Build-time toggle ("true" → connect SDK to local emulator). Just a bool. | Development only (or omit; defaults false) |
+| `NEXT_PUBLIC_SENTRY_DSN` | `sentry.client.config.ts` | **PUBLIC** | Sentry DSN is intentionally public — it's how the browser SDK identifies the project | Production + Preview |
+| `FIREBASE_SERVICE_ACCOUNT_KEY` | `lib/firebase/admin.ts`, `scripts/migrate-data-to-rebuild.mjs` | 🔒 **SERVER-ONLY** | Service account JSON with full project admin rights. Leaking this = takeover. | Production + Preview (sensitive). Use Vercel's Sensitive flag if available. NEVER set with `NEXT_PUBLIC_` prefix. |
+| `GEMINI_API_KEY` | `lib/server/geminiKey.ts` (preferred) → `app/api/generate-test/route.ts` | 🔒 **SERVER-ONLY** | Gemini private API key | Production + Preview |
+| `SENTRY_DSN` | `sentry.server.config.ts`, `sentry.edge.config.ts` | 🔒 **SERVER-ONLY** preferred (DSN is technically safe public, but server-side avoids redundancy) | Same value as `NEXT_PUBLIC_SENTRY_DSN`; the server runtime also reports errors | Production + Preview |
+| `SENTRY_AUTH_TOKEN` | (set by `@sentry/wizard`, used at build for source-map upload) | 🔒 **SERVER-ONLY** | Sentry org-scoped token; allows uploading source maps | Production + Preview |
+| `NEXT_PUBLIC_GEMINI_API_KEY` | `lib/server/geminiKey.ts` (dev fallback only) | ⚠ **REMOVE** | Public-prefixed Gemini key. Currently kept as a dev fallback for local work. **In production, the route IGNORES this var** (since 2026-05-14) and logs an error to alert you. | **DELETE from Vercel after rotating the key** — see Action below. |
+
+### Action: Gemini key rotation (do this before cutover)
+
+The current `.env.local` may only have `NEXT_PUBLIC_GEMINI_API_KEY`. Even though `lib/server/geminiKey.ts` no longer reads it in production, every prior build that *did* read it has shipped JS bundles where Next.js inlined the value. You must rotate:
+
+1. In Google AI Studio → API keys → revoke the existing key.
+2. Generate a fresh key.
+3. In Vercel → Project Settings → Environment Variables:
+   - Add `GEMINI_API_KEY` = `<fresh-key>` to Production + Preview (no `NEXT_PUBLIC_` prefix).
+   - **Delete** any existing `NEXT_PUBLIC_GEMINI_API_KEY` entry.
+4. In `.env.local` (locally): same — set `GEMINI_API_KEY=<fresh-key>` and remove `NEXT_PUBLIC_GEMINI_API_KEY`.
+5. Redeploy (Vercel will auto-deploy on the next push, or trigger one manually).
+
+After this, `/api/generate-test` reads only the safe key and the public-prefixed var is gone from the bundle.
+
+### NEXT_PUBLIC_ vs server-only — how it actually works
+
+- `NEXT_PUBLIC_*` vars are **inlined at build time** into the JS bundles Next.js ships to the browser. Anyone can read them via DevTools → Sources or `console.log(process.env.NEXT_PUBLIC_X)`. Rotating one of these means a redeploy + rebuild.
+- Vars without the prefix are **resolved at runtime** server-side. They never appear in client bundles. Rotating one means updating Vercel's env, then redeploying (or triggering an env-only redeploy from the dashboard) — no source change required.
+- Vercel sets `VERCEL_ENV` to `production` / `preview` / `development` at runtime, so server code can branch on it (e.g., `geminiKey.ts` does this).
+- A var set in Vercel with the `NEXT_PUBLIC_` prefix is treated as a build-time constant — its value participates in build caching. Changing it without bumping the deploy can yield stale bundles.
+
+### Service account key handling
+
+- `FIREBASE_SERVICE_ACCOUNT_KEY` must be the **whole JSON service account file**, on a single line (no newlines).
+- Vercel env var values cap at ~64KB; a service account JSON is comfortably under that (~2KB).
+- When Vercel mounts it into the Node runtime, `JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)` in `lib/firebase/admin.ts` reconstructs the credentials object.
+- Locally, leave it unset and run `firebase emulators:start` — `lib/firebase/admin.ts` auto-detects `FIRESTORE_EMULATOR_HOST` / `FIREBASE_AUTH_EMULATOR_HOST` and skips credential init.
+- If the var is missing in a deployed environment, every server route that touches the Admin SDK throws on first call with the message: *"FIREBASE_SERVICE_ACCOUNT_KEY is required..."* — the route then returns a 500.
+
+### Open security trade-offs (intentional)
+
+- **No per-user rate limit on `/api/generate-test`**. The auth gate prevents anonymous abuse; a determined signed-in user can still spend Gemini quota by spamming. Acceptable for v1; revisit if the bill is unexpected. Mitigation if needed: `@upstash/ratelimit` keyed by uid.
+- **Multiplayer host can technically write to other players' RTDB slots**. The top-level `.write` rule grants the host write access to the whole `rooms/{code}` subtree, which includes nested player slots. In practice, the rebuild's host client never does this. A malicious host could open DevTools and corrupt other players' `solved` counts in their own room. Low impact (only affects rooms they created) and not worth the rule complexity to patch in v1.
+- **AI test answers are sent to the client with the paper**. Local grading is faster and avoids a second LLM round-trip, at the cost of "the answers are visible in DevTools to anyone determined enough to look." UIL practice mode — fine. Don't repurpose this for proctored exams.
+- **`/api/leaderboard` accepts client-supplied `bestMs`** but verifies it against the recorded drill within ±50ms. Acceptable. The drill record itself is owner-writable, so theoretically a user could write a fake drill to Firestore directly via the SDK and then submit it — closing this would require server-side drill creation, which is overkill for the use case.
