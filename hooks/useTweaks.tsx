@@ -9,6 +9,8 @@ const DEFAULTS: Tweaks = {
   theme: "sage",
   density: "comfortable",
   monoNumerals: false,
+  soundEffects: true,
+  haptics: true,
 };
 
 type TweaksContextValue = {
@@ -48,6 +50,8 @@ export function TweaksProvider({ children }: { children: ReactNode }) {
     root.setAttribute("data-theme", tweaks.theme);
     root.setAttribute("data-mono-numerals", tweaks.monoNumerals ? "true" : "false");
     root.setAttribute("data-density", tweaks.density);
+    root.setAttribute("data-sound", tweaks.soundEffects ? "on" : "off");
+    root.setAttribute("data-haptics", tweaks.haptics ? "on" : "off");
   }, [tweaks]);
 
   const setTweaks = useCallback((next: Partial<Tweaks>) => {

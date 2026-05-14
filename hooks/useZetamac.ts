@@ -10,6 +10,7 @@ import {
   tick,
   validateConfig,
 } from "@/lib/games/zetamac";
+import { celebrateCorrect } from "@/lib/effects";
 import type { ZetamacConfig, ZetamacState } from "@/lib/types";
 
 const CONFIG_KEY = "zetamac:config:v2";
@@ -128,6 +129,7 @@ export function useZetamac(): UseZetamac {
     setState((prev) => {
       const withInput = setInputCore(prev, v);
       const { state: next, correct } = checkAnswer(withInput);
+      if (correct) celebrateCorrect();
       return correct ? next : withInput;
     });
   }, []);

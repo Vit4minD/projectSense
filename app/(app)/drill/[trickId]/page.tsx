@@ -11,6 +11,7 @@ import { formatShort, formatTime } from "@/lib/drill/utils";
 import { useTimer } from "@/hooks/useTimer";
 import { useAuth } from "@/hooks/useAuth";
 import { saveDrillResult } from "@/lib/firebase/drills";
+import { celebrateCorrect } from "@/lib/effects";
 import type { GeneratedProblem, PerQuestion } from "@/lib/types";
 
 const QUESTIONS_PER_DRILL = 5;
@@ -75,6 +76,7 @@ export default function DrillPage() {
   const current = problems[qIdx];
 
   function commitAnswer(submitted: string, isCorrect: boolean) {
+    if (isCorrect) celebrateCorrect();
     timer.markQuestion();
     const elapsed = timer.elapsedMs;
     const lastSlice = perQuestion.reduce((sum, p) => sum + p.ms, 0);

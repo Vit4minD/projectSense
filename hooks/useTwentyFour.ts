@@ -12,6 +12,7 @@ import {
   start,
   tick,
 } from "@/lib/games/twentyFour";
+import { celebrateCorrect } from "@/lib/effects";
 import type { TwentyFourOperator, TwentyFourState } from "@/lib/types";
 
 function randomSeed(): number {
@@ -72,6 +73,7 @@ export function useTwentyFour(): UseTwentyFour {
     setState((prev) => {
       const { state: next, outcome } = attemptCombine(prev);
       if (outcome === "solved") {
+        celebrateCorrect();
         setSolveFlash(true);
         window.setTimeout(() => setSolveFlash(false), 600);
       }

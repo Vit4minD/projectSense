@@ -39,10 +39,42 @@
   --radius-pill: 999px;
 }
 
-html[data-theme="ink"],
-html[data-theme="mono"],
 html[data-theme="sage"] {
-  /* inherit :root — Phase 1 routes all named themes to the peach/orange default */
+  /* default — inherits :root (peach/orange canvas, sage accent for CTAs) */
+}
+
+html[data-theme="ink"] {
+  --bg: #FAF7F2;
+  --bg-2: #F0EAE0;
+  --bg-soft: #E8E1D5;
+  --bg-raised: #FFFFFF;
+  --ink: #0E0B09;
+  --ink-2: #1C1410;
+  --muted: #5C4F47;
+  --muted-2: #8C7E73;
+  --line: #E5DFD2;
+  --line-strong: #C9BFB0;
+  --accent: #FF5B1F;
+  --accent-2: #E04A0F;
+  --accent-deep: #6B1E0A;
+  --accent-ink: #FFFFFF;
+}
+
+html[data-theme="mono"] {
+  --bg: #FFFFFF;
+  --bg-2: #F2F2F2;
+  --bg-soft: #F7F7F7;
+  --bg-raised: #FFFFFF;
+  --ink: #000000;
+  --ink-2: #111111;
+  --muted: #666666;
+  --muted-2: #999999;
+  --line: #E0E0E0;
+  --line-strong: #BFBFBF;
+  --accent: #000000;
+  --accent-2: #1F1F1F;
+  --accent-deep: #000000;
+  --accent-ink: #FFFFFF;
 }
 
 html[data-theme="arcade"] {

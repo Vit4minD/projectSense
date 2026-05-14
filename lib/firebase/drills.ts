@@ -12,6 +12,7 @@ import {
   where,
 } from "firebase/firestore";
 import { getDb, getFirebaseAuth } from "./client";
+import { trackEvent } from "./analytics";
 import type { Best, DrillResult, PerQuestion } from "@/lib/types";
 
 export type SavedDrill = DrillResult & { id: string };
@@ -58,6 +59,14 @@ export async function saveDrillResult(
     tx.set(bestRef, next, { merge: true });
   });
 
+  void trackEvent("practice_session_completed", {
+    trick_id: trickId,
+    duration_ms: totalMs,
+    number_correct: correct,
+    total: perQuestion.length,
+    score,
+  });
+
   if (isNewBest) {
     void publishToLeaderboard(trickId, newDrillRef.id, totalMs);
   }
@@ -74,7 +83,7 @@ async function publishToLeaderboard(
     const user = getFirebaseAuth().currentUser;
     if (!user) return;
     const token = await user.getIdToken();
-    await fetch("/api/leaderboard", {
+    const res = await fetch("/api/leaderboard", {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -82,6 +91,9 @@ async function publishToLeaderboard(
       },
       body: JSON.stringify({ trickId, drillId, bestMs }),
     });
+    if (res.ok) {
+      void trackEvent("leaderboard_submitted", { trick_id: trickId, time_ms: bestMs });
+    }
   } catch {
     // Local data is already consistent — leaderboard publish is best-effort.
   }

@@ -68,6 +68,8 @@ export type Tweaks = {
   theme: "sage" | "ink" | "mono" | "arcade";
   density: "comfortable" | "dense" | "list";
   monoNumerals: boolean;
+  soundEffects: boolean;
+  haptics: boolean;
 };
 
 export type LeaderboardEntry = {

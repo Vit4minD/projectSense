@@ -7,6 +7,7 @@ import { TopBar } from "@/components/sense/TopBar";
 import { TRICKS } from "@/lib/data/tricks";
 import { useAuth } from "@/hooks/useAuth";
 import { deleteRoom, leaveRoom, resetRoom } from "@/lib/firebase/rooms";
+import { trackEvent } from "@/lib/firebase/analytics";
 import type { Room } from "@/lib/types";
 
 type RoomEndedProps = {
@@ -41,6 +42,17 @@ export function RoomEnded({ room, code }: RoomEndedProps) {
     }, AUTO_DELETE_MS);
     return () => clearTimeout(t);
   }, [code]);
+
+  useEffect(() => {
+    if (!user) return;
+    void trackEvent("multiplayer_game_completed", {
+      trick_id: room.trickId,
+      players_count: Object.keys(room.players ?? {}).length,
+      won: room.winnerUid === user.uid,
+    });
+    // Fire once per mount of the ended view, per user.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]);
 
   async function onPlayAgain() {
     if (!user || !isHost) return;

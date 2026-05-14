@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { trackEvent } from "@/lib/firebase/analytics";
 import type { AITestGrade, AITestPaper } from "@/lib/types";
 
 export type AITestPhase =
@@ -23,11 +24,6 @@ type UseAITest = {
   submit: () => Promise<void>;
   reset: () => void;
 };
-
-function track(event: string, params: Record<string, unknown>): void {
-  // Phase 4 will route this through Firebase Analytics; for now leave a trail.
-  console.log(`[ai-test] ${event}`, params);
-}
 
 export function useAITest(): UseAITest {
   const { user } = useAuth();
@@ -65,7 +61,7 @@ export function useAITest(): UseAITest {
       }
       setPaper(json.paper);
       setPhase("taking");
-      track("generated", { question_count: json.paper.questions.length });
+      void trackEvent("ai_test_generated", { question_count: json.paper.questions.length });
     } catch (e) {
       setErrorMessage(e instanceof Error ? e.message : "Failed to generate test");
       setPhase("error");
@@ -98,7 +94,7 @@ export function useAITest(): UseAITest {
       }
       setGrade(json.grade);
       setPhase("results");
-      track("graded", {
+      void trackEvent("ai_test_graded", {
         score: json.grade.score,
         number_correct: json.grade.numberCorrect,
         total: json.grade.lastQuestion,

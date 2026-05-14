@@ -85,6 +85,42 @@ export function TweaksPanel() {
           ))}
         </div>
       </div>
+
+      <div className="tweaks-row">
+        <div className="lbl">Sound</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            className={`chip ${tweaks.soundEffects ? "active" : ""}`}
+            onClick={() => setTweaks({ soundEffects: true })}
+          >
+            On
+          </button>
+          <button
+            className={`chip ${!tweaks.soundEffects ? "active" : ""}`}
+            onClick={() => setTweaks({ soundEffects: false })}
+          >
+            Off
+          </button>
+        </div>
+      </div>
+
+      <div className="tweaks-row">
+        <div className="lbl">Haptics</div>
+        <div style={{ display: "flex", gap: 6 }}>
+          <button
+            className={`chip ${tweaks.haptics ? "active" : ""}`}
+            onClick={() => setTweaks({ haptics: true })}
+          >
+            On
+          </button>
+          <button
+            className={`chip ${!tweaks.haptics ? "active" : ""}`}
+            onClick={() => setTweaks({ haptics: false })}
+          >
+            Off
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -20,6 +20,9 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.9.0",
+    "@sentry/nextjs": "^10.53.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "firebase": "^11.0.0",

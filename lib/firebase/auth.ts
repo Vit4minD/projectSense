@@ -9,6 +9,7 @@ import {
 } from "firebase/auth";
 import { doc, serverTimestamp, setDoc, getDoc } from "firebase/firestore";
 import { getFirebaseAuth, getDb } from "./client";
+import { trackEvent } from "./analytics";
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -22,6 +23,7 @@ export async function signUpWithEmail(
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName });
   await ensureUserDoc(cred.user.uid, { displayName, school });
+  void trackEvent("sign_up", { method: "password" });
   return cred.user;
 }
 
@@ -29,16 +31,18 @@ export async function signInWithEmail(email: string, password: string): Promise<
   const auth = getFirebaseAuth();
   const cred = await signInWithEmailAndPassword(auth, email, password);
   await touchLastActive(cred.user.uid);
+  void trackEvent("login", { method: "password" });
   return cred.user;
 }
 
 export async function signInWithGoogle(): Promise<User> {
   const auth = getFirebaseAuth();
   const cred = await signInWithPopup(auth, googleProvider);
-  await ensureUserDoc(cred.user.uid, {
+  const isNewUser = await ensureUserDoc(cred.user.uid, {
     displayName: cred.user.displayName ?? "Sense Player",
     school: "",
   });
+  void trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
   return cred.user;
 }
 
@@ -55,13 +59,13 @@ function avatarInitialsFor(name: string): string {
     .join("") || "S";
 }
 
-async function ensureUserDoc(uid: string, data: { displayName: string; school: string }) {
+async function ensureUserDoc(uid: string, data: { displayName: string; school: string }): Promise<boolean> {
   const db = getDb();
   const ref = doc(db, "users", uid);
   const existing = await getDoc(ref);
   if (existing.exists()) {
     await touchLastActive(uid);
-    return;
+    return false;
   }
   await setDoc(ref, {
     displayName: data.displayName,
@@ -70,6 +74,7 @@ async function ensureUserDoc(uid: string, data: { displayName: string; school: s
     createdAt: serverTimestamp(),
     lastActiveAt: serverTimestamp(),
   });
+  return true;
 }
 
 async function touchLastActive(uid: string) {
