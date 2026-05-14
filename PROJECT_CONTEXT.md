@@ -12,12 +12,16 @@ Last updated: 2026-05-14.
 ## 0. Pickup point for the next session
 
 **Where we are right now:**
-- Branch: `entirelyNew`. **Phase 4 is complete** — analytics, SEO, settings wiring, Sentry scaffold landed 2026-05-14 (commit `1a0d8ae`). Phase 3 work landed in `18cd2fa` (multiplayer) + `a000aeb` (AI test + mini-games).
-- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **19 routes** (added `/sitemap.xml` + `/robots.txt`).
+- Branch: `entirelyNew`. **Phase 4 + security audit + SEO polish all complete** as of 2026-05-14. Latest commits:
+  - `1a0d8ae` Phase 4 (analytics, SEO, settings, Sentry scaffold)
+  - `a44e165` docs: Phase 4 + cutover checklist
+  - `c4f0e17` security: harden Gemini key + RTDB host-on-create + env-var docs
+  - `<latest>` SEO polish: og + twitter images, sitemap covers all 52 trick URLs
+- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **21 routes** (added `/opengraph-image.png` + `/twitter-image.png` since previous baseline of 19).
 - 52-trick catalog and production data migration done 2026-05-05.
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has not been cut over yet.
 
-**The rebuild is feature-complete and production-ready.** Every remaining item is on the *operational* side — see §18 for the cutover checklist the user must run.
+**The rebuild is feature-complete and production-ready code-side.** Remaining work is purely operational (your hands) — see §20 "Final pre-cutover checklist" for the condensed punch list, or §18 for the full sequenced cutover steps.
 
 **🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
 The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10 + §18.
@@ -917,3 +921,51 @@ After this, `/api/generate-test` reads only the safe key and the public-prefixed
 - **Multiplayer host can technically write to other players' RTDB slots**. The top-level `.write` rule grants the host write access to the whole `rooms/{code}` subtree, which includes nested player slots. In practice, the rebuild's host client never does this. A malicious host could open DevTools and corrupt other players' `solved` counts in their own room. Low impact (only affects rooms they created) and not worth the rule complexity to patch in v1.
 - **AI test answers are sent to the client with the paper**. Local grading is faster and avoids a second LLM round-trip, at the cost of "the answers are visible in DevTools to anyone determined enough to look." UIL practice mode — fine. Don't repurpose this for proctored exams.
 - **`/api/leaderboard` accepts client-supplied `bestMs`** but verifies it against the recorded drill within ±50ms. Acceptable. The drill record itself is owner-writable, so theoretically a user could write a fake drill to Firestore directly via the SDK and then submit it — closing this would require server-side drill creation, which is overkill for the use case.
+
+---
+
+## 20. Final pre-cutover checklist (condensed)
+
+The rebuild's code is done. Everything below is yours to execute.
+
+### Must-do (in order, on cutover day or just before)
+
+1. **Vercel env vars** — set in Project → Settings → Environment Variables (Production + Preview). See §19 matrix for the full list. The non-negotiable ones:
+   - `FIREBASE_SERVICE_ACCOUNT_KEY` (server-only, JSON one-line) — without it `/api/leaderboard` returns 500.
+   - `GEMINI_API_KEY` (server-only) — without it `/api/generate-test` returns `missing-key`.
+   - All 8 `NEXT_PUBLIC_FIREBASE_*` vars + `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` (for GA4).
+2. **Rotate the Gemini key** — revoke the existing one in Google AI Studio, generate a fresh one, set `GEMINI_API_KEY` (server-only) in Vercel + `.env.local`, **delete** `NEXT_PUBLIC_GEMINI_API_KEY` from both.
+3. **Browser smoke-test** on a Vercel preview (push `entirelyNew` and visit the preview URL):
+   - Sign in (email + Google) → run a 5/5 drill → check leaderboard publishes
+   - `/multiplayer` → 2 incognito windows → create + join → race to 5 → verify ended state + auto-cleanup
+   - `/test` → generate (needs `GEMINI_API_KEY`) → submit → results
+   - `/games/twenty-four` and `/games/zetamac` → keyboard handlers + timer + end modal
+   - Tweaks panel — toggle sound/haptics, switch to ink/mono/arcade themes
+   - View page source on `/` → confirm WebSite + Organization JSON-LD blocks render
+   - Visit `/sitemap.xml` and `/robots.txt` directly
+   - Paste a `/` link into Slack/Twitter/iMessage → confirm og:image preview
+4. **Re-run the data migration** to refresh any drift:
+   ```sh
+   NODE_OPTIONS=--use-system-ca pnpm exec tsx --env-file=.env.local scripts/migrate-data-to-rebuild.mjs --apply
+   ```
+5. **Deploy the new RTDB rules** — `firebase deploy --only database`. ⚠ Do this *immediately* before step 6, not earlier (it breaks legacy multiplayer once deployed).
+6. **Flip the Vercel Production Branch** — Vercel → Settings → Git → change Production Branch from `main` to `entirelyNew`. Same domain (`project-sense.vercel.app`) serves the rebuild on the next deploy.
+
+### Post-cutover (anytime)
+
+7. **GA4 setup** — Admin → Events: mark `login` and `sign_up` as conversions. Admin → Custom definitions: register event-scoped params `trick_id`, `duration_ms`, `time_ms`, `players_count`, `won`, `score`, `number_correct`, `total`, `method`, `question_count`, plus user-scoped `signup_date`.
+8. **Resubmit sitemap** — Google Search Console → Sitemaps → submit `https://project-sense.vercel.app/sitemap.xml`. Sitemap now includes all 52 `/trick/{id}` URLs.
+9. **(Optional) Wire Sentry fully** — `npx @sentry/wizard@latest -i nextjs` once you have a Sentry project. Scaffold + DSN env vars are already in place; the wizard wraps `next.config.ts` with `withSentryConfig` for source-map upload.
+10. **(Optional) Validate Rich Results** — paste your prod URL into <https://search.google.com/test/rich-results>. JSON-LD blocks should pass.
+
+### Known v1 trade-offs (not blockers, but worth knowing)
+
+- No e2e tests for multiplayer / AI test / mini-games — Playwright covers register-drill-flow + leaderboard-publish only. Add later if regressions surface.
+- No rate limit on `/api/generate-test` — auth-gated; a determined signed-in user could spend your Gemini quota. Add `@upstash/ratelimit` if billing surprises you.
+- Multiplayer: no Cloud Function for stale-lobby cleanup, no mid-race reconnect/resume.
+- AI test answers are shipped to the client (intentional — local grading via `equals()`). Fine for practice; not for proctored exams.
+- See §19 "Open security trade-offs" for the full list.
+
+### If something breaks post-cutover
+
+Flip the Vercel Production Branch back to `main`. Migration is additive (legacy fields preserved), so legacy keeps working. Only loss on rollback: multiplayer on legacy is dark because the new RTDB rules require a `host` field legacy doesn't write. Practice + leaderboard + AI test on `main` keep working regardless.
