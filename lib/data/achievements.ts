@@ -1,3 +1,5 @@
+import { TRICKS } from "@/lib/data/tricks";
+
 export type AchievementId =
   | "first-steps"
   | "on-a-roll"
@@ -24,7 +26,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   { id: "centurion",    label: "Centurion",    hint: "Complete 100 drills." },
   { id: "speed-demon",  label: "Speed demon",  hint: "Sub-10 seconds on any trick (5/5)." },
   { id: "catalogue",    label: "Catalogue",    hint: "Practice 20 different tricks." },
-  { id: "master",       label: "Master",       hint: "Practice all 43 tricks." },
+  { id: "master",       label: "Master",       hint: `Practice all ${TRICKS.length} tricks.` },
 ];
 
 type Inputs = {
@@ -50,6 +52,6 @@ function isUnlocked(id: AchievementId, x: Inputs): boolean {
     case "perfect":      return x.perfectRuns >= 1;
     case "speed-demon":  return x.fastestSubTenMs !== null && x.fastestSubTenMs < 10_000;
     case "catalogue":    return x.tricksPracticed >= 20;
-    case "master":       return x.tricksPracticed >= 43;
+    case "master":       return x.tricksPracticed >= TRICKS.length;
   }
 }
