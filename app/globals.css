@@ -28,9 +28,12 @@
   --lane-c: #BEF264;
   --lane-d: #F9A8D4;
 
-  --sans: var(--font-space-grotesk), ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif;
-  --serif: var(--font-instrument-serif), "Times New Roman", Georgia, serif;
-  --mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  /* Single type family across the whole app. --serif and --mono are kept as
+     aliases of --sans so the many existing var(--serif)/var(--mono) rules all
+     render in the one Nunito face — one cohesive typeface, far less noise. */
+  --sans: var(--font-sans), ui-sans-serif, system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  --serif: var(--sans);
+  --mono: var(--sans);
 
   --radius-sm: 10px;
   --radius: 20px;

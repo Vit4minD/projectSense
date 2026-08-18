@@ -1,30 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Nunito } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AnalyticsProvider } from "@/components/sense/AnalyticsProvider";
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+// Single type family across the whole app — warm and rounded (slightly playful)
+// but clean and highly readable (professional). One typeface = far less visual
+// noise than the previous three (display + serif + mono).
+const nunito = Nunito({
+  variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  variable: "--font-instrument-serif",
-  subsets: ["latin"],
-  weight: "400",
+  weight: ["400", "500", "600", "700", "800"],
   style: ["normal", "italic"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  weight: ["400", "500", "700"],
   display: "swap",
 });
 
@@ -99,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       data-theme="sage"
       data-mono-numerals="false"
       data-density="comfortable"
-      className={`${spaceGrotesk.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      className={nunito.variable}
       suppressHydrationWarning
     >
       <body>
