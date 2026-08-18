@@ -39,6 +39,22 @@ export default function ResultsPage() {
     };
   }, [user, drillId]);
 
+  // "R" retry shortcut advertised on the Retry button. Un-modified keys only,
+  // never while typing in a field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const t = e.target as HTMLElement | null;
+      if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return;
+      if (e.key.toLowerCase() === "r" && trick) {
+        e.preventDefault();
+        router.push(`/drill/${trick.id}`);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [router, trick]);
+
   if (!trick) {
     return (
       <div className="main">

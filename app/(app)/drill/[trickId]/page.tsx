@@ -123,16 +123,19 @@ export default function DrillPage() {
   function onChange(value: string) {
     setAnswer(value);
     // Auto-enter on correct
-    if (value && equals(value, current.expected)) {
+    if (value && current && equals(value, current.expected)) {
       commitAnswer(value, true);
     }
   }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
+      // Ignore Enter on an empty input: a correct answer auto-commits on change
+      // and clears the field, so a habitual second Enter would otherwise commit
+      // the NEXT question as blank/wrong and break the 5/5.
+      if (answer.trim() === "" || !current) return;
       e.preventDefault();
-      const isCorrect = equals(answer, current.expected);
-      commitAnswer(answer, isCorrect);
+      commitAnswer(answer, equals(answer, current.expected));
     }
   }
 
@@ -192,7 +195,11 @@ export default function DrillPage() {
           </div>
         )}
 
-        <DrillProblem prompt={current.prompt} />
+        {current ? (
+          <DrillProblem prompt={current.prompt} />
+        ) : (
+          <p style={{ color: "var(--muted)" }}>No problems available for this trick.</p>
+        )}
       </div>
 
       <div className="drill-bottom">

@@ -6,7 +6,6 @@ import {
   ChevronLeft,
   Gamepad2,
   Home,
-  Settings,
   Swords,
   Trophy,
   User,
@@ -27,7 +26,6 @@ const PRACTICE = [
 
 const ACCOUNT = [
   { key: "/profile", label: "Profile", icon: User, k: "P" },
-  { key: "/settings", label: "Settings", icon: Settings, k: "," },
 ];
 
 type SidebarProps = {
