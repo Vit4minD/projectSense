@@ -50,7 +50,7 @@ export default function AITestPage() {
       )}
 
       {phase === "error" && (
-        <div className="test-error">
+        <div className="test-error" role="alert">
           <h2>Something went wrong</h2>
           <p>{errorMessage ?? "Unknown error"}</p>
           <button type="button" className="test-idle-btn" onClick={reset}>

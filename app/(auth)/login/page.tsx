@@ -174,11 +174,13 @@ export default function LoginPage() {
             <form onSubmit={loginForm.handleSubmit(onLogin)} noValidate>
               <Field
                 label="Email"
+                htmlFor="login-email"
                 error={loginForm.formState.errors.email?.message}
                 focused={focusField === "email"}
                 icon={<Mail size={16} />}
               >
                 <input
+                  id="login-email"
                   type="email"
                   placeholder="you@school.edu"
                   autoComplete="email"
@@ -190,11 +192,13 @@ export default function LoginPage() {
 
               <Field
                 label="Password"
+                htmlFor="login-password"
                 error={loginForm.formState.errors.password?.message}
                 focused={focusField === "pass"}
                 icon={<Lock size={16} />}
               >
                 <input
+                  id="login-password"
                   type="password"
                   placeholder="••••••••"
                   autoComplete="current-password"
@@ -204,7 +208,11 @@ export default function LoginPage() {
                 />
               </Field>
 
-              {serverError && <div className="login-error">{serverError}</div>}
+              {serverError && (
+                <div className="login-error" role="alert">
+                  {serverError}
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -218,11 +226,13 @@ export default function LoginPage() {
             <form onSubmit={registerForm.handleSubmit(onRegister)} noValidate>
               <Field
                 label="Full name"
+                htmlFor="reg-name"
                 error={registerForm.formState.errors.name?.message}
                 focused={focusField === "name"}
                 icon={<UserIcon size={16} />}
               >
                 <input
+                  id="reg-name"
                   type="text"
                   placeholder="Sam Park"
                   autoComplete="name"
@@ -234,11 +244,13 @@ export default function LoginPage() {
 
               <Field
                 label="Email"
+                htmlFor="reg-email"
                 error={registerForm.formState.errors.email?.message}
                 focused={focusField === "email"}
                 icon={<Mail size={16} />}
               >
                 <input
+                  id="reg-email"
                   type="email"
                   placeholder="you@school.edu"
                   autoComplete="email"
@@ -250,11 +262,13 @@ export default function LoginPage() {
 
               <Field
                 label="Password"
+                htmlFor="reg-password"
                 error={registerForm.formState.errors.password?.message}
                 focused={focusField === "pass"}
                 icon={<Lock size={16} />}
               >
                 <input
+                  id="reg-password"
                   type="password"
                   placeholder="•••••• (min 6)"
                   autoComplete="new-password"
@@ -266,11 +280,13 @@ export default function LoginPage() {
 
               <Field
                 label="School"
+                htmlFor="reg-school"
                 error={registerForm.formState.errors.school?.message}
                 focused={focusField === "school"}
                 icon={<GraduationCap size={16} />}
               >
                 <input
+                  id="reg-school"
                   type="text"
                   placeholder="St. Mark's"
                   autoComplete="organization"
@@ -280,7 +296,11 @@ export default function LoginPage() {
                 />
               </Field>
 
-              {serverError && <div className="login-error">{serverError}</div>}
+              {serverError && (
+                <div className="login-error" role="alert">
+                  {serverError}
+                </div>
+              )}
 
               <button
                 type="submit"
@@ -325,12 +345,14 @@ export default function LoginPage() {
 
 function Field({
   label,
+  htmlFor,
   error,
   focused,
   icon,
   children,
 }: {
   label: string;
+  htmlFor: string;
   error?: string;
   focused: boolean;
   icon: React.ReactNode;
@@ -338,12 +360,16 @@ function Field({
 }) {
   return (
     <div className="login-field">
-      <label>{label}</label>
+      <label htmlFor={htmlFor}>{label}</label>
       <div className={`login-input-wrap ${focused ? "focused" : ""}`}>
         {icon}
         {children}
       </div>
-      {error && <div className="login-error">{error}</div>}
+      {error && (
+        <div className="login-error" role="alert">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

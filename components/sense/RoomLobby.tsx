@@ -276,12 +276,14 @@ export function RoomLobby({ room, code }: RoomLobbyProps) {
 
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               <label
+                htmlFor="lobby-trick"
                 className="caps"
                 style={{ color: "var(--muted)", fontSize: 10 }}
               >
                 Trick
               </label>
               <select
+                id="lobby-trick"
                 value={room.trickId}
                 onChange={(e) => onChangeTrick(e.target.value)}
                 style={{
