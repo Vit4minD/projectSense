@@ -13,7 +13,7 @@ export default function RoomPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const code = (params.code ?? "").toUpperCase();
-  const { room, loading } = useRoom(code || null);
+  const { room, loading, error, retry } = useRoom(code || null);
 
   useEffect(() => {
     if (!authLoading && !user) router.replace("/login");
@@ -23,6 +23,37 @@ export default function RoomPage() {
     return (
       <div className="main">
         <p style={{ color: "var(--muted)", padding: 24 }}>Loading…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="main">
+        <section className="hero">
+          <div>
+            <h1 className="hero-title">
+              Couldn&apos;t <em>load</em> this room
+            </h1>
+            <p className="hero-sub">
+              We hit a snag reaching room{" "}
+              <span className="mono">{code}</span>. Check your connection and try
+              again.
+            </p>
+            <div className="hero-cta">
+              <button className="btn primary" type="button" onClick={retry}>
+                Retry
+              </button>
+              <button
+                className="btn"
+                type="button"
+                onClick={() => router.push("/multiplayer")}
+              >
+                Back to multiplayer
+              </button>
+            </div>
+          </div>
+        </section>
       </div>
     );
   }

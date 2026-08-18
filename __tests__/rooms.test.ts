@@ -192,19 +192,32 @@ vi.mock("firebase/database", () => {
       bucket?.delete(entry);
     };
   };
+  const update = async (r: RefMarker, values: Record<string, unknown>) => {
+    for (const [k, v] of Object.entries(values)) {
+      const full = r.path ? `${r.path}/${k}` : k;
+      setAt(full, v);
+    }
+  };
+  const onDisconnect = (_r: RefMarker) => ({
+    remove: async () => {},
+    cancel: async () => {},
+    set: async () => {},
+    update: async () => {},
+    setWithPriority: async () => {},
+  });
   const serverTimestamp = () => SERVER_TS;
   const orderByChild = (child: string) => ({ __order: child });
   const equalTo = (value: unknown) => ({ __equal: value });
   const query = (
     r: RefMarker,
     order: { __order: string },
-    eq: { __equal: unknown },
+    eq?: { __equal: unknown },
   ): RefMarker => ({
     __isRef: true,
     path: r.path,
-    filter: { child: order.__order, value: eq.__equal },
+    filter: eq ? { child: order.__order, value: eq.__equal } : undefined,
   });
-  return { ref, get, set, remove, runTransaction, onValue, serverTimestamp, orderByChild, equalTo, query };
+  return { ref, get, set, remove, update, runTransaction, onValue, onDisconnect, serverTimestamp, orderByChild, equalTo, query };
 });
 
 vi.mock("@/lib/firebase/client", () => ({

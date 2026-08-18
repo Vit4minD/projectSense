@@ -7,7 +7,7 @@ import {
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { ref, set } from "firebase/database";
+import { ref, set, get } from "firebase/database";
 
 let testEnv: RulesTestEnvironment;
 
@@ -106,38 +106,63 @@ describe("firestore: drill validation", () => {
   });
 });
 
+// Shared seed helpers. Rooms are seeded with rules DISABLED, so validation is
+// only exercised by the assertions themselves. Host is "carol" (not the actor)
+// so the host-level write rule never masks the per-player own-slot rule.
+async function seedRoom(
+  state: "lobby" | "racing" | "ended",
+  players: Record<string, unknown>,
+): Promise<void> {
+  await testEnv.withSecurityRulesDisabled(async (ctx) => {
+    await set(ref(ctx.database(), "rooms/ROOM1"), {
+      host: "carol",
+      trickId: "12",
+      seed: 1,
+      questionCount: 5,
+      visibility: "public",
+      state,
+      createdAt: 1,
+      players,
+    });
+  });
+}
+
+const alicePlayer = {
+  displayName: "Alice",
+  avatarInitials: "AL",
+  solved: 0,
+  joinedAt: 1,
+};
+
+describe("rtdb: room read gating", () => {
+  beforeEach(async () => {
+    await seedRoom("lobby", { alice: alicePlayer });
+  });
+
+  it("denies a non-participant read", async () => {
+    const bob = testEnv.authenticatedContext("bob").database();
+    await assertFails(get(ref(bob, "rooms/ROOM1")));
+  });
+
+  it("allows a participant read", async () => {
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertSucceeds(get(ref(alice, "rooms/ROOM1")));
+  });
+
+  it("allows the host to read", async () => {
+    const carol = testEnv.authenticatedContext("carol").database();
+    await assertSucceeds(get(ref(carol, "rooms/ROOM1")));
+  });
+});
+
 describe("rtdb: room player validation", () => {
   beforeEach(async () => {
-    // Seed a room whose host is "carol" (not the actor) so the host-level
-    // write rule does not mask the per-player own-slot rule under test.
-    await testEnv.withSecurityRulesDisabled(async (ctx) => {
-      await set(ref(ctx.database(), "rooms/ROOM1"), {
-        host: "carol",
-        trickId: "12",
-        seed: 1,
-        questionCount: 5,
-        visibility: "public",
-        state: "lobby",
-        players: {
-          alice: {
-            displayName: "Alice",
-            avatarInitials: "AL",
-            solved: 0,
-            joinedAt: 1,
-          },
-        },
-      });
-    });
+    await seedRoom("lobby", { alice: alicePlayer });
   });
 
   it("rejects solved above questionCount", async () => {
     const alice = testEnv.authenticatedContext("alice").database();
     await assertFails(set(ref(alice, "rooms/ROOM1/players/alice/solved"), 9999));
-  });
-
-  it("accepts an in-range solved", async () => {
-    const alice = testEnv.authenticatedContext("alice").database();
-    await assertSucceeds(set(ref(alice, "rooms/ROOM1/players/alice/solved"), 5));
   });
 
   it("rejects a smuggled extra key", async () => {
@@ -146,8 +171,8 @@ describe("rtdb: room player validation", () => {
       set(ref(alice, "rooms/ROOM1/players/alice"), {
         displayName: "Alice",
         avatarInitials: "AL",
-        solved: 1,
-        joinedAt: 2,
+        solved: 0,
+        joinedAt: 1,
         hacked: true,
       }),
     );
@@ -162,6 +187,103 @@ describe("rtdb: room player validation", () => {
         solved: 0,
         joinedAt: 2,
       }),
+    );
+  });
+});
+
+describe("rtdb: join gating (state must be lobby)", () => {
+  it("allows joining while the room is in lobby", async () => {
+    await seedRoom("lobby", { alice: alicePlayer });
+    const bob = testEnv.authenticatedContext("bob").database();
+    await assertSucceeds(
+      set(ref(bob, "rooms/ROOM1/players/bob"), {
+        displayName: "Bob",
+        avatarInitials: "BO",
+        solved: 0,
+        joinedAt: 2,
+      }),
+    );
+  });
+
+  it("rejects joining while the room is racing", async () => {
+    await seedRoom("racing", { alice: alicePlayer });
+    const bob = testEnv.authenticatedContext("bob").database();
+    await assertFails(
+      set(ref(bob, "rooms/ROOM1/players/bob"), {
+        displayName: "Bob",
+        avatarInitials: "BO",
+        solved: 0,
+        joinedAt: 2,
+      }),
+    );
+  });
+});
+
+describe("rtdb: solved progression", () => {
+  it("allows a single +1 increment while racing", async () => {
+    await seedRoom("racing", { alice: alicePlayer });
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertSucceeds(set(ref(alice, "rooms/ROOM1/players/alice/solved"), 1));
+  });
+
+  it("rejects jumping solved straight to questionCount while racing", async () => {
+    await seedRoom("racing", { alice: alicePlayer });
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertFails(set(ref(alice, "rooms/ROOM1/players/alice/solved"), 5));
+  });
+
+  it("rejects incrementing solved while still in lobby", async () => {
+    await seedRoom("lobby", { alice: alicePlayer });
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertFails(set(ref(alice, "rooms/ROOM1/players/alice/solved"), 1));
+  });
+
+  it("allows solved 0 at join time (lobby)", async () => {
+    await seedRoom("lobby", { alice: alicePlayer });
+    const bob = testEnv.authenticatedContext("bob").database();
+    await assertSucceeds(
+      set(ref(bob, "rooms/ROOM1/players/bob"), {
+        displayName: "Bob",
+        avatarInitials: "BO",
+        solved: 0,
+        joinedAt: 2,
+      }),
+    );
+  });
+});
+
+describe("rtdb: room index", () => {
+  const validEntry = () => ({
+    trickId: "12",
+    host: "carol",
+    playerCount: 1,
+    createdAt: Date.now() - 1000,
+  });
+
+  it("is readable by any authenticated user", async () => {
+    const bob = testEnv.authenticatedContext("bob").database();
+    await assertSucceeds(get(ref(bob, "roomIndex/ROOM1")));
+  });
+
+  it("accepts a well-formed index entry", async () => {
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertSucceeds(set(ref(alice, "roomIndex/ROOM1"), validEntry()));
+  });
+
+  it("rejects an index entry carrying a player name / unknown field", async () => {
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertFails(
+      set(ref(alice, "roomIndex/ROOM1"), {
+        ...validEntry(),
+        displayName: "Some Kid",
+      }),
+    );
+  });
+
+  it("rejects a playerCount over the cap", async () => {
+    const alice = testEnv.authenticatedContext("alice").database();
+    await assertFails(
+      set(ref(alice, "roomIndex/ROOM1"), { ...validEntry(), playerCount: 9 }),
     );
   });
 });

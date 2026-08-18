@@ -6,10 +6,10 @@ import {
   remove,
   runTransaction,
   onValue,
+  onDisconnect,
   serverTimestamp,
   query,
   orderByChild,
-  equalTo,
   type Database,
   type Unsubscribe,
 } from "firebase/database";
@@ -33,6 +33,23 @@ export type JoinRoomInput = {
   avatarInitials: string;
 };
 
+// A lean, world-readable (to authed users) advertisement of a joinable public
+// room. It intentionally carries NO player display names — only the host uid
+// (a non-identifying handle), the trick, a headcount and a timestamp — so the
+// public lobby can list open games WITHOUT exposing who (which kids) are online
+// or the codes of private rooms. See database.rules.json `roomIndex`.
+export type RoomIndexEntry = {
+  code: string;
+  trickId: string;
+  host: string;
+  playerCount: number;
+  createdAt: number;
+};
+
+// Hard cap on players. Enforced authoritatively for public rooms via the
+// roomIndex.playerCount validate rule (1..8); best-effort here on the client.
+const MAX_PLAYERS = 8;
+
 function db(d?: Database): Database {
   return d ?? getRtdb();
 }
@@ -45,10 +62,24 @@ function playerPath(code: string, uid: string): string {
   return `rooms/${code}/players/${uid}`;
 }
 
+function roomIndexPath(code: string): string {
+  return `roomIndex/${code}`;
+}
+
+function playerCount(room: Room): number {
+  return Object.keys(room.players ?? {}).length;
+}
+
+// A room is advertised in roomIndex only while it is a joinable public lobby.
+function isAdvertisable(room: Pick<Room, "visibility" | "state">): boolean {
+  return room.visibility === "public" && room.state === "lobby";
+}
+
 export async function createRoom(
   input: CreateRoomInput,
   d?: Database,
 ): Promise<void> {
+  const database = db(d);
   const hostPlayer: RoomPlayer = {
     displayName: input.hostDisplayName,
     avatarInitials: input.hostAvatarInitials,
@@ -69,13 +100,24 @@ export async function createRoom(
     winnerUid: null,
     players: { [input.host]: hostPlayer },
   };
-  await set(ref(db(d), roomPath(input.code)), room);
+  await set(ref(database, roomPath(input.code)), room);
+  // Advertise public rooms in the world-readable index (private rooms stay
+  // discoverable only by code — the invite model).
+  if (input.visibility === "public") {
+    await set(ref(database, roomIndexPath(input.code)), {
+      trickId: input.trickId,
+      host: input.host,
+      playerCount: 1,
+      createdAt: serverTimestamp() as unknown as number,
+    });
+  }
 }
 
 export async function joinRoom(
   input: JoinRoomInput,
   d?: Database,
 ): Promise<void> {
+  const database = db(d);
   const player: RoomPlayer = {
     displayName: input.displayName,
     avatarInitials: input.avatarInitials,
@@ -83,7 +125,20 @@ export async function joinRoom(
     joinedAt: serverTimestamp() as unknown as number,
     finishedAt: null,
   };
-  await set(ref(db(d), playerPath(input.code, input.uid)), player);
+  // The joining client does NOT need to read the room itself (reads are gated
+  // to participants). It writes its own player slot; the rules only permit this
+  // while the room is in 'lobby'.
+  await set(ref(database, playerPath(input.code, input.uid)), player);
+  // Bump the public headcount when this room is advertised. The transaction
+  // aborts cleanly (returns undefined) when no index entry exists — i.e. the
+  // room is private or not a lobby — so this is safe for every join path.
+  await runTransaction(
+    ref(database, `${roomIndexPath(input.code)}/playerCount`),
+    (current: number | null) => {
+      if (current === null || current === undefined) return undefined;
+      return Math.min(MAX_PLAYERS, current + 1);
+    },
+  );
 }
 
 export async function leaveRoom(
@@ -95,13 +150,24 @@ export async function leaveRoom(
   await remove(ref(database, playerPath(code, uid)));
   const snap = await get(ref(database, roomPath(code)));
   const room = snap.val() as Room | null;
-  if (!room) return;
+  if (!room) {
+    await remove(ref(database, roomIndexPath(code)));
+    return;
+  }
   const players = room.players ?? {};
   const playerEntries = Object.entries(players);
   if (playerEntries.length === 0) {
     await deleteRoom(code, database);
     return;
   }
+  // Keep the advertised headcount in sync (aborts if not advertised).
+  await runTransaction(
+    ref(database, `${roomIndexPath(code)}/playerCount`),
+    (current: number | null) => {
+      if (current === null || current === undefined) return undefined;
+      return playerEntries.length;
+    },
+  );
   if (room.host === uid) {
     const nextHost = playerEntries.reduce<[string, RoomPlayer]>(
       (best, cur) => (cur[1].joinedAt < best[1].joinedAt ? cur : best),
@@ -135,7 +201,8 @@ export async function startRace(
   hostUid: string,
   d?: Database,
 ): Promise<void> {
-  await runTransaction(ref(db(d), roomPath(code)), (current: Room | null) => {
+  const database = db(d);
+  await runTransaction(ref(database, roomPath(code)), (current: Room | null) => {
     if (!current) return current;
     if (current.state !== "lobby") return;
     if (current.host !== hostUid) return;
@@ -143,6 +210,8 @@ export async function startRace(
     current.startedAt = serverTimestamp() as unknown as number;
     return current;
   });
+  // No longer a joinable lobby — drop it from the public index (idempotent).
+  await remove(ref(database, roomIndexPath(code)));
 }
 
 export async function endRace(
@@ -150,8 +219,9 @@ export async function endRace(
   winnerUid: string,
   d?: Database,
 ): Promise<boolean> {
+  const database = db(d);
   const result = await runTransaction(
-    ref(db(d), roomPath(code)),
+    ref(database, roomPath(code)),
     (current: Room | null) => {
       if (!current) return current;
       if (current.state === "ended") return;
@@ -165,11 +235,38 @@ export async function endRace(
       return current;
     },
   );
+  // Ensure the ended room is not advertised (idempotent).
+  await remove(ref(database, roomIndexPath(code)));
+  return result.committed;
+}
+
+// Lets a remaining participant take over as host when the original host has
+// vanished (their player node was removed on disconnect). Rules permit this
+// only when the current host is no longer a player and the caller is one.
+export async function claimHost(
+  code: string,
+  uid: string,
+  d?: Database,
+): Promise<boolean> {
+  const result = await runTransaction(
+    ref(db(d), roomPath(code)),
+    (current: Room | null) => {
+      if (!current) return current;
+      const players = current.players ?? {};
+      // Only claim when the current host has actually left the player list.
+      if (players[current.host]) return current;
+      if (!players[uid]) return current;
+      current.host = uid;
+      return current;
+    },
+  );
   return result.committed;
 }
 
 export async function deleteRoom(code: string, d?: Database): Promise<void> {
-  await remove(ref(db(d), roomPath(code)));
+  const database = db(d);
+  await remove(ref(database, roomPath(code)));
+  await remove(ref(database, roomIndexPath(code)));
 }
 
 export async function setTrick(
@@ -179,7 +276,8 @@ export async function setTrick(
   seed: number,
   d?: Database,
 ): Promise<void> {
-  await runTransaction(ref(db(d), roomPath(code)), (current: Room | null) => {
+  const database = db(d);
+  await runTransaction(ref(database, roomPath(code)), (current: Room | null) => {
     if (!current) return current;
     if (current.host !== hostUid) return;
     if (current.state !== "lobby") return;
@@ -187,6 +285,14 @@ export async function setTrick(
     current.seed = seed;
     return current;
   });
+  // Keep the advertised trick fresh (aborts if the room is not advertised).
+  await runTransaction(
+    ref(database, `${roomIndexPath(code)}/trickId`),
+    (current: string | null) => {
+      if (current === null || current === undefined) return undefined;
+      return trickId;
+    },
+  );
 }
 
 export async function setVisibility(
@@ -195,12 +301,27 @@ export async function setVisibility(
   visibility: RoomVisibility,
   d?: Database,
 ): Promise<void> {
-  await runTransaction(ref(db(d), roomPath(code)), (current: Room | null) => {
+  const database = db(d);
+  await runTransaction(ref(database, roomPath(code)), (current: Room | null) => {
     if (!current) return current;
     if (current.host !== hostUid) return;
     current.visibility = visibility;
     return current;
   });
+  // Reconcile the public index with the new visibility.
+  const snap = await get(ref(database, roomPath(code)));
+  const room = snap.val() as Room | null;
+  if (!room) return;
+  if (isAdvertisable(room)) {
+    await set(ref(database, roomIndexPath(code)), {
+      trickId: room.trickId,
+      host: room.host,
+      playerCount: playerCount(room),
+      createdAt: serverTimestamp() as unknown as number,
+    });
+  } else {
+    await remove(ref(database, roomIndexPath(code)));
+  }
 }
 
 export async function resetRoom(
@@ -226,37 +347,72 @@ export async function resetRoom(
     updates[`players/${uid}/finishedAt`] = null;
   }
   await update(ref(database, roomPath(code)), updates);
+  // Back in the lobby: re-advertise public rooms.
+  if (room.visibility === "public") {
+    await set(ref(database, roomIndexPath(code)), {
+      trickId: room.trickId,
+      host: room.host,
+      playerCount: playerCount(room),
+      createdAt: serverTimestamp() as unknown as number,
+    });
+  }
+}
+
+// Sets an onDisconnect trigger removing this client's own player slot, so a
+// dropped connection (including the host's) is reflected in the room. Returns a
+// cleanup that cancels the trigger for graceful unmounts (normal navigation
+// uses leaveRoom instead).
+export function setupRaceDisconnect(
+  code: string,
+  uid: string,
+  d?: Database,
+): () => void {
+  const handle = onDisconnect(ref(db(d), playerPath(code, uid)));
+  void handle.remove();
+  return () => {
+    void handle.cancel();
+  };
 }
 
 export function subscribeRoom(
   code: string,
   callback: (room: Room | null) => void,
+  onError?: (error: Error) => void,
   d?: Database,
 ): Unsubscribe {
-  return onValue(ref(db(d), roomPath(code)), (snap) => {
-    callback(snap.val() as Room | null);
-  });
+  return onValue(
+    ref(db(d), roomPath(code)),
+    (snap) => {
+      callback(snap.val() as Room | null);
+    },
+    (error) => {
+      onError?.(error);
+    },
+  );
 }
 
 export function subscribePublicRooms(
-  callback: (rooms: Array<Room & { code: string }>) => void,
+  callback: (rooms: RoomIndexEntry[]) => void,
+  onError?: (error: Error) => void,
   d?: Database,
 ): Unsubscribe {
-  const q = query(
-    ref(db(d), "rooms"),
-    orderByChild("visibility"),
-    equalTo("public"),
+  const q = query(ref(db(d), "roomIndex"), orderByChild("createdAt"));
+  return onValue(
+    q,
+    (snap) => {
+      const out: RoomIndexEntry[] = [];
+      snap.forEach((child) => {
+        const entry = child.val() as Omit<RoomIndexEntry, "code"> | null;
+        if (entry) {
+          out.push({ ...entry, code: child.key as string });
+        }
+        return false;
+      });
+      out.sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
+      callback(out);
+    },
+    (error) => {
+      onError?.(error);
+    },
   );
-  return onValue(q, (snap) => {
-    const out: Array<Room & { code: string }> = [];
-    snap.forEach((child) => {
-      const room = child.val() as Room | null;
-      if (room && room.state === "lobby") {
-        out.push({ ...room, code: child.key as string });
-      }
-      return false;
-    });
-    out.sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
-    callback(out);
-  });
 }

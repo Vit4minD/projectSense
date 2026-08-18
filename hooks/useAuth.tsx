@@ -17,10 +17,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const auth = getFirebaseAuth();
-    const unsub = onAuthStateChanged(auth, (next) => {
-      setUser(next);
-      setLoading(false);
-    });
+    const unsub = onAuthStateChanged(
+      auth,
+      (next) => {
+        setUser(next);
+        setLoading(false);
+      },
+      () => {
+        // An auth-listener error must still resolve loading, otherwise the whole
+        // app is stuck behind an indefinite auth gate.
+        setUser(null);
+        setLoading(false);
+      },
+    );
     return unsub;
   }, []);
 

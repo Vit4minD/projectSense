@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import { DrillProblem } from "@/components/sense/DrillProblem";
 import { RoomLane } from "@/components/sense/RoomLane";
 import { TRICKS } from "@/lib/data/tricks";
@@ -9,7 +11,13 @@ import { equals } from "@/lib/drill/answerValidator";
 import { formatTime } from "@/lib/drill/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useTimer } from "@/hooks/useTimer";
-import { endRace, incrementSolved } from "@/lib/firebase/rooms";
+import {
+  claimHost,
+  endRace,
+  incrementSolved,
+  leaveRoom,
+  setupRaceDisconnect,
+} from "@/lib/firebase/rooms";
 import type { GeneratedProblem, Room } from "@/lib/types";
 
 type RoomRaceProps = {
@@ -18,6 +26,7 @@ type RoomRaceProps = {
 };
 
 export function RoomRace({ room, code }: RoomRaceProps) {
+  const router = useRouter();
   const { user } = useAuth();
   const timer = useTimer();
   const startedRef = useRef(false);
@@ -26,6 +35,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
 
   const [answer, setAnswer] = useState("");
   const [shake, setShake] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   const problems = useMemo<GeneratedProblem[]>(() => {
     try {
@@ -77,6 +87,36 @@ export function RoomRace({ room, code }: RoomRaceProps) {
     }
   }
 
+  // Host-disconnect recovery. Every client, while racing, registers an
+  // onDisconnect that removes ITS OWN player node if the connection drops. So if
+  // the host closes their tab / loses connection, the host's player node
+  // disappears from the room. The graceful "Leave race" path cancels this and
+  // uses leaveRoom instead, so it only fires on genuine disconnects.
+  useEffect(() => {
+    if (!user) return;
+    const cancel = setupRaceDisconnect(code, user.uid);
+    return cancel;
+  }, [user, code]);
+
+  // The "effective host" is the earliest-joined player still present. If the
+  // real host has vanished (their player node was removed on disconnect), the
+  // effective host claims the host role. Once host is reassigned, the
+  // host-driven end-race effect below takes over so the race can still finish.
+  const effectiveHostUid = useMemo(() => {
+    const entries = Object.entries(room.players ?? {});
+    if (entries.length === 0) return null;
+    return entries.sort(
+      ([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0),
+    )[0][0];
+  }, [room.players]);
+
+  useEffect(() => {
+    if (!user || room.state !== "racing") return;
+    if (room.players?.[room.host]) return; // real host still here
+    if (user.uid !== effectiveHostUid) return; // only the effective host acts
+    void claimHost(code, user.uid);
+  }, [room, user, code, effectiveHostUid]);
+
   // The host drives race completion: whenever any player reaches the target
   // while the room is still racing, the host (the only client allowed to write
   // room-level state) ends the race, crediting the first finisher as winner.
@@ -87,6 +127,16 @@ export function RoomRace({ room, code }: RoomRaceProps) {
       .sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0))[0];
     if (finisher) void endRace(code, finisher[0]);
   }, [room, user, code]);
+
+  async function onLeave() {
+    if (!user || leaving) return;
+    setLeaving(true);
+    try {
+      await leaveRoom(code, user.uid);
+    } finally {
+      router.push("/multiplayer");
+    }
+  }
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
@@ -118,29 +168,40 @@ export function RoomRace({ room, code }: RoomRaceProps) {
           <span className="sep">/</span>
           <strong>{trick?.name ?? room.trickId}</strong>
         </div>
-        <div
-          className="mono"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 8,
-            background: "var(--bg-soft)",
-            padding: "8px 14px",
-            borderRadius: 999,
-            fontWeight: 600,
-            fontSize: 14,
-          }}
-        >
-          <span
+        <div style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+          <div
+            className="mono"
             style={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              background: "var(--negative)",
-              animation: "pulse 1.2s ease-in-out infinite",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              background: "var(--bg-soft)",
+              padding: "8px 14px",
+              borderRadius: 999,
+              fontWeight: 600,
+              fontSize: 14,
             }}
-          />
-          {formatTime(timer.elapsedMs)}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                background: "var(--negative)",
+                animation: "pulse 1.2s ease-in-out infinite",
+              }}
+            />
+            {formatTime(timer.elapsedMs)}
+          </div>
+          <button
+            className="btn ghost"
+            type="button"
+            onClick={onLeave}
+            disabled={leaving}
+            aria-label="Leave race"
+          >
+            <LogOut size={14} /> Leave race
+          </button>
         </div>
       </div>
 

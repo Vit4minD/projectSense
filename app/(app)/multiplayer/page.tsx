@@ -33,7 +33,12 @@ function trickName(trickId: string): string {
 export default function MultiplayerPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const { rooms, loading: roomsLoading } = usePublicRooms();
+  const {
+    rooms,
+    loading: roomsLoading,
+    error: roomsError,
+    retry: retryRooms,
+  } = usePublicRooms();
 
   const [showCreate, setShowCreate] = useState(false);
   const [createTrickId, setCreateTrickId] = useState<string>(TRICKS[0].id);
@@ -391,15 +396,24 @@ export default function MultiplayerPage() {
             Loading rooms…
           </div>
         )}
-        {!roomsLoading && rooms.length === 0 && (
+        {!roomsLoading && roomsError && (
+          <div style={{ padding: 32, textAlign: "center", color: "var(--muted)" }}>
+            <p style={{ margin: "0 0 12px" }}>
+              Couldn&apos;t load open rooms.
+            </p>
+            <button className="btn primary" type="button" onClick={retryRooms}>
+              Retry
+            </button>
+          </div>
+        )}
+        {!roomsLoading && !roomsError && rooms.length === 0 && (
           <div style={{ padding: 32, textAlign: "center", color: "var(--muted)" }}>
             No open rooms — be the first to create one.
           </div>
         )}
         {!roomsLoading &&
+          !roomsError &&
           rooms.map((r, i) => {
-            const players = r.players ? Object.values(r.players) : [];
-            const host = r.players?.[r.host];
             const isJoining = publicJoiningCode === r.code;
             return (
               <div
@@ -420,16 +434,18 @@ export default function MultiplayerPage() {
                 >
                   {r.code}
                 </span>
-                <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <span
-                    className="avatar"
-                    style={{ width: 28, height: 28, fontSize: 11 }}
-                  >
-                    {host?.avatarInitials || "?"}
-                  </span>
-                  <span style={{ fontWeight: 500 }}>
-                    {host?.displayName || "Host"}
-                  </span>
+                <span
+                  className="mono"
+                  style={{
+                    color: "var(--muted)",
+                    fontSize: 12,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                  title={r.host}
+                >
+                  host · {r.host.slice(0, 8)}
                 </span>
                 <span style={{ color: "var(--muted)", fontSize: 13 }}>
                   {trickName(r.trickId)}
@@ -439,7 +455,7 @@ export default function MultiplayerPage() {
                   style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--muted)" }}
                 >
                   <Users size={12} />
-                  {players.length}
+                  {r.playerCount}
                 </span>
                 <button
                   className="btn primary"
