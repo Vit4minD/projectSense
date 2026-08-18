@@ -5,6 +5,7 @@ import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AnalyticsProvider } from "@/components/sense/AnalyticsProvider";
+import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/config/site";
 
 // Single type family across the whole app — warm and rounded (slightly playful)
 // but clean and highly readable (professional). One typeface = far less visual
@@ -16,11 +17,6 @@ const nunito = Nunito({
   style: ["normal", "italic"],
   display: "swap",
 });
-
-const SITE_URL = "https://project-sense.vercel.app";
-const SITE_NAME = "Project Sense";
-const SITE_DESCRIPTION =
-  "A practice gym for UIL Number Sense — drill the canon, race your friends, sit AI-generated papers.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

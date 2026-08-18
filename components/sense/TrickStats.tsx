@@ -1,14 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { ArrowRight, Clock, Lightbulb, Trophy } from "lucide-react";
-import { TopBar } from "@/components/sense/TopBar";
-import { TrickCard } from "@/components/sense/TrickCard";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Clock, Trophy } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { TRICKS, getTrickById } from "@/lib/data/tricks";
-import { CATEGORIES } from "@/lib/data/categories";
-import { getTip } from "@/lib/data/tips";
 import {
   getAllBests,
   getDrillsForTrick,
@@ -18,34 +14,34 @@ import { getLeaderboardForTrick } from "@/lib/firebase/leaderboard";
 import { formatShort, formatTime } from "@/lib/drill/utils";
 import type { Best, LeaderboardEntry } from "@/lib/types";
 
-export default function TrickDetailPage() {
-  const params = useParams<{ trickId: string }>();
+/**
+ * Authed extras for a trick page (your best/accuracy/history + global top-10).
+ * A client island inside the otherwise public, server-rendered trick page:
+ * logged-out visitors (and crawlers) get the educational content above plus a
+ * sign-in prompt here; the leaderboard requires auth to read.
+ */
+export function TrickStats({ trickId }: { trickId: string }) {
   const router = useRouter();
-  const { user } = useAuth();
-  const trick = getTrickById(params.trickId);
+  const { user, loading: authLoading } = useAuth();
 
   const [best, setBest] = useState<Best | null>(null);
   const [history, setHistory] = useState<SavedDrill[]>([]);
   const [leaders, setLeaders] = useState<LeaderboardEntry[]>([]);
-  const [allBests, setAllBests] = useState<Map<string, Best>>(new Map());
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    if (!user || !trick) return;
+    if (!user) return;
     let cancelled = false;
     Promise.all([
-      getDrillsForTrick(user.uid, trick.id, 10),
-      getLeaderboardForTrick(trick.id, 10).catch(() => [] as LeaderboardEntry[]),
+      getDrillsForTrick(user.uid, trickId, 10),
+      getLeaderboardForTrick(trickId, 10).catch(() => [] as LeaderboardEntry[]),
       getAllBests(user.uid),
     ])
       .then(([h, l, all]) => {
         if (cancelled) return;
-        // Derive this trick's best from the full bests map we already fetch,
-        // instead of a redundant single-doc read.
-        setBest(all.get(trick.id) ?? null);
+        setBest(all.get(trickId) ?? null);
         setHistory(h);
         setLeaders(l);
-        setAllBests(all);
         setLoaded(true);
       })
       .catch(() => {
@@ -54,97 +50,39 @@ export default function TrickDetailPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, trick]);
-
-  const tip = trick ? getTip(trick.id) : undefined;
-  const categoryLabel = useMemo(
-    () => (trick ? CATEGORIES.find((c) => c.key === trick.cat)?.label ?? trick.cat : ""),
-    [trick],
-  );
+  }, [user, trickId]);
 
   const accuracyPct = useMemo(() => {
     if (!best || best.attempts === 0) return null;
     return Math.round((best.correct / (best.attempts * 5)) * 100);
   }, [best]);
 
-  const related = useMemo(() => {
-    if (!trick) return [];
-    const sameCat = TRICKS.filter((t) => t.cat === trick.cat && t.id !== trick.id);
-    sameCat.sort((a, b) => {
-      const ba = allBests.get(a.id);
-      const bb = allBests.get(b.id);
-      const ra = ba && ba.attempts >= 2 ? ba.correct / (ba.attempts * 5) : 1;
-      const rb = bb && bb.attempts >= 2 ? bb.correct / (bb.attempts * 5) : 1;
-      return ra - rb;
-    });
-    return sameCat.slice(0, 3);
-  }, [trick, allBests]);
-
-  if (!trick) {
+  if (!user) {
+    if (authLoading) return null;
     return (
-      <div className="main">
-        <TopBar crumbs={["sense", "Practice", "Unknown"]} />
-        <h1>Unknown trick</h1>
-        <button className="btn primary" onClick={() => router.push("/")}>
-          Home
-        </button>
+      <div
+        style={{
+          background: "var(--bg-soft)",
+          borderRadius: 16,
+          padding: 24,
+          marginTop: 32,
+          textAlign: "center",
+        }}
+      >
+        <p style={{ margin: "0 0 12px", color: "var(--muted)", fontSize: 14 }}>
+          Sign in to time yourself on this trick, track your history, and see the
+          global leaderboard.
+        </p>
+        <Link className="btn primary" href="/login">
+          Sign in to practice <ArrowRight size={12} />
+        </Link>
       </div>
     );
   }
 
   return (
-    <div className="main">
-      <TopBar
-        crumbs={["sense", "Practice", trick.name]}
-        right={
-          <>
-            <button className="btn" type="button" onClick={() => router.push("/")}>
-              All tricks
-            </button>
-            <button
-              className="btn primary"
-              type="button"
-              onClick={() => router.push(`/drill/${trick.id}`)}
-            >
-              Drill this <span className="kbd">↵</span>
-            </button>
-          </>
-        }
-      />
-
-      <section className="hero">
-        <div>
-          <div className="caps" style={{ color: "var(--muted)", marginBottom: 8 }}>
-            trick / {trick.id} · {categoryLabel}
-          </div>
-          <h1 className="hero-title">
-            {trick.name.split(" ").slice(0, -1).join(" ")}{" "}
-            <em>{trick.name.split(" ").slice(-1).join(" ")}</em>
-          </h1>
-          <div className="hero-sub" style={{ fontFamily: "var(--mono)", fontSize: 14 }}>
-            {trick.example}
-          </div>
-          <div className="hero-cta">
-            <button
-              className="btn accent"
-              type="button"
-              onClick={() => router.push(`/drill/${trick.id}`)}
-            >
-              <ArrowRight size={12} /> Drill this trick
-            </button>
-            <span style={{ color: "var(--muted)", fontSize: 12, alignSelf: "center" }}>
-              {"•".repeat(trick.difficulty)}
-              <span style={{ color: "var(--muted-2)" }}>{"•".repeat(3 - trick.difficulty)}</span>{" "}
-              difficulty
-            </span>
-          </div>
-        </div>
-        <div className="hero-visual">
-          <span className="big-num">/{trick.id}</span>
-        </div>
-      </section>
-
-      <div className="hero-stats-row">
+    <>
+      <div className="hero-stats-row" style={{ marginTop: 32 }}>
         <div className="stat">
           <div className="label">Your best</div>
           <div className="value">
@@ -175,41 +113,10 @@ export default function TrickDetailPage() {
         </div>
       </div>
 
-      {tip && (
-        <>
-          <div className="section-head">
-            <h2>
-              <Lightbulb size={14} style={{ display: "inline", marginRight: 6 }} />
-              How to
-            </h2>
-          </div>
-          <div
-            style={{
-              background: "var(--bg-soft)",
-              borderRadius: 16,
-              padding: 20,
-              fontSize: 14,
-              lineHeight: 1.6,
-            }}
-          >
-            <p style={{ margin: 0 }}>{tip.tip}</p>
-            {tip.mnemonic && (
-              <p
-                className="caps"
-                style={{ marginTop: 12, color: "var(--muted)", fontSize: 11 }}
-              >
-                mnemonic · {tip.mnemonic}
-              </p>
-            )}
-          </div>
-        </>
-      )}
-
       <div className="section-head" style={{ marginTop: 40 }}>
         <h2>
           <Clock size={14} style={{ display: "inline", marginRight: 6 }} />
-          Your history{" "}
-          <span className="count">· {history.length}</span>
+          Your history <span className="count">· {history.length}</span>
         </h2>
       </div>
       <div style={{ background: "var(--bg-soft)", borderRadius: 16 }}>
@@ -227,7 +134,7 @@ export default function TrickDetailPage() {
           <button
             key={d.id}
             type="button"
-            onClick={() => router.push(`/drill/${trick.id}/results?d=${d.id}`)}
+            onClick={() => router.push(`/drill/${trickId}/results?d=${d.id}`)}
             style={{
               display: "grid",
               gridTemplateColumns: "100px 1fr 80px 90px 20px",
@@ -251,9 +158,7 @@ export default function TrickDetailPage() {
             <span style={{ color: "var(--muted)", fontSize: 12 }}>
               avg{" "}
               {d.perQuestion.length > 0
-                ? formatShort(
-                    d.perQuestion.reduce((a, p) => a + p.ms, 0) / d.perQuestion.length,
-                  )
+                ? formatShort(d.perQuestion.reduce((a, p) => a + p.ms, 0) / d.perQuestion.length)
                 : "—"}
             </span>
             <span className="mono" style={{ color: "var(--muted)", fontSize: 12 }}>
@@ -302,10 +207,7 @@ export default function TrickDetailPage() {
             >
               <span
                 className="mono"
-                style={{
-                  color: i < 3 ? "var(--ink)" : "var(--muted)",
-                  fontWeight: i < 3 ? 600 : 400,
-                }}
+                style={{ color: i < 3 ? "var(--ink)" : "var(--muted)", fontWeight: i < 3 ? 600 : 400 }}
               >
                 #{i + 1}
               </span>
@@ -325,37 +227,7 @@ export default function TrickDetailPage() {
           );
         })}
       </div>
-
-      {related.length > 0 && (
-        <>
-          <div className="section-head" style={{ marginTop: 40 }}>
-            <h2>
-              Related tricks <span className="count">· {related.length}</span>
-            </h2>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
-            {related.map((t) => (
-              <TrickCard
-                key={t.id}
-                trick={t}
-                bestMs={allBests.get(t.id)?.bestMs}
-                onClick={() => router.push(`/trick/${t.id}`)}
-              />
-            ))}
-          </div>
-        </>
-      )}
-
-      <div style={{ marginTop: 40, display: "flex", justifyContent: "flex-end" }}>
-        <button
-          className="btn primary"
-          type="button"
-          onClick={() => router.push(`/drill/${trick.id}`)}
-        >
-          Drill this trick <ArrowRight size={12} />
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
 
