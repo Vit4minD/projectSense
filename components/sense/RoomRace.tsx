@@ -66,15 +66,27 @@ export function RoomRace({ room, code }: RoomRaceProps) {
     }
     submittingRef.current = true;
     try {
-      const next = await incrementSolved(code, user.uid);
+      // Each player only writes their OWN solved count (allowed by the RTDB
+      // rules). Ending the race is driven by the host below — a non-host
+      // cannot write the room-level end state, so having the finisher call
+      // endRace would silently fail whenever a guest wins.
+      await incrementSolved(code, user.uid);
       setAnswer("");
-      if (next >= room.questionCount) {
-        await endRace(code, user.uid);
-      }
     } finally {
       submittingRef.current = false;
     }
   }
+
+  // The host drives race completion: whenever any player reaches the target
+  // while the room is still racing, the host (the only client allowed to write
+  // room-level state) ends the race, crediting the first finisher as winner.
+  useEffect(() => {
+    if (!user || user.uid !== room.host || room.state !== "racing") return;
+    const finisher = Object.entries(room.players ?? {})
+      .filter(([, p]) => (p.solved ?? 0) >= room.questionCount)
+      .sort(([, a], [, b]) => (a.joinedAt ?? 0) - (b.joinedAt ?? 0))[0];
+    if (finisher) void endRace(code, finisher[0]);
+  }, [room, user, code]);
 
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
