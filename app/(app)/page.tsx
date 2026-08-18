@@ -138,7 +138,7 @@ export default function HomePage() {
         </div>
         <div className="stat">
           <div className="label">Tricks practiced</div>
-          <div className="value">{bests.size}/43</div>
+          <div className="value">{bests.size}/{TRICKS.length}</div>
           <div className="delta">{TRICKS.length - bests.size} to go</div>
         </div>
         <div className="stat">

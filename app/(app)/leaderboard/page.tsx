@@ -73,8 +73,8 @@ export default function LeaderboardPage() {
             <em>{selectedTrick?.name ?? "—"}</em>
           </h1>
           <p className="hero-sub">
-            Global rankings update server-side after each new personal best. World-readable;
-            click any trick to switch.
+            Global rankings update server-side after each new personal best. Visible to
+            signed-in players; click any trick to switch.
           </p>
         </div>
         <div className="hero-visual">
