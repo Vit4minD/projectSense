@@ -8,7 +8,7 @@ Feature-complete: a 52-trick practice catalog with timed drills and personal bes
 
 ## Stack
 
-Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 · Firebase Auth + Firestore + RTDB · firebase-admin · Gemini (`@google/generative-ai`) · mathjs · KaTeX · motion · Vitest · Playwright · Vercel.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind v4 · Nunito (single typeface) · Firebase Auth + Firestore + RTDB · firebase-admin · Gemini (`@google/generative-ai`) · fraction.js · Vitest · Playwright · Vercel.
 
 ## Getting started
 

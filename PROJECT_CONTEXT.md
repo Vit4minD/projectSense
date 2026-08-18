@@ -19,38 +19,29 @@ Last updated: 2026-08-18.
 
 **The rebuild is feature-complete and hardened.** Remaining work is (a) the operational cutover (your hands — §18/§20: rotate the Gemini key, set Vercel env vars, deploy rules, flip the Production Branch) and (b) manual 2-window/real-Gemini browser QA of multiplayer, AI test, and the mini-games (couldn't be automated here). Verify against a Vercel preview after pushing.
 
-**🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
-The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10 + §18.
+**🚨 Cutover ordering — deploy rules only at the branch flip:**
+`database.rules.json` was substantially hardened (participant-gated `rooms/{code}` reads, a names-free `roomIndex` for the public lobby, join/`solved`/room-field validation; Firestore leaderboard reads now require auth). Deploying these while legacy `main` is still live would break legacy multiplayer (it doesn't write a `host` field and reads `/rooms` directly). Run `firebase deploy --only firestore:rules,database` **immediately before** flipping the Vercel Production Branch — not earlier. See §18/§20.
 
-**🔑 Gemini API key — do this before pushing the AI test live:**
-The user's current `.env.local` only has `NEXT_PUBLIC_GEMINI_API_KEY`. The `/api/generate-test` route falls back to that public-prefixed var so it works as-is, BUT `NEXT_PUBLIC_*` vars are inlined into the client JS bundle at build time — anyone can pull the key from DevTools. Fix: add a server-only `GEMINI_API_KEY` (same value) to `.env.local` and Vercel, then rotate the original public key and drop the `NEXT_PUBLIC_` prefix entirely. Until that's done, the key is exposed on every page the rebuild serves.
+**🔑 Gemini key — rotate at cutover (mandatory):**
+`lib/server/geminiKey.ts` already refuses the `NEXT_PUBLIC_GEMINI_API_KEY` fallback in production. Before go-live: revoke the old key, add a server-only `GEMINI_API_KEY` to Vercel + `.env.local`, and delete any `NEXT_PUBLIC_GEMINI_API_KEY`. The old key sits in earlier git history and previously-shipped bundles, so rotation is required regardless.
 
-**What the next session should know about the rebuild's readiness:**
+**Verified vs. NOT (2026-08 pass):**
+- ✅ **Verified** in a real browser (production build + Firebase emulator): register → drill (5/5) → results → home, and leaderboard publish (both Playwright specs pass). Login/home/drill visually reviewed after the single-font change. Firestore + RTDB rules verified via `pnpm test:rules` (23 emulator assertions). 173 unit tests + build green; `pnpm audit --prod` clean.
+- ⚠️ **NOT yet exercised** — needs a real browser / two windows / a real Gemini key, best on a Vercel preview: multiplayer lobby→race→ended in **2 windows** (incl. host-closes-tab recovery + private-room confidentiality with a third account); `/test` generate+grade against **real Gemini**; Twenty-Four / Zetamac keyboard+timer+sound/haptics; tweaks-panel themes; sitemap/robots/JSON-LD served in prod; GA4 events end-to-end.
 
-The rebuild has feature parity with legacy on **practice, leaderboard, multiplayer, AI test, AND mini-games**, plus parity-with-polish on **analytics, SEO, settings, Speed Insights**. Sentry SDK is installed and scaffolded but DSN-pending — see §18 step 5.
+**Next session — do this in order:**
+1. `git push origin entirelyNew` (all commits are local) → open the Vercel preview.
+2. Manual-QA the ⚠️ list above on the preview; fix any UI bugs found.
+3. Run the cutover (§18/§20): rotate Gemini key → set Vercel env vars → `firebase deploy --only firestore:rules,database` → **then** flip the Production Branch. Post-cutover: GA4 conversions/dimensions, resubmit sitemap.
+4. (Optional) wire Sentry (`npx @sentry/wizard@latest -i nextjs`); add the deferred multiplayer finish-timestamp winner + double-count guard; broaden multiplayer/AI-test e2e.
 
-A full Vercel-branch cutover is now **feature-safe** for end-users — every legacy surface has a rebuild equivalent.
-
-**Things NOT verified by an agent in any session yet:**
-1. Whether legacy `main`'s production deployment still functions correctly post-migration. 60-second browser smoke test recommended before any cutover decision.
-2. **The multiplayer rebuild UI has not been browser-tested.** Typecheck + units + build are green, but no one has actually opened 2 incognito windows and walked through lobby → race → ended. Smoke-test against the emulator before merging.
-3. **The AI Test rebuild UI has not been browser-tested.** `/test` route compiles + types check, but nobody has clicked Generate against a real Gemini key.
-4. **Twenty-Four + Zetamac UIs have not been browser-tested.** They typecheck and built-in interaction looks correct on read-through, but keyboard handlers, timer ticks, end-modal overlays, sound + haptics on solve, and Zetamac's full config panel all need a real browser walk.
-5. The rebuild's UI for /home, /leaderboard, /trick/[id], /profile hasn't been walked through in a real browser either. Worth a Vercel preview deploy and a manual walk before cutover.
-6. **Phase 4 surfaces not browser-tested**: tweaks panel sound/haptics toggles, ink/mono theme variants visually, sitemap.xml + robots.txt served correctly, JSON-LD validates, GA4 events fire end-to-end.
-
-**Likely next-session asks (probability descending):**
-1. Browser smoke-test all surfaces (multiplayer, AI test, 24, Zetamac, tweaks panel sound/haptics/themes), fix any UI bugs.
-2. Run the cutover checklist in §18 — rotate Gemini key, deploy RTDB rules, flip Vercel branch, set Vercel env vars, mark GA4 conversions, register custom dimensions, resubmit sitemap.
-3. (Optional) Wire Sentry fully via `npx @sentry/wizard@latest -i nextjs` once a Sentry project exists.
-4. Diagnose if legacy `main` broke post-migration — least likely; mitigations in §16.
-5. Clean up the 2 corrupt-time docs on user `x7LAlhSshua1oPHNGyLZPrREVqf1` — least urgent.
+**Environment gotchas (a fresh session WILL hit these):** invoke pnpm as **`corepack pnpm`** (not on PATH); `next dev` 403s static chunks in the QA sandbox — verify against a **production build** (`next build` + `next start`), not `next dev`; Firebase/emulator commands need `NODE_OPTIONS=--use-system-ca`; run the emulator via `corepack pnpm dlx firebase-tools@latest emulators:exec …` (firebase CLI isn't global). Full command examples in §12 and §21.
 
 **Open decisions / loose ends:**
-- Whether the leaderboard should expose `school` publicly. We chose yes for the school-competition use case; revisit if privacy concerns surface.
+- Leaderboard privacy (updated 2026-08): reads now require auth (no longer world-readable); Google sign-in uses a non-identifying handle (email local-part), not the real name; `displayName`/`school` are sanitized server-side. `school` is still shown to signed-in users — revisit if that's too much for the audience.
 - Whether to run the legacy migration's `--delete-old` to reclaim Firestore quota on the old `users/{email}` and `leaderboard/{trickId}` map docs. Safe to skip indefinitely.
-- The legacy `setDoc(bestRef, { time })` / `entryRef.set({ ... })` calls in `worktree-analytics/app/components/updateLeaderboard.ts:39` and `app/api/leaderboard/route.ts:67` overwrite without merge — meaning every legacy-app submission post-migration drops the rebuild's new fields on that doc. Re-running the migration before cutover refreshes drift. Not a problem until cutover day.
-- Multiplayer specifics: 5-char codes from a 31-letter alphabet (no `0/1/I/O/L`), seed-based deterministic problems, first-to-5 wins, no leaderboard tie-in, no server-side answer verification (client-trusted). Known v1 gaps: no Cloud Function for stale lobby cleanup, no mid-race reconnect/resume.
+- Legacy `main`'s leaderboard/best writes are non-merge `setDoc`, so post-migration legacy submissions drop the rebuild's new fields on those docs. Re-running the migration right before cutover refreshes any drift (§18). Not a problem until cutover day.
+- Multiplayer specifics: 5-char codes from a 31-letter alphabet (no `0/1/I/O/L`), seed-based deterministic problems, first-to-5 wins, no leaderboard tie-in, no server-side answer verification (client-trusted, `solved` is rule-capped to +1/racing). 2026-08 added host-disconnect recovery + a Leave button; still deferred: mid-race *reconnect/resume*, a stale-lobby-cleanup Cloud Function, and finish-timestamp winner attribution (winner is currently earliest-joined among finishers).
 - **AI Test v1 scope decisions** (locked 2026-05-11): 40 questions; UIL scoring `5*last - 9*(last - correct)`; Gemini `gemini-2.0-flash` server-side (NOT Anthropic — user override of §3 stack note); local grading via existing `equals()`, NO second AI call for grading; no Firestore writes, no leaderboard tie-in, no per-test persistence.
 - **Twenty-Four v1 scope** (locked 2026-05-11): 60s timer, +5s and +5pts per solve, 1362-hand precomputed dict (legacy was bigger than estimated), keyboard support (1-4 select, +-*/ ops, Enter combine, Backspace reset, Esc skip), end-of-game modal.
 - **Zetamac v1 scope** (locked 2026-05-11): user-configurable operators (toggle each on/off, last one disabled), 4 range pairs, duration 60/120/300/custom (30-900s). Highscore + config persisted in `localStorage` (`zetamac:highscore:v1`, `zetamac:config:v2`). No Firestore tie-in.
