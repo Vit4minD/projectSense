@@ -12,7 +12,7 @@ Last updated: 2026-08-18.
 ## 0. Pickup point for the next session
 
 **Where we are right now (2026-08-18 — major hardening + review pass):**
-- Branch: `entirelyNew`. Since the 2026-05 Phase 4 work, a large hardening + review pass landed (see the new **§21** for the full list): all dependencies upgraded to latest, Firebase rules hardened, an in-memory Gemini rate-limit, error boundaries, three real bugs fixed via browser QA, a 5-dimension adversarial code review with its confirmed findings fixed, and a single-typeface (Nunito) redesign to cut visual noise.
+- Branch: `entirelyNew`. Since the 2026-05 Phase 4 work, a large hardening + review pass landed (see the new **§21** for the full list): all dependencies upgraded to latest, Firebase rules hardened, an in-memory Gemini rate-limit, error boundaries, three real bugs fixed via browser QA, a 5-dimension adversarial code review with its confirmed findings fixed, a single-typeface (Nunito) redesign to cut visual noise, and public server-rendered trick pages for SEO. Full details in §21.
 - Gates green: `pnpm typecheck` clean, `pnpm test` **173/173 across 14 suites**, `pnpm lint` 0 errors, `pnpm build` **23 routes**, **`pnpm audit --prod` CLEAN (0 vulnerabilities)**. Firebase security rules verified against the emulator (`pnpm test:rules`). Core register→drill→results→leaderboard e2e passes against a production build + emulator.
 - 52-trick catalog and production data migration done 2026-05-05 (unchanged).
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has **not** been cut over yet. Branches are now just `main` + `entirelyNew` (the `worktree-analytics` and `postGradUpdates-integration` branches were deleted).
@@ -994,8 +994,14 @@ A large hardening/review pass on `entirelyNew`, on top of the 2026-05 Phase-4 wo
 - Global single-key nav ignores Cmd/Ctrl/Alt (browser shortcuts work); dead `/settings` nav removed; profile shows `/52`; redundant Firestore read on the trick page removed.
 - New `rules-tests/` suite validates the Firestore + RTDB rules against the emulator (`pnpm test:rules`).
 
+### SEO (added 2026-08)
+- The `(app)` group is behind a client auth gate, so its pages weren't crawlable. **`/trick/{id}` was moved out to a top-level, server-rendered public route** (`app/trick/[trickId]/page.tsx`) — full how-to content + per-trick `LearningResource` JSON-LD + canonical are now in the initial HTML for search engines; the authed stats/history/leaderboard are a client island (`components/sense/TrickStats.tsx`) with a sign-in CTA when logged out. `generateStaticParams` pre-renders all 52.
+- Site origin is now `NEXT_PUBLIC_SITE_URL` (default `project-sense.vercel.app`), shared via `lib/config/site.ts` by `layout.tsx`/`sitemap.ts`/`robots.ts`. Set the real domain in Vercel if it differs.
+- `sitemap.ts` now lists only genuinely-public URLs (`/login` + the 52 trick pages). Verified: logged-out `curl /trick/1` returns title + content + JSON-LD + canonical.
+- README rewritten into a proper project README.
+- Not done: the home `/` and other `(app)` pages remain gated (login is the crawlable landing) — revisit only if broader indexing is wanted.
+
 ### Still open / deferred
 - **Operational cutover** (unchanged, your hands): rotate the Gemini key, set Vercel env vars, `firebase deploy --only firestore:rules,database` sequenced with the Production-Branch flip. See §18/§20.
 - **Manual QA** not automatable here: multiplayer in two windows, AI test with a real Gemini key, the mini-games.
 - **Deferred (optional):** multiplayer finish-timestamp winner attribution + double-count guard; broader multiplayer/AI-test e2e coverage.
-- **SITE_URL** is still hardcoded to `project-sense.vercel.app` (`app/layout.tsx`, `sitemap.ts`, `robots.ts`) — change if the production domain differs.
