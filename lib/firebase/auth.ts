@@ -35,11 +35,22 @@ export async function signInWithEmail(email: string, password: string): Promise<
   return cred.user;
 }
 
+/**
+ * A non-identifying public handle from the email local-part (before "@").
+ * Avoids broadcasting a Google account's real full name on the public
+ * leaderboard / in multiplayer rooms — this is a kids' app.
+ */
+function deriveHandle(email: string | null | undefined): string {
+  if (typeof email !== "string") return "";
+  const at = email.indexOf("@");
+  return at > 0 ? email.slice(0, at) : "";
+}
+
 export async function signInWithGoogle(): Promise<User> {
   const auth = getFirebaseAuth();
   const cred = await signInWithPopup(auth, googleProvider);
   const isNewUser = await ensureUserDoc(cred.user.uid, {
-    displayName: cred.user.displayName ?? "Sense Player",
+    displayName: deriveHandle(cred.user.email) || "Sense Player",
     school: "",
   });
   void trackEvent(isNewUser ? "sign_up" : "login", { method: "google" });
