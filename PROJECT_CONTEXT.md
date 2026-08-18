@@ -13,7 +13,9 @@ Last updated: 2026-08-18.
 
 **Where we are right now (2026-08-18 — major hardening + review pass):**
 - Branch: `entirelyNew`. Since the 2026-05 Phase 4 work, a large hardening + review pass landed (see the new **§21** for the full list): all dependencies upgraded to latest, Firebase rules hardened, an in-memory Gemini rate-limit, error boundaries, three real bugs fixed via browser QA, a 5-dimension adversarial code review with its confirmed findings fixed, a single-typeface (Nunito) redesign to cut visual noise, and public server-rendered trick pages for SEO. Full details in §21.
-- Gates green: `pnpm typecheck` clean, `pnpm test` **173/173 across 14 suites**, `pnpm lint` 0 errors, `pnpm build` **23 routes**, **`pnpm audit --prod` CLEAN (0 vulnerabilities)**. Firebase security rules verified against the emulator (`pnpm test:rules`). Core register→drill→results→leaderboard e2e passes against a production build + emulator.
+- Gates green: `corepack pnpm typecheck` clean, `corepack pnpm test` **173/173 across 14 suites**, `corepack pnpm lint` 0 errors, **`corepack pnpm audit --prod` CLEAN (0 vulnerabilities)**. Firebase security rules verified against the emulator (`corepack pnpm test:rules`, 23 assertions). Core register→drill→results→leaderboard e2e passes against a production build + emulator.
+- **Production build confirmed deploy-ready** (`corepack pnpm build`): 68 pages, incl. all **52 `/trick/{id}` prerendered as static HTML (SSG)** for SEO; `sitemap.xml` + `robots.txt` emitted; no errors. Branch `entirelyNew` is **pushed to `origin`** (working tree clean).
+- **Deployment** is Vercel-on-push to the Production Branch. It is NOT yet cut over — production still serves `main`. To go live: set the Vercel env vars (§18/§20), then flip the Production Branch to `entirelyNew`. The build itself needs no further code work.
 - 52-trick catalog and production data migration done 2026-05-05 (unchanged).
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has **not** been cut over yet. Branches are now just `main` + `entirelyNew` (the `worktree-analytics` and `postGradUpdates-integration` branches were deleted).
 
