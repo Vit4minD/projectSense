@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { Timestamp } from "firebase/firestore";
 import { aggregateProfile } from "@/lib/firebase/profile";
+import { TRICKS } from "@/lib/data/tricks";
 import type { SavedDrill } from "@/lib/firebase/drills";
 import type { Best } from "@/lib/types";
 
@@ -128,16 +129,16 @@ describe("aggregateProfile", () => {
     expect(stats.achievements.find((a) => a.id === "speed-demon")?.unlocked).toBe(false);
   });
 
-  it("unlocks centurion at 100 drills and master at 43 tricks practiced", () => {
+  it("unlocks centurion at 100 drills and master when the whole catalog is practiced", () => {
     const bests = new Map<string, Best>(
-      Array.from({ length: 43 }, (_, i) => [
+      Array.from({ length: TRICKS.length }, (_, i) => [
         String(i + 1).padStart(2, "0"),
         mkBest({ bestMs: 9000, attempts: 3, correct: 12 }),
       ]),
     );
     const stats = aggregateProfile(bests, [], now);
     const ach = (id: string) => stats.achievements.find((a) => a.id === id)?.unlocked;
-    expect(stats.totalDrills).toBe(129);
+    expect(stats.totalDrills).toBe(TRICKS.length * 3);
     expect(ach("centurion")).toBe(true);
     expect(ach("catalogue")).toBe(true);
     expect(ach("master")).toBe(true);
