@@ -5,3 +5,11 @@ allowBuilds:
   protobufjs: true
   sharp: true
   unrs-resolver: true
+# Force a patched uuid across the tree. The vulnerable <11.1.1 comes in
+# transitively via firebase-admin > @google-cloud/storage > gaxios (a path this
+# app does not use). uuid is backward-compatible, so overriding is safe.
+overrides:
+  uuid: '>=11.1.1'
+  # fast-uri <3.1.5 (host-confusion) comes in transitively via ajv (under
+  # @hookform/resolvers and the sentry webpack plugin). Patch-level override.
+  fast-uri: '>=3.1.5'
