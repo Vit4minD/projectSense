@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { trackEvent } from "@/lib/firebase/analytics";
 import type { Tweaks } from "@/lib/types";
 
 const STORAGE_KEY = "sense:tweaks";
@@ -55,6 +56,9 @@ export function TweaksProvider({ children }: { children: ReactNode }) {
   }, [tweaks]);
 
   const setTweaks = useCallback((next: Partial<Tweaks>) => {
+    for (const [key, value] of Object.entries(next)) {
+      void trackEvent("settings_changed", { setting: key, value: String(value) });
+    }
     setTweaksState((prev) => {
       const merged = { ...prev, ...next };
       try {

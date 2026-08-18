@@ -40,6 +40,7 @@ export function useAITest(): UseAITest {
   }, [user]);
 
   const generate = useCallback(async () => {
+    void trackEvent("test_started");
     setErrorMessage(null);
     setGrade(null);
     setAnswers({});

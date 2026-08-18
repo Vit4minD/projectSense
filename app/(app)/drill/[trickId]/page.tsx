@@ -11,6 +11,7 @@ import { formatShort, formatTime } from "@/lib/drill/utils";
 import { useTimer } from "@/hooks/useTimer";
 import { useAuth } from "@/hooks/useAuth";
 import { saveDrillResult } from "@/lib/firebase/drills";
+import { trackEvent } from "@/lib/firebase/analytics";
 import { celebrateCorrect } from "@/lib/effects";
 import type { GeneratedProblem, PerQuestion } from "@/lib/types";
 
@@ -42,7 +43,10 @@ export default function DrillPage() {
 
   // Start the timer once we have problems.
   useEffect(() => {
-    if (problems.length > 0) timer.start();
+    if (problems.length > 0) {
+      timer.start();
+      if (trick) void trackEvent("drill_started", { trick_id: trick.id });
+    }
     return () => timer.reset();
     // intentionally only run once per problem set
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -11,6 +11,7 @@ import {
   validateConfig,
 } from "@/lib/games/zetamac";
 import { celebrateCorrect } from "@/lib/effects";
+import { trackEvent } from "@/lib/firebase/analytics";
 import type { ZetamacConfig, ZetamacState } from "@/lib/types";
 
 const CONFIG_KEY = "zetamac:config:v2";
@@ -93,6 +94,11 @@ export function useZetamac(): UseZetamac {
           // ignore
         }
       }
+      void trackEvent("game_completed", {
+        game: "zetamac",
+        score: final,
+        high_score: Math.max(final, highScore),
+      });
     }
     if (state.status !== "ended") {
       endedReportedRef.current = false;
@@ -120,9 +126,10 @@ export function useZetamac(): UseZetamac {
   }, [updateConfig]);
 
   const startGame = useCallback(() => {
+    void trackEvent("game_started", { game: "zetamac", duration_s: config.durationSeconds });
     setState((prev) => start(prev, Date.now()));
     window.setTimeout(() => inputRef.current?.focus(), 0);
-  }, []);
+  }, [config.durationSeconds]);
 
   const setInputValue = useCallback((v: string) => {
     setState((prev) => {

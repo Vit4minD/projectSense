@@ -13,6 +13,7 @@ import {
   tick,
 } from "@/lib/games/twentyFour";
 import { celebrateCorrect } from "@/lib/effects";
+import { trackEvent } from "@/lib/firebase/analytics";
 import type { TwentyFourOperator, TwentyFourState } from "@/lib/types";
 
 function randomSeed(): number {
@@ -47,6 +48,11 @@ export function useTwentyFour(): UseTwentyFour {
   useEffect(() => {
     if (state.status === "ended" && !endedReportedRef.current) {
       endedReportedRef.current = true;
+      void trackEvent("game_completed", {
+        game: "twenty_four",
+        score: state.score,
+        solved_count: state.solvedCount,
+      });
     }
     if (state.status !== "ended") {
       endedReportedRef.current = false;
@@ -54,6 +60,7 @@ export function useTwentyFour(): UseTwentyFour {
   }, [state.status, state.score, state.solvedCount]);
 
   const startGame = useCallback(() => {
+    void trackEvent("game_started", { game: "twenty_four" });
     setState((prev) => start(prev, Date.now()));
   }, []);
 
