@@ -8,6 +8,7 @@ import type {
 } from "@google/generative-ai";
 import { SchemaType } from "@google/generative-ai";
 import { equals } from "@/lib/drill/answerValidator";
+import { generateTestLimiter, gradeTestLimiter } from "@/lib/server/rateLimit";
 import type {
   AITestGrade,
   AITestGradeItem,
@@ -22,6 +23,7 @@ export type AITestErrCode =
   | "bad-token"
   | "bad-request"
   | "missing-key"
+  | "rate-limited"
   | "upstream-failed"
   | "internal";
 
@@ -236,10 +238,19 @@ export async function generatePaper(
   const token = parseBearer(authHeader);
   if (!token) return err("no-token", "Missing Authorization header");
 
+  let uid: string;
   try {
-    await deps.adminAuth.verifyIdToken(token);
+    ({ uid } = await deps.adminAuth.verifyIdToken(token));
   } catch {
     return err("bad-token", "ID token failed verification");
+  }
+
+  const rl = await generateTestLimiter.limit(uid);
+  if (!rl.allowed) {
+    return err(
+      "rate-limited",
+      "Too many requests. Please wait a moment and try again.",
+    );
   }
 
   if (!deps.geminiKey || !deps.geminiClient) {
@@ -285,10 +296,19 @@ export async function gradePaper(
   const token = parseBearer(authHeader);
   if (!token) return err("no-token", "Missing Authorization header");
 
+  let uid: string;
   try {
-    await deps.adminAuth.verifyIdToken(token);
+    ({ uid } = await deps.adminAuth.verifyIdToken(token));
   } catch {
     return err("bad-token", "ID token failed verification");
+  }
+
+  const rl = await gradeTestLimiter.limit(uid);
+  if (!rl.allowed) {
+    return err(
+      "rate-limited",
+      "Too many requests. Please wait a moment and try again.",
+    );
   }
 
   const parsed = GradeBody.safeParse(body);
@@ -309,6 +329,8 @@ export function statusCodeFor(code: AITestErrCode): number {
       return 400;
     case "missing-key":
       return 500;
+    case "rate-limited":
+      return 429;
     case "upstream-failed":
       return 502;
     case "internal":

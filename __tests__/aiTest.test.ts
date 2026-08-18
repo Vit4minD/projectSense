@@ -247,6 +247,38 @@ describe("generatePaper", () => {
   });
 });
 
+describe("generatePaper rate limiting", () => {
+  // Uses the module-scoped `generateTestLimiter` singleton (limit 10/min).
+  // To avoid polluting the other `generatePaper` specs (which key on uid "u1"),
+  // this spec keys on a dedicated uid whose bucket is exercised only here.
+  it("returns rate-limited (429) once the per-user window is exhausted", async () => {
+    const uid = "rl-generate-user";
+    const deps: GenerateTestDeps = {
+      adminAuth: { verifyIdToken: vi.fn().mockResolvedValue({ uid }) },
+      geminiKey: "test-key",
+      geminiClient: makeGeminiClient({
+        generateContent: vi
+          .fn()
+          .mockResolvedValue({ response: { text: () => goldenJson() } }),
+      }),
+    };
+
+    // First 10 requests fit inside the window.
+    for (let i = 0; i < 10; i += 1) {
+      const ok = await generatePaper(deps, "Bearer ok");
+      expect(ok.ok).toBe(true);
+    }
+
+    // The 11th trips the limiter, before Gemini is called.
+    const limited = await generatePaper(deps, "Bearer ok");
+    expect(limited.ok).toBe(false);
+    if (!limited.ok) {
+      expect(limited.code).toBe("rate-limited");
+      expect(statusCodeFor(limited.code)).toBe(429);
+    }
+  });
+});
+
 describe("gradePaper", () => {
   const baseDeps = (overrides: Partial<GradeTestDeps> = {}): GradeTestDeps => ({
     adminAuth: { verifyIdToken: vi.fn().mockResolvedValue({ uid: "u1" }) },
