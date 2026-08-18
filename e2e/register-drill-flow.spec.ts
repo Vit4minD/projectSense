@@ -22,7 +22,9 @@ test("register → drill → results → home shows the drill", async ({ page })
   await page.getByPlaceholder(/min 6/).fill("hunter2");
   await page.getByPlaceholder("St. Mark's").fill("St. Mark's");
 
-  await page.getByRole("button", { name: /Create account/i }).click();
+  // Submit the register form. Target the submit button by class — the string
+  // "Create account" also matches the mode-toggle tab above the form.
+  await page.locator("button.login-submit-btn").click();
 
   // Land on home
   await expect(page.getByRole("heading", { name: /Eighty problems/ })).toBeVisible({
@@ -33,19 +35,19 @@ test("register → drill → results → home shows the drill", async ({ page })
   await page.getByText("Multiplying by 11").first().click();
 
   // Drill page — answer 5 problems. We compute answers from the visible prompt.
+  const input = page.locator("input.drill-input");
   for (let i = 0; i < 5; i++) {
+    await expect(page.locator(".drill-problem")).toBeVisible();
     const prompt = await page.locator(".drill-problem").innerText();
     // Prompts of trick 01 always look like "<n> × 11"; parse n and compute.
     const match = prompt.match(/(\d+)\s*[×x]\s*11/);
     expect(match, `prompt #${i + 1} did not match expected pattern: ${prompt}`).not.toBeNull();
     const n = Number(match![1]);
-    const ans = String(n * 11);
-    await page.locator("input.drill-input").fill(ans);
-    // Auto-enter on correct, but tap Enter as a fallback in case validator
-    // disagrees with formatting.
-    await page.locator("input.drill-input").press("Enter");
-    // Wait for next pip to flip or the results page to land.
-    await page.waitForTimeout(150);
+    await input.fill(String(n * 11));
+    // The drill auto-submits the instant a correct answer is typed — pressing
+    // Enter here would double-commit and end the drill early. The input clears
+    // on commit; for the last question the app navigates to results instead.
+    if (i < 4) await expect(input).toHaveValue("", { timeout: 5_000 });
   }
 
   // Results page

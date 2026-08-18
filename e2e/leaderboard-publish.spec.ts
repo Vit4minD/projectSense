@@ -21,30 +21,43 @@ test("complete a 5/5 drill → leaderboard entry appears", async ({ page }) => {
   await page.getByPlaceholder(/min 6/).fill("hunter2");
   await page.getByPlaceholder("St. Mark's").fill("Test High");
 
-  await page.getByRole("button", { name: /Create account/i }).click();
+  // Submit the register form. Target the submit button by class — the string
+  // "Create account" also matches the mode-toggle tab above the form.
+  await page.locator("button.login-submit-btn").click();
 
   await expect(page.getByRole("heading", { name: /Eighty problems/ })).toBeVisible({
     timeout: 15_000,
   });
 
+  // Arm the response waiter BEFORE the drill finishes — the publish is a
+  // fire-and-forget POST triggered on the final answer, so we must be listening
+  // before it fires (waiting a fixed timeout after the fact is racy).
+  const publishResp = page.waitForResponse(
+    (r) => r.url().includes("/api/leaderboard") && r.request().method() === "POST",
+    { timeout: 20_000 },
+  );
+
   // Trick 01 has the simplest deterministic prompts (n × 11).
   await page.getByText("Multiplying by 11").first().click();
 
+  const input = page.locator("input.drill-input");
   for (let i = 0; i < 5; i++) {
+    await expect(page.locator(".drill-problem")).toBeVisible();
     const prompt = await page.locator(".drill-problem").innerText();
     const match = prompt.match(/(\d+)\s*[×x]\s*11/);
     expect(match, `prompt #${i + 1} did not match: ${prompt}`).not.toBeNull();
     const n = Number(match![1]);
-    const ans = String(n * 11);
-    await page.locator("input.drill-input").fill(ans);
-    await page.locator("input.drill-input").press("Enter");
-    await page.waitForTimeout(150);
+    await input.fill(String(n * 11));
+    // Auto-submits on correct; Enter would double-commit and end early.
+    if (i < 4) await expect(input).toHaveValue("", { timeout: 5_000 });
   }
 
   await expect(page.getByText(/total time/i)).toBeVisible({ timeout: 10_000 });
 
-  // Give the fire-and-forget POST /api/leaderboard a moment to commit.
-  await page.waitForTimeout(1500);
+  // Wait for the publish POST to actually complete (and succeed) before we
+  // read the board, instead of guessing with a fixed delay.
+  const resp = await publishResp;
+  expect(resp.status(), "leaderboard publish should return 200").toBe(200);
 
   await page.goto("/leaderboard");
   await expect(page.getByRole("heading", { name: /Top times/i })).toBeVisible();
