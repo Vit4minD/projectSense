@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   }));
   return [
     { url: `${SITE_URL}/login`, lastModified, changeFrequency: "monthly", priority: 1.0 },
+    { url: `${SITE_URL}/stats`, lastModified, changeFrequency: "daily", priority: 0.5 },
     ...trickEntries,
   ];
 }
