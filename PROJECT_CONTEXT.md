@@ -5,23 +5,19 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-05-14.
+Last updated: 2026-08-18.
 
 ---
 
 ## 0. Pickup point for the next session
 
-**Where we are right now:**
-- Branch: `entirelyNew`. **Phase 4 + security audit + SEO polish all complete** as of 2026-05-14. Latest commits:
-  - `1a0d8ae` Phase 4 (analytics, SEO, settings, Sentry scaffold)
-  - `a44e165` docs: Phase 4 + cutover checklist
-  - `c4f0e17` security: harden Gemini key + RTDB host-on-create + env-var docs
-  - `<latest>` SEO polish: og + twitter images, sitemap covers all 52 trick URLs
-- All gates green: `pnpm typecheck` clean, `pnpm test` **165/165 across 12 suites**, `pnpm build` **21 routes** (added `/opengraph-image.png` + `/twitter-image.png` since previous baseline of 19).
-- 52-trick catalog and production data migration done 2026-05-05.
-- Legacy `main` deployment is still live on Vercel — intentional, the rebuild has not been cut over yet.
+**Where we are right now (2026-08-18 — major hardening + review pass):**
+- Branch: `entirelyNew`. Since the 2026-05 Phase 4 work, a large hardening + review pass landed (see the new **§21** for the full list): all dependencies upgraded to latest, Firebase rules hardened, an in-memory Gemini rate-limit, error boundaries, three real bugs fixed via browser QA, a 5-dimension adversarial code review with its confirmed findings fixed, and a single-typeface (Nunito) redesign to cut visual noise.
+- Gates green: `pnpm typecheck` clean, `pnpm test` **173/173 across 14 suites**, `pnpm lint` 0 errors, `pnpm build` **23 routes**, **`pnpm audit --prod` CLEAN (0 vulnerabilities)**. Firebase security rules verified against the emulator (`pnpm test:rules`). Core register→drill→results→leaderboard e2e passes against a production build + emulator.
+- 52-trick catalog and production data migration done 2026-05-05 (unchanged).
+- Legacy `main` deployment is still live on Vercel — intentional, the rebuild has **not** been cut over yet. Branches are now just `main` + `entirelyNew` (the `worktree-analytics` and `postGradUpdates-integration` branches were deleted).
 
-**The rebuild is feature-complete and production-ready code-side.** Remaining work is purely operational (your hands) — see §20 "Final pre-cutover checklist" for the condensed punch list, or §18 for the full sequenced cutover steps.
+**The rebuild is feature-complete and hardened.** Remaining work is (a) the operational cutover (your hands — §18/§20: rotate the Gemini key, set Vercel env vars, deploy rules, flip the Production Branch) and (b) manual 2-window/real-Gemini browser QA of multiplayer, AI test, and the mini-games (couldn't be automated here). Verify against a Vercel preview after pushing.
 
 **🚨 Critical — do not deploy `database.rules.json` to Firebase yet:**
 The new rules tighten `rooms/{code}` writes to host-only at the top level (and player-only at `players/{ownUid}`). Legacy `main`'s multiplayer code does NOT store a `host` field — any non-creator client triggering `startRoom`, `setQuestions`, etc. would now `PERMISSION_DENIED`. Wait until cutover day to run `firebase deploy --only database`; sequence it alongside the Vercel branch flip. See §14 step 10 + §18.
@@ -94,8 +90,8 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 | DB | Firestore |
 | Realtime | Firebase RTDB (reserved for Phase 3 multiplayer) |
 | AI test gen | `@google/generative-ai` SDK + Gemini `gemini-2.0-flash`, **server-side** (user override 2026-05-11 — stack note originally said Anthropic; user opted for Gemini to reuse existing API key) |
-| Math eval | mathjs |
-| Math render | KaTeX + react-katex (declared, not yet imported) |
+| Math eval | **fraction.js** (client answer-checking + Twenty-Four). mathjs was removed in the 2026-08 pass — see §21 |
+| Math render | plain text (KaTeX/react-katex were unused and removed in 2026-08) |
 | Animations | Pure CSS `@keyframes` ported from prototype + motion/react for route-level later |
 | Forms | react-hook-form + Zod |
 | Icons | lucide-react |
@@ -969,3 +965,46 @@ The rebuild's code is done. Everything below is yours to execute.
 ### If something breaks post-cutover
 
 Flip the Vercel Production Branch back to `main`. Migration is additive (legacy fields preserved), so legacy keeps working. Only loss on rollback: multiplayer on legacy is dark because the new RTDB rules require a `host` field legacy doesn't write. Practice + leaderboard + AI test on `main` keep working regardless.
+
+---
+
+## 21. Hardening + review pass (2026-08)
+
+A large hardening/review pass on `entirelyNew`, on top of the 2026-05 Phase-4 work. All gates stayed green throughout (typecheck / 173 tests / lint 0 errors / build 23 routes / `pnpm audit --prod` clean).
+
+### Dependencies
+- **All deps upgraded to latest** (Next 16.3.1, React/react-dom 19.2.8, firebase 12, firebase-admin 14, zod 4, @hookform/resolvers 5, vitest 4, jsdom 30, tailwindcss 4.3, etc.). `pnpm audit` is now clean (a critical transitive `websocket-driver` and high `fast-uri`/`uuid` advisories were cleared, the last two via `overrides` in `pnpm-workspace.yaml`).
+- **TypeScript pinned to 5.9, ESLint to 9** (not the absolute latest): TS 7 / ESLint 10 break `typescript-eslint` / `eslint-plugin-react` pulled in by `eslint-config-next`. Revisit when the lint ecosystem catches up.
+- **mathjs removed**; client answer-checking + Twenty-Four now use the ~8KB **fraction.js** (big client-bundle win on the drill/multiplayer/games routes). **Unused deps removed**: `motion`, `katex`, `react-katex`, `@types/katex`.
+- `pnpm-workspace.yaml` now carries `allowBuilds` (approve build scripts so install succeeds on a clean checkout) + `overrides` (uuid, fast-uri).
+- **Package manager note:** pnpm isn't on PATH on the dev machine — invoke as **`corepack pnpm`**. `next dev` 403s static chunks in the sandbox used for QA, so browser verification is done against a production build (`next build` + `next start`), not `next dev`.
+
+### Typography
+- Consolidated the three-font system (Space Grotesk + Instrument Serif + JetBrains Mono) to a **single family, Nunito**, to cut visual noise. `--serif`/`--mono` are aliases of `--sans` in `globals.css`; italic accents remain as a light playful touch.
+
+### Bugs fixed (found via real-browser QA against the emulator)
+1. **Drill saves silently failed** — `saveDrillResult`'s Firestore transaction read the previous best *after* writing the drill (Firestore forbids read-after-write). No history/bests/leaderboard ever persisted. Fixed (read-before-write).
+2. **Leaderboard publish 400'd** — zod 4 rejected the fractional-ms `bestMs`; drill time is now rounded to whole ms.
+3. **Multiplayer hung when a non-host won** — the finisher called `endRace` (a host-only write). The host now drives race completion (`RoomRace.tsx`).
+4. **Drill: Enter after an auto-committed correct answer blanked the next question** (broke 5/5). Enter on an empty input is now ignored.
+5. **FloatingNumbers hydration mismatch** (Math.random during render) — moved to a mount effect.
+
+### Security / rules / privacy
+- Leaderboard reads require auth (kids' names/schools no longer world-readable); drill docs + RTDB player nodes have shape/range `.validate`.
+- **Multiplayer room confidentiality**: the public lobby now reads a minimal `roomIndex` node (no player names); `rooms/$code` reads are gated to participants, so rooms can no longer be enumerated. Private rooms remain code-invite joinable. `solved` writes are monotonic and lobby/racing-gated; room fields are schema-validated.
+- **Google sign-in** seeds `displayName` from the email local-part, not the real Google account name; the leaderboard writer clamps/sanitizes `displayName`/`school` server-side.
+- In-memory per-user **rate limit** on `/api/generate-test` (10/min) + `/api/grade-test` (60/min) → 429.
+- `TweaksPanel` design-tool postMessage bridge is dev-only; `client.ts` fails fast with a named error on a missing `NEXT_PUBLIC_FIREBASE_*` var.
+
+### Resilience / a11y / correctness
+- **Error boundaries** added (`app/{error,global-error,not-found}.tsx` + `(app)/loading.tsx`) — no more blank screen on a crash. (Sentry stays disabled per product decision.)
+- **RTDB subscriptions** now surface errors (no infinite spinner); a **"Leave race"** control + host-disconnect recovery were added to multiplayer.
+- **Accessibility**: form inputs have associated `<label htmlFor>`; errors use `role="alert"`.
+- Global single-key nav ignores Cmd/Ctrl/Alt (browser shortcuts work); dead `/settings` nav removed; profile shows `/52`; redundant Firestore read on the trick page removed.
+- New `rules-tests/` suite validates the Firestore + RTDB rules against the emulator (`pnpm test:rules`).
+
+### Still open / deferred
+- **Operational cutover** (unchanged, your hands): rotate the Gemini key, set Vercel env vars, `firebase deploy --only firestore:rules,database` sequenced with the Production-Branch flip. See §18/§20.
+- **Manual QA** not automatable here: multiplayer in two windows, AI test with a real Gemini key, the mini-games.
+- **Deferred (optional):** multiplayer finish-timestamp winner attribution + double-count guard; broader multiplayer/AI-test e2e coverage.
+- **SITE_URL** is still hardcoded to `project-sense.vercel.app` (`app/layout.tsx`, `sitemap.ts`, `robots.ts`) — change if the production domain differs.
