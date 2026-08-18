@@ -15,6 +15,7 @@ import {
 } from "firebase/database";
 import type { Room, RoomPlayer, RoomVisibility } from "@/lib/types";
 import { getRtdb } from "./client";
+import { trackEvent } from "./analytics";
 
 export type CreateRoomInput = {
   code: string;
@@ -111,6 +112,10 @@ export async function createRoom(
       createdAt: serverTimestamp() as unknown as number,
     });
   }
+  void trackEvent("multiplayer_room_created", {
+    trick_id: input.trickId,
+    visibility: input.visibility,
+  });
 }
 
 export async function joinRoom(
@@ -139,6 +144,7 @@ export async function joinRoom(
       return Math.min(MAX_PLAYERS, current + 1);
     },
   );
+  void trackEvent("multiplayer_joined");
 }
 
 export async function leaveRoom(
@@ -212,6 +218,7 @@ export async function startRace(
   });
   // No longer a joinable lobby — drop it from the public index (idempotent).
   await remove(ref(database, roomIndexPath(code)));
+  void trackEvent("multiplayer_race_started");
 }
 
 export async function endRace(
