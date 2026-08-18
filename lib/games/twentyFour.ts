@@ -1,4 +1,4 @@
-import { add, divide, fraction, format, multiply, subtract } from "mathjs";
+import Fraction from "fraction.js";
 import { makeRng, randInt } from "@/lib/drill/utils";
 import { HANDS_24 } from "@/lib/games/hands24";
 import type {
@@ -11,36 +11,19 @@ export const INITIAL_SECONDS = 60;
 export const BONUS_SECONDS_ON_SOLVE = 5;
 export const POINTS_PER_SOLVE = 5;
 
-type FractionLike = ReturnType<typeof fraction>;
+// fraction.js (~8KB standalone) instead of the full mathjs default instance —
+// exact rational arithmetic on four small numbers doesn't need the parser.
+type FractionLike = Fraction;
 
-function isFractionLike(value: unknown): value is FractionLike {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "n" in value &&
-    "d" in value &&
-    "s" in value
-  );
-}
-
-// Display a Fraction as "n/d" or "n" when denominator is 1. Mirrors the
-// expected output of legacy `String(evalResult)` for integer outcomes while
-// preserving exact ratios for fractional ones.
+// Display a Fraction as "n/d", or "n" when the denominator is 1 — matches the
+// previous mathjs ratio formatting. `.toFraction()` already omits "/1".
 function formatValue(value: FractionLike): string {
-  const ratio = format(value, { fraction: "ratio" });
-  if (typeof ratio !== "string") return String(value);
-  const slash = ratio.indexOf("/");
-  if (slash < 0) return ratio;
-  const denom = ratio.slice(slash + 1);
-  if (denom === "1") return ratio.slice(0, slash);
-  return ratio;
+  return value.toFraction();
 }
 
 function parseValue(display: string): FractionLike | null {
   try {
-    const f = fraction(display) as FractionLike;
-    if (!isFractionLike(f)) return null;
-    return f;
+    return new Fraction(display);
   } catch {
     return null;
   }
@@ -113,13 +96,10 @@ function applyOp(
   b: FractionLike,
 ): FractionLike | null {
   try {
-    let result: unknown;
-    if (op === "+") result = add(a, b);
-    else if (op === "-") result = subtract(a, b);
-    else if (op === "*") result = multiply(a, b);
-    else result = divide(a, b);
-    if (!isFractionLike(result)) return null;
-    return result;
+    if (op === "+") return a.add(b);
+    if (op === "-") return a.sub(b);
+    if (op === "*") return a.mul(b);
+    return a.div(b); // fraction.js throws on divide-by-zero → caught below
   } catch {
     return null;
   }
