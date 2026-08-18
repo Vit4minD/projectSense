@@ -34,6 +34,10 @@ export async function saveDrillResult(
 
   let isNewBest = false;
   await runTransaction(db, async (tx) => {
+    // Firestore requires all reads before any writes in a transaction, so read
+    // the previous best first, then perform both writes.
+    const prev = await tx.get(bestRef);
+
     tx.set(newDrillRef, {
       trickId,
       startedAt: serverTimestamp(),
@@ -42,7 +46,6 @@ export async function saveDrillResult(
       perQuestion,
     });
 
-    const prev = await tx.get(bestRef);
     const allCorrect = correct === perQuestion.length;
     const prevData = prev.exists() ? (prev.data() as Best) : null;
     const next: Partial<Best> = {

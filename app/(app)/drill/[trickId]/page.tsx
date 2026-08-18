@@ -103,7 +103,9 @@ export default function DrillPage() {
     if (submittingRef.current) return;
     if (!trick) return;
     submittingRef.current = true;
-    const totalMs = timer.stop();
+    // Whole milliseconds only: the leaderboard API + Firestore records expect
+    // an integer, and sub-millisecond precision is meaningless here.
+    const totalMs = Math.round(timer.stop());
     if (!user) {
       router.push("/login");
       return;
