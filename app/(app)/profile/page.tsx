@@ -101,7 +101,7 @@ export default function ProfilePage() {
         <div className="stat">
           <div className="label">Total drills</div>
           <div className="value">{stats?.totalDrills ?? "—"}</div>
-          <div className="delta">{stats?.tricksPracticed ?? 0}/43 tricks</div>
+          <div className="delta">{stats?.tricksPracticed ?? 0}/{TRICKS.length} tricks</div>
         </div>
         <div className="stat">
           <div className="label">Accuracy</div>

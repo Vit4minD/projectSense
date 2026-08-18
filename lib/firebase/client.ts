@@ -18,11 +18,31 @@ let authInstance: Auth | undefined;
 let dbInstance: Firestore | undefined;
 let rtdbInstance: Database | undefined;
 
+const REQUIRED_ENV: Record<string, string | undefined> = {
+  NEXT_PUBLIC_FIREBASE_API_KEY: firebaseConfig.apiKey,
+  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: firebaseConfig.authDomain,
+  NEXT_PUBLIC_FIREBASE_PROJECT_ID: firebaseConfig.projectId,
+  NEXT_PUBLIC_FIREBASE_APP_ID: firebaseConfig.appId,
+  NEXT_PUBLIC_FIREBASE_DATABASE_URL: firebaseConfig.databaseURL,
+};
+
 function getOrInitApp(): FirebaseApp {
   if (typeof window === "undefined") {
     throw new Error("Firebase client SDK can only be used in the browser. Wrap calls in 'use client' boundaries.");
   }
   if (app) return app;
+  if (!getApps().length) {
+    // Fail fast with a clear message rather than initializing with undefined
+    // fields (which surfaces later as opaque SDK errors deep in auth/database).
+    const missing = Object.entries(REQUIRED_ENV)
+      .filter(([, v]) => !v)
+      .map(([k]) => k);
+    if (missing.length) {
+      throw new Error(
+        `Missing required Firebase env var(s): ${missing.join(", ")}. Set them in .env.local (local) or the Vercel dashboard (deployed).`,
+      );
+    }
+  }
   app = getApps().length ? getApp() : initializeApp(firebaseConfig);
   return app;
 }

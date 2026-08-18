@@ -93,7 +93,6 @@ export function useZetamac(): UseZetamac {
           // ignore
         }
       }
-      console.log("[zetamac] completed", { score: final, highScore });
     }
     if (state.status !== "ended") {
       endedReportedRef.current = false;

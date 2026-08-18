@@ -47,10 +47,6 @@ export function useTwentyFour(): UseTwentyFour {
   useEffect(() => {
     if (state.status === "ended" && !endedReportedRef.current) {
       endedReportedRef.current = true;
-      console.log("[twenty-four] completed", {
-        score: state.score,
-        solvedCount: state.solvedCount,
-      });
     }
     if (state.status !== "ended") {
       endedReportedRef.current = false;

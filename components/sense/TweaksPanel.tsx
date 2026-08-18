@@ -13,8 +13,11 @@ const THEMES = [
 export function TweaksPanel() {
   const { tweaks, setTweaks, visible, setVisible } = useTweaks();
 
-  // Listen for the postMessage protocol used by the design tool / external host.
+  // Design-tool postMessage bridge — development only. Never registered in
+  // production so an embedding frame can't toggle the panel or read the
+  // capability signal.
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const onMsg = (e: MessageEvent) => {
       const d = (e.data || {}) as { type?: string };
       if (d.type === "__activate_edit_mode") setVisible(true);

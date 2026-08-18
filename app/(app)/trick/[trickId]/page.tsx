@@ -11,7 +11,6 @@ import { CATEGORIES } from "@/lib/data/categories";
 import { getTip } from "@/lib/data/tips";
 import {
   getAllBests,
-  getBest,
   getDrillsForTrick,
   type SavedDrill,
 } from "@/lib/firebase/drills";
@@ -35,14 +34,15 @@ export default function TrickDetailPage() {
     if (!user || !trick) return;
     let cancelled = false;
     Promise.all([
-      getBest(user.uid, trick.id),
       getDrillsForTrick(user.uid, trick.id, 10),
       getLeaderboardForTrick(trick.id, 10).catch(() => [] as LeaderboardEntry[]),
       getAllBests(user.uid),
     ])
-      .then(([b, h, l, all]) => {
+      .then(([h, l, all]) => {
         if (cancelled) return;
-        setBest(b);
+        // Derive this trick's best from the full bests map we already fetch,
+        // instead of a redundant single-doc read.
+        setBest(all.get(trick.id) ?? null);
         setHistory(h);
         setLeaders(l);
         setAllBests(all);
