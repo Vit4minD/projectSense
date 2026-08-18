@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:rules": "firebase emulators:exec --only firestore,database \"vitest run --config vitest.rules.config.ts\"",
     "e2e": "playwright test",
     "emulators": "firebase emulators:start --only auth,firestore,database",
     "e2e:emulators": "firebase emulators:exec --only auth,firestore,database \"playwright test\""
@@ -41,6 +42,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.1",
     "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",

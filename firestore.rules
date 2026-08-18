@@ -7,7 +7,24 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
 
       match /drills/{drillId} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        // Owner-only. The validation below only constrains the shape/range of a
+        // drill doc — a determined user can still forge a plausible drill via
+        // the SDK (client-authored data is never fully trustworthy).
+        allow read: if request.auth != null && request.auth.uid == uid;
+        allow create, update: if request.auth != null && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['trickId', 'startedAt', 'totalMs', 'score', 'perQuestion'])
+          && request.resource.data.keys().hasAll(['trickId', 'startedAt', 'totalMs', 'score', 'perQuestion'])
+          && request.resource.data.trickId is string
+          && request.resource.data.trickId.matches('^[0-9]{1,2}$')
+          && request.resource.data.startedAt == request.time
+          && request.resource.data.totalMs is number
+          && request.resource.data.totalMs > 0
+          && request.resource.data.totalMs < 3600000
+          && request.resource.data.score is string
+          && request.resource.data.score.matches('^[0-5]/5$')
+          && request.resource.data.perQuestion is list
+          && request.resource.data.perQuestion.size() == 5;
+        allow delete: if request.auth != null && request.auth.uid == uid;
       }
 
       match /bests/{trickId} {
@@ -15,9 +32,11 @@ service cloud.firestore {
       }
     }
 
-    // Leaderboards are world-readable. Phase 2 will add server-only writes via Cloud Functions.
+    // Leaderboards. Writes are server-only (via Cloud Functions / API route).
     match /leaderboards/{trickId}/entries/{uid} {
-      allow read: if true;
+      // Entries carry kids' names and schools — require auth so they are not
+      // world-readable to anonymous scrapers.
+      allow read: if request.auth != null;
       allow write: if false;
     }
   }

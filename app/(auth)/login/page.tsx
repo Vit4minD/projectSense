@@ -15,7 +15,7 @@ const loginSchema = z.object({
 });
 
 const registerSchema = loginSchema.extend({
-  name: z.string().min(1, "Required"),
+  name: z.string().min(1, "Required").max(60, "Keep it under 60 characters"),
   school: z.string().min(1, "Required"),
 });
 
