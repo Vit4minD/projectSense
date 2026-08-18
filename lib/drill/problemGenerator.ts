@@ -613,7 +613,7 @@ const GENERATORS: Record<string, Generator> = {
 
   // 52 — (x³ − y³)/(x − y) = x² + xy + y² (PORT)
   "52": (r) => {
-    let x = randInt(r, 1, 15);
+    const x = randInt(r, 1, 15);
     let y = randInt(r, 1, 15);
     if (x === y) y = (y % 15) + 1;
     return { prompt: `(${x}³ − ${y}³) / (${x} − ${y})`, expected: x * x + x * y + y * y };

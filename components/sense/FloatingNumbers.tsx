@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 const POOL = ["3", "7", "12", "π", "42", "∞", "11", "√2", "28", "÷", "×", "+", "=", "∑", "%", "9", "64", "±", "∫", "Δ", "φ", "e", "17", "53", "81"];
 
@@ -16,12 +16,15 @@ type FloatItem = {
 
 /**
  * Ambient drifting equations for the login screen's left panel. Pure CSS via
- * `floatDrift` keyframes; cheap to render. Position/size/duration are seeded
- * once on mount so the layout doesn't reshuffle on every state change.
+ * `floatDrift` keyframes; cheap to render. Positions are randomised once on the
+ * client after mount — never during render — so the server and client markup
+ * match (no hydration mismatch) and the layout doesn't reshuffle on re-render.
  */
 export function FloatingNumbers() {
-  const items = useMemo<FloatItem[]>(
-    () =>
+  const [items, setItems] = useState<FloatItem[]>([]);
+
+  useEffect(() => {
+    setItems(
       POOL.map((text) => ({
         text,
         x: Math.random() * 100,
@@ -31,8 +34,8 @@ export function FloatingNumbers() {
         delay: -Math.random() * 20,
         opacity: 0.04 + Math.random() * 0.08,
       })),
-    [],
-  );
+    );
+  }, []);
 
   return (
     <div className="login-floating-nums" aria-hidden>

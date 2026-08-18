@@ -7,25 +7,21 @@ import { subscribeRoom } from "@/lib/firebase/rooms";
 export type UseRoomState = {
   room: Room | null;
   loading: boolean;
-  error: Error | null;
 };
 
 export function useRoom(code: string | null): UseRoomState {
   const [room, setRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState<boolean>(Boolean(code));
-  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     if (!code) {
       setRoom(null);
       setLoading(false);
-      setError(null);
       return;
     }
 
     setRoom(null);
     setLoading(true);
-    setError(null);
 
     let unsubscribe: (() => void) | null = null;
     try {
@@ -33,8 +29,9 @@ export function useRoom(code: string | null): UseRoomState {
         setRoom(next);
         setLoading(false);
       });
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error(String(err)));
+    } catch {
+      // Subscription failed to attach; stop the loading state so the room
+      // page can fall back to its "room not found" view.
       setLoading(false);
     }
 
@@ -43,5 +40,5 @@ export function useRoom(code: string | null): UseRoomState {
     };
   }, [code]);
 
-  return { room, loading, error };
+  return { room, loading };
 }

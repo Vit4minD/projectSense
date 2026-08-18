@@ -3,7 +3,7 @@ import { createInMemoryRateLimiter } from "@/lib/server/rateLimit";
 
 describe("createInMemoryRateLimiter", () => {
   it("allows up to `limit` calls in a window and blocks the next", async () => {
-    let clock = 1_000;
+    const clock = 1_000;
     const limiter = createInMemoryRateLimiter({
       limit: 3,
       windowMs: 60_000,
@@ -26,7 +26,7 @@ describe("createInMemoryRateLimiter", () => {
   });
 
   it("tracks each key independently", async () => {
-    let clock = 0;
+    const clock = 0;
     const limiter = createInMemoryRateLimiter({
       limit: 1,
       windowMs: 1_000,
