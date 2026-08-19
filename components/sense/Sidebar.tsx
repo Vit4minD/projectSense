@@ -16,7 +16,7 @@ import { signOut } from "@/lib/firebase/auth";
 
 const COLLAPSED_KEY = "sense:collapsed";
 
-const PRACTICE = [
+export const PRACTICE = [
   { key: "/", label: "Home", icon: Home, k: "H" },
   { key: "/leaderboard", label: "Leaderboard", icon: Trophy, k: "L" },
   { key: "/multiplayer", label: "Multiplayer", icon: Swords, k: "M" },
@@ -119,6 +119,47 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         <div style={{ fontSize: 10, color: "var(--muted)" }}>v2.0 · UIL ’26 season</div>
       </div>
     </aside>
+  );
+}
+
+export function MobileNav() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user } = useAuth();
+  const initial = user?.displayName?.trim().charAt(0).toUpperCase() || "S";
+
+  return (
+    <>
+      <button
+        type="button"
+        className="mobile-account"
+        onClick={() => router.push("/profile")}
+        aria-label="Open profile"
+        aria-current={pathname === "/profile" ? "page" : undefined}
+      >
+        {initial}
+      </button>
+      <nav className="mobile-nav" aria-label="Primary navigation">
+        {PRACTICE.map((item) => {
+          const Icon = item.icon;
+          const active =
+            pathname === item.key ||
+            (item.key !== "/" && pathname.startsWith(item.key));
+          return (
+            <button
+              key={item.key}
+              type="button"
+              className={active ? "active" : ""}
+              onClick={() => router.push(item.key)}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon size={19} />
+              <span>{item.label === "Mini-games" ? "Games" : item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    </>
   );
 }
 

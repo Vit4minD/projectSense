@@ -156,6 +156,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
   return (
     <div className="main">
       <div
+        className="room-race-top"
         style={{
           display: "flex",
           alignItems: "center",
@@ -206,6 +207,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
       </div>
 
       <div
+        className="room-race-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "1.6fr 1fr",
@@ -214,6 +216,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
         }}
       >
         <div
+          className="room-race-stage"
           style={{
             background: "var(--bg-soft)",
             borderRadius: 24,
@@ -302,7 +305,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="room-race-standings">
           <div
             className="caps"
             style={{

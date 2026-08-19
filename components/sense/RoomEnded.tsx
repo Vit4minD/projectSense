@@ -139,6 +139,7 @@ export function RoomEnded({ room, code }: RoomEndedProps) {
       </section>
 
       <div
+        className="room-final-board"
         style={{
           background: "var(--bg-soft)",
           borderRadius: 16,
@@ -166,6 +167,7 @@ export function RoomEnded({ room, code }: RoomEndedProps) {
           const isWinner = uid === room.winnerUid;
           return (
             <div
+              className="room-final-row"
               key={uid}
               style={{
                 display: "grid",

@@ -92,6 +92,8 @@ firebase.json, firestore.rules, database.rules.json
 
 ## Testing
 
+The UI is responsive across desktop and phone layouts, with a persistent mobile navigation bar and viewport-safe drill, game, leaderboard, multiplayer, profile, and public pages.
+
 - **Unit** (`corepack pnpm test`) — pure logic: problem generators (2600-problem round-trip), answer validator, games, migration, API-route handlers.
 - **Security rules** (`corepack pnpm test:rules`) — `@firebase/rules-unit-testing` against the emulator (auth gating, drill/room validation, private-room reads).
 - **E2E** (`corepack pnpm e2e:emulators`) — Playwright drives register → drill → results → leaderboard against the emulator. **Run E2E against a production build** (`next build` + `next start`), not `next dev`.

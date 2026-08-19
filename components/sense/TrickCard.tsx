@@ -21,7 +21,7 @@ export function TrickCard({ trick, onClick, variant = "default", bestMs, tagOver
 
   if (variant === "list-row") {
     return (
-      <div className="trick-card list-row" onClick={onClick}>
+      <button type="button" className="trick-card list-row" onClick={onClick}>
         <span className="num-id" style={{ minWidth: 40 }}>/ {trick.id}</span>
         <div className="title">{trick.name}</div>
         <div className="example">{trick.example}</div>
@@ -34,12 +34,16 @@ export function TrickCard({ trick, onClick, variant = "default", bestMs, tagOver
             <span style={{ color: "var(--muted-2)" }}>{"•".repeat(3 - trick.difficulty)}</span>
           </span>
         </div>
-      </div>
+      </button>
     );
   }
 
   return (
-    <div className={`trick-card ${variant === "featured" ? "featured" : ""}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`trick-card ${variant === "featured" ? "featured" : ""}`}
+      onClick={onClick}
+    >
       <div style={{ display: "flex", justifyContent: "space-between" }}>
         <span className="tag">{tagOverride ?? label}</span>
         <span className="num-id">/ {trick.id}</span>
@@ -55,6 +59,6 @@ export function TrickCard({ trick, onClick, variant = "default", bestMs, tagOver
           <span style={{ color: "var(--muted-2)" }}>{"•".repeat(3 - trick.difficulty)}</span>
         </span>
       </div>
-    </div>
+    </button>
   );
 }

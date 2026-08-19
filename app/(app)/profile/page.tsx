@@ -189,7 +189,7 @@ export default function ProfilePage() {
           Weakest <span className="count">· {stats?.weakest.length ?? 0}</span>
         </h2>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+      <div className="profile-weak-grid">
         {stats?.weakest.length === 0 && (
           <div
             style={{
@@ -228,6 +228,7 @@ export default function ProfilePage() {
         </h2>
       </div>
       <div
+        className="profile-achievement-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",

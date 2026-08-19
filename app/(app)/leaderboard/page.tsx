@@ -83,6 +83,7 @@ export default function LeaderboardPage() {
       </section>
 
       <div
+        className="leaderboard-layout"
         style={{
           display: "grid",
           gridTemplateColumns: "260px 1fr",
@@ -91,6 +92,7 @@ export default function LeaderboardPage() {
         }}
       >
         <aside
+          className="leaderboard-picker"
           style={{
             background: "var(--bg-soft)",
             borderRadius: 16,
@@ -140,7 +142,7 @@ export default function LeaderboardPage() {
           </div>
         </aside>
 
-        <div style={{ background: "var(--bg-soft)", borderRadius: 16 }}>
+        <div className="leaderboard-board">
           <div
             style={{
               padding: "14px 18px",
@@ -173,6 +175,7 @@ export default function LeaderboardPage() {
             const isYou = entry.uid === user?.uid;
             return (
               <div
+                className="leaderboard-row"
                 key={entry.uid}
                 style={{
                   display: "grid",

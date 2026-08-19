@@ -23,7 +23,7 @@ const GAMES = [
 
 export default function GamesIndex() {
   return (
-    <div className="games-index">
+    <div className="main games-index">
       <header className="games-head">
         <h1>Mini-games</h1>
         <p>Pick a game. Your highscore for Zetamac is saved locally.</p>

@@ -21,6 +21,7 @@ export default function HomePage() {
   const [q, setQ] = useState("");
   const [bests, setBests] = useState<Map<string, Best>>(new Map());
   const [recent, setRecent] = useState<SavedDrill[]>([]);
+  const [visibleCount, setVisibleCount] = useState(12);
 
   useEffect(() => {
     if (!user) return;
@@ -99,7 +100,7 @@ export default function HomePage() {
         }
       />
 
-      <section className="hero">
+      <section className="hero home-hero">
         <div>
           <h1 className="hero-title">
             Eighty problems.
@@ -125,7 +126,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="hero-visual">
+        <div className="hero-visual home-hero-visual">
           <span className="big-num">10</span>
         </div>
       </section>
@@ -159,7 +160,10 @@ export default function HomePage() {
           <input
             placeholder="Search tricks…"
             value={q}
-            onChange={(e) => setQ(e.target.value)}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setVisibleCount(12);
+            }}
           />
           <span className="kbd">/</span>
         </div>
@@ -168,7 +172,10 @@ export default function HomePage() {
             key={c.key}
             className={`chip ${cat === c.key ? "active" : ""}`}
             type="button"
-            onClick={() => setCat(c.key)}
+            onClick={() => {
+              setCat(c.key);
+              setVisibleCount(12);
+            }}
           >
             {c.label}
             {c.key !== "All" && (
@@ -183,7 +190,10 @@ export default function HomePage() {
           <button
             className={tweaks.density === "comfortable" ? "active" : ""}
             type="button"
-            onClick={() => setTweaks({ density: "comfortable" })}
+            onClick={() => {
+              setTweaks({ density: "comfortable" });
+              setVisibleCount(12);
+            }}
             aria-label="Comfortable"
           >
             <LayoutGrid size={12} />
@@ -191,14 +201,20 @@ export default function HomePage() {
           <button
             className={tweaks.density === "dense" ? "active" : ""}
             type="button"
-            onClick={() => setTweaks({ density: "dense" })}
+            onClick={() => {
+              setTweaks({ density: "dense" });
+              setVisibleCount(12);
+            }}
           >
             Dense
           </button>
           <button
             className={tweaks.density === "list" ? "active" : ""}
             type="button"
-            onClick={() => setTweaks({ density: "list" })}
+            onClick={() => {
+              setTweaks({ density: "list" });
+              setVisibleCount(12);
+            }}
             aria-label="List"
           >
             <List size={12} />
@@ -212,7 +228,7 @@ export default function HomePage() {
         </h2>
       </div>
 
-      <div className={gridClass}>
+      <div className={`${gridClass} pinned-grid`}>
         {tweaks.density !== "list" && (
           <TrickCard
             trick={featuredTrick}
@@ -222,24 +238,18 @@ export default function HomePage() {
             onClick={() => router.push(`/drill/${featuredTrick.id}`)}
           />
         )}
-        {filtered.slice(0, tweaks.density === "list" ? filtered.length : 5).map((t) => (
-          <TrickCard
-            key={t.id}
-            trick={t}
-            variant={tweaks.density === "list" ? "list-row" : "default"}
-            bestMs={bests.get(t.id)?.bestMs}
-            onClick={() => router.push(`/drill/${t.id}`)}
-          />
-        ))}
       </div>
 
-      <div className="section-head" style={{ marginTop: 40 }}>
+      <div className="section-head catalog-head" style={{ marginTop: 40 }}>
         <h2>
           All tricks <span className="count">· {filtered.length}</span>
         </h2>
       </div>
       <div className={gridClass}>
-        {filtered.slice(tweaks.density === "list" ? 0 : 5).map((t) => (
+        {filtered
+          .filter((t) => t.id !== featuredTrick.id)
+          .slice(0, visibleCount)
+          .map((t) => (
           <TrickCard
             key={t.id}
             trick={t}
@@ -249,39 +259,35 @@ export default function HomePage() {
           />
         ))}
       </div>
+      {visibleCount < filtered.filter((t) => t.id !== featuredTrick.id).length && (
+        <div className="catalog-more">
+          <button
+            className="btn"
+            type="button"
+            onClick={() => setVisibleCount((count) => count + 12)}
+          >
+            Show 12 more
+          </button>
+        </div>
+      )}
 
       <div className="section-head" style={{ marginTop: 40 }}>
         <h2>Recent activity</h2>
       </div>
-      <div style={{ background: "var(--bg-soft)", borderRadius: 16 }}>
+      <div className="activity-list">
         {recent.length === 0 ? (
           <div style={{ padding: 24, textAlign: "center", color: "var(--muted)", fontSize: 13 }}>
             No drills yet — pick a trick above to get started.
           </div>
         ) : (
-          recent.map((a, i) => {
+          recent.map((a) => {
             const trick = TRICKS.find((t) => t.id === a.trickId);
             return (
               <button
                 key={a.id}
                 type="button"
                 onClick={() => router.push(`/trick/${a.trickId}`)}
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "80px 1fr 90px 90px",
-                  gap: 16,
-                  padding: "14px 18px",
-                  borderBottom: i < recent.length - 1 ? "1px solid var(--bg-2)" : "none",
-                  alignItems: "center",
-                  fontSize: 14,
-                  width: "100%",
-                  background: "transparent",
-                  border: "none",
-                  textAlign: "left",
-                  cursor: "pointer",
-                  fontFamily: "inherit",
-                  color: "inherit",
-                }}
+                className="activity-row"
               >
                 <span className="caps" style={{ color: "var(--muted)" }}>
                   trick / {a.trickId}

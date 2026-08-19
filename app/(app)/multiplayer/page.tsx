@@ -167,6 +167,7 @@ export default function MultiplayerPage() {
       </section>
 
       <div
+        className="mp-action-grid"
         style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
@@ -242,6 +243,7 @@ export default function MultiplayerPage() {
 
       {showCreate && (
         <div
+          className="mp-create-panel"
           style={{
             background: "var(--bg-soft)",
             borderRadius: 16,
@@ -390,7 +392,7 @@ export default function MultiplayerPage() {
         </h2>
       </div>
 
-      <div style={{ background: "var(--bg-soft)", borderRadius: 16 }}>
+      <div className="mp-room-list">
         {roomsLoading && (
           <div style={{ padding: 32, textAlign: "center", color: "var(--muted)" }}>
             Loading rooms…
@@ -417,6 +419,7 @@ export default function MultiplayerPage() {
             const isJoining = publicJoiningCode === r.code;
             return (
               <div
+                className="mp-room-row"
                 key={r.code}
                 style={{
                   display: "grid",
@@ -498,6 +501,7 @@ function ActionCard({
 }: ActionCardProps) {
   return (
     <div
+      className="mp-action-card"
       style={{
         background: highlight ? "var(--ink)" : "var(--bg-soft)",
         color: highlight ? "var(--bg-raised)" : "var(--ink)",

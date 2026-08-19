@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Sidebar, useCollapsedState } from "@/components/sense/Sidebar";
+import { MobileNav, Sidebar, useCollapsedState } from "@/components/sense/Sidebar";
 import { TweaksPanel } from "@/components/sense/TweaksPanel";
 import { useAuth } from "@/hooks/useAuth";
 import { useKeyboardNav } from "@/hooks/useKeyboardNav";
@@ -29,6 +29,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className={`app ${collapsed ? "collapsed" : ""}`}>
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       {children}
+      <MobileNav />
       <TweaksPanel />
     </div>
   );

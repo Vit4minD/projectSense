@@ -151,6 +151,7 @@ export function RoomLobby({ room, code }: RoomLobbyProps) {
       </section>
 
       <div
+        className="room-lobby-grid"
         style={{
           display: "grid",
           gridTemplateColumns: isHost ? "1fr 1fr" : "1fr",
@@ -159,6 +160,7 @@ export function RoomLobby({ room, code }: RoomLobbyProps) {
         }}
       >
         <div
+          className="room-players-panel"
           style={{
             background: "var(--bg-soft)",
             borderRadius: 16,
@@ -258,6 +260,7 @@ export function RoomLobby({ room, code }: RoomLobbyProps) {
 
         {isHost && (
           <div
+            className="room-controls-panel"
             style={{
               background: "var(--bg-soft)",
               borderRadius: 16,

@@ -9,7 +9,7 @@ export default function AITestPage() {
     useAITest();
 
   return (
-    <div className="test-shell">
+    <div className="main test-shell">
       {phase === "idle" && (
         <div className="test-idle">
           <div className="test-idle-card">

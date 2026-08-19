@@ -145,7 +145,7 @@ export default async function TrickPage({ params }: { params: Params }) {
               Related tricks <span className="count">· {related.length}</span>
             </h2>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16 }}>
+          <div className="public-related-grid">
             {related.map((t) => (
               <Link
                 key={t.id}

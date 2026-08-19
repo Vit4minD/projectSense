@@ -145,7 +145,7 @@ export default function ResultsPage() {
         <div className="section-head" style={{ marginTop: 40 }}>
           <h2>Suggested next</h2>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+        <div className="results-suggestions">
           {suggestedNext.map((t) => (
             <TrickCard
               key={t.id}
