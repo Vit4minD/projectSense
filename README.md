@@ -8,6 +8,9 @@
 
 Built for the pen-and-paper mathlete.
 
+### 🏆 Congressional App Challenge Winner
+
+![Congressional App Challenge](https://img.shields.io/badge/🏆_Congressional_App_Challenge-Winner-1f6feb)
 ![Next.js](https://img.shields.io/badge/Next.js-14-000000?logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
