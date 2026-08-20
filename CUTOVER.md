@@ -36,8 +36,8 @@ The old key was inlined into previously-shipped client bundles, so rotation is m
 3. `.env.local`: set `GEMINI_API_KEY=<fresh key>`; remove `NEXT_PUBLIC_GEMINI_API_KEY`.
 
 ## 3. Preview smoke-test (before flipping — needs a real browser + Gemini key)
-Push `entirelyNew`, open the Vercel preview, and manually verify the surfaces that can't be
-automated here:
+Push `entirelyNew`, open the Vercel preview at both desktop and phone widths, and manually
+verify the surfaces that can't be automated here:
 - Sign in (email + Google) → run a 5/5 drill → confirm the leaderboard publishes.
 - `/multiplayer` in **2 windows** → create + join → race to 5 → ended state; test
   host-closes-tab recovery and private-room confidentiality with a third account.

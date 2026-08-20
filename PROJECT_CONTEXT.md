@@ -5,16 +5,17 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-08-18.
+Last updated: 2026-08-19.
 
 ---
 
 ## 0. Pickup point for the next session
 
-**Where we are right now (2026-08-18 — major hardening + review pass):**
+**Where we are right now (2026-08-19 — responsive UI pass complete):**
+- Comprehensive desktop/mobile UI refinement landed in `07787c6` (`feat(ui): refine responsive app experience`). It covered every public and authenticated route, plus drill results and multiplayer lobby/race states. See the new 2026-08-19 entry in §4.
 - Branch: `entirelyNew`. Since the 2026-05 Phase 4 work, a large hardening + review pass landed (see the new **§21** for the full list): all dependencies upgraded to latest, Firebase rules hardened, an in-memory Gemini rate-limit, error boundaries, three real bugs fixed via browser QA, a 5-dimension adversarial code review with its confirmed findings fixed, a single-typeface (Nunito) redesign to cut visual noise, and public server-rendered trick pages for SEO. Full details in §21.
-- Gates green: `corepack pnpm typecheck` clean, `corepack pnpm test` **173/173 across 14 suites**, `corepack pnpm lint` 0 errors, **`corepack pnpm audit --prod` CLEAN (0 vulnerabilities)**. Firebase security rules verified against the emulator (`corepack pnpm test:rules`, 23 assertions). Core register→drill→results→leaderboard e2e passes against a production build + emulator.
-- **Production build confirmed deploy-ready** (`corepack pnpm build`): 68 pages, incl. all **52 `/trick/{id}` prerendered as static HTML (SSG)** for SEO; `sitemap.xml` + `robots.txt` emitted; no errors. Branch `entirelyNew` is **pushed to `origin`** (working tree clean).
+- Gates green at `07787c6`: `corepack pnpm typecheck` clean, `corepack pnpm test` **184/184 across 19 files**, `corepack pnpm lint` 0 errors (12 pre-existing warnings), and `git diff --check` clean. Firebase security rules were previously verified against the emulator (`corepack pnpm test:rules`, 23 assertions). The emulator-backed desktop route smoke rendered all 12 public/authenticated routes with no uncaught page errors.
+- **Production build previously confirmed deploy-ready** (`corepack pnpm build`): 68 pages, incl. all **52 `/trick/{id}` prerendered as static HTML (SSG)** for SEO; `sitemap.xml` + `robots.txt` emitted; no errors. `07787c6` is **pushed to `origin/entirelyNew`** (0 ahead / 0 behind the remote; working tree clean apart from these doc edits).
 - **Deployment** is Vercel-on-push to the Production Branch. It is NOT yet cut over — production still serves `main`. To go live: set the Vercel env vars (§18/§20), then flip the Production Branch to `entirelyNew`. The build itself needs no further code work.
 - 52-trick catalog and production data migration done 2026-05-05 (unchanged).
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has **not** been cut over yet. Branches are now just `main` + `entirelyNew` (the `worktree-analytics` and `postGradUpdates-integration` branches were deleted).
@@ -28,7 +29,7 @@ Last updated: 2026-08-18.
 `lib/server/geminiKey.ts` already refuses the `NEXT_PUBLIC_GEMINI_API_KEY` fallback in production. Before go-live: revoke the old key, add a server-only `GEMINI_API_KEY` to Vercel + `.env.local`, and delete any `NEXT_PUBLIC_GEMINI_API_KEY`. The old key sits in earlier git history and previously-shipped bundles, so rotation is required regardless.
 
 **Verified vs. NOT (2026-08 pass):**
-- ✅ **Verified** in a real browser (production build + Firebase emulator): register → drill (5/5) → results → home, and leaderboard publish (both Playwright specs pass). Login/home/drill visually reviewed after the single-font change. Firestore + RTDB rules verified via `pnpm test:rules` (23 emulator assertions). 173 unit tests + build green; `pnpm audit --prod` clean.
+- ✅ **Verified** in a real browser with Firebase emulators: all 12 public/authenticated routes at desktop width; all principal app routes at 390×844; register → drill (5/5) → results; multiplayer create → lobby → race; and horizontal-overflow checks. Typecheck and 184 unit tests are green.
 - ⚠️ **NOT yet exercised** — needs a real browser / two windows / a real Gemini key, best on a Vercel preview: multiplayer lobby→race→ended in **2 windows** (incl. host-closes-tab recovery + private-room confidentiality with a third account); `/test` generate+grade against **real Gemini**; Twenty-Four / Zetamac keyboard+timer+sound/haptics; tweaks-panel themes; sitemap/robots/JSON-LD served in prod; GA4 events end-to-end.
 
 **Next session — do this in order:**
@@ -98,6 +99,26 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-08-19 — comprehensive responsive UI refinement
+
+**Branch/commit**: `entirelyNew`, commit `07787c6` (`feat(ui): refine responsive app experience`). Committed and pushed to `origin/entirelyNew`.
+
+**Scope**:
+- Added a fixed five-item mobile navigation and profile shortcut while preserving the desktop sidebar.
+- Refined responsive layouts for home, leaderboard, multiplayer index/lobby/race/results, AI test, profile, games index, Twenty-Four, Zetamac, solo drill/results, login, public trick pages, and public stats.
+- Converted `TrickCard` interactions to semantic buttons and added current-page navigation states.
+- Reworked the home catalog around one personalized featured trick, 12-at-a-time pagination, reset-on-filter behavior, and responsive recent-activity rows.
+- Added route-specific grid/list/form/control breakpoints and fixed a 1px mobile login overflow by disabling horizontal entrance animations at phone widths.
+
+**Verification**:
+- `tsc --noEmit` clean; Vitest **184/184** across 19 files.
+- ESLint 0 errors with 12 pre-existing warnings; `git diff --check` clean.
+- Emulator-backed desktop route smoke rendered all 12 public/authenticated routes without uncaught page errors.
+- A temporary 390×844 Playwright audit exercised all principal routes, solo drill/results, and multiplayer create/lobby/race states while checking horizontal overflow. The temporary audit file was removed before commit.
+- Firebase Analytics rejects the intentionally fake emulator API key in console output; this did not affect authentication, data emulators, or route rendering.
+
+**Still manual**: two-window multiplayer winner/ended timing, AI generation with a real Gemini key, and physical-device sound/haptics remain Vercel-preview QA items.
 
 ### 2026-05-14 — Phase 4 (analytics, SEO, settings, Sentry scaffold)
 
