@@ -31,5 +31,14 @@ export function getAdminApp(): App {
   return _app;
 }
 
+// Mirror the client's database selection so server routes read/write the same
+// named Firestore database. The id is not a secret, so reusing the public var
+// keeps client and server in lockstep.
+const adminFirestoreDatabaseId =
+  process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID?.trim() || undefined;
+
 export const getAdminAuth = (): Auth => getAuth(getAdminApp());
-export const getAdminDb = (): Firestore => getFirestore(getAdminApp());
+export const getAdminDb = (): Firestore =>
+  adminFirestoreDatabaseId
+    ? getFirestore(getAdminApp(), adminFirestoreDatabaseId)
+    : getFirestore(getAdminApp());

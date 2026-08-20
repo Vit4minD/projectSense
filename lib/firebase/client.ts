@@ -13,6 +13,10 @@ const firebaseConfig = {
   databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
 };
 
+// Named Firestore database for the rebuild's isolated data. Set to "rebuild"
+// in deployed environments; unset locally (emulator uses the default database).
+const firestoreDatabaseId = process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID?.trim() || undefined;
+
 let app: FirebaseApp | undefined;
 let authInstance: Auth | undefined;
 let dbInstance: Firestore | undefined;
@@ -60,7 +64,9 @@ export function getFirebaseAuth(): Auth {
 
 export function getDb(): Firestore {
   if (dbInstance) return dbInstance;
-  dbInstance = getFirestore(getOrInitApp());
+  dbInstance = firestoreDatabaseId
+    ? getFirestore(getOrInitApp(), firestoreDatabaseId)
+    : getFirestore(getOrInitApp());
   if (useEmulator) {
     connectFirestoreEmulator(dbInstance, "127.0.0.1", 8080);
   }
