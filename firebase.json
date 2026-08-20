@@ -1,11 +1,17 @@
 {
-  "firestore": {
-    "rules": "firestore.rules",
-    "indexes": "firestore.indexes.json"
-  },
-  "database": {
-    "rules": "database.rules.json"
-  },
+  "firestore": [
+    {
+      "database": "rebuild",
+      "rules": "firestore.rules",
+      "indexes": "firestore.indexes.json"
+    }
+  ],
+  "database": [
+    {
+      "instance": "REPLACE_WITH_REBUILD_RTDB_INSTANCE",
+      "rules": "database.rules.json"
+    }
+  ],
   "emulators": {
     "auth": { "port": 9099 },
     "firestore": { "port": 8080 },
