@@ -88,13 +88,17 @@ function makeFirestore(store: Store): MigrationFirestore {
   };
 }
 
-function makeDeps(store: Store): {
+function makeDeps(sourceStore: Store, destStore: Store = sourceStore): {
   deps: MigrateAllDeps;
   logs: { log: string[]; warn: string[]; error: string[] };
 } {
   const logs = { log: [] as string[], warn: [] as string[], error: [] as string[] };
   const deps: MigrateAllDeps = {
-    adminDb: makeFirestore(store),
+    // Default destStore === sourceStore reproduces the original in-place
+    // behavior, so the existing specs below exercise the same store for reads
+    // and writes. The decoupling spec passes a distinct dest store.
+    sourceDb: makeFirestore(sourceStore),
+    destDb: makeFirestore(destStore),
     log: {
       log: (m) => logs.log.push(m),
       warn: (m) => logs.warn.push(m),
@@ -295,6 +299,38 @@ describe("migrateAll", () => {
     expect(user.questionLimited).toBe(true);
     expect(user.rightLeft).toBe(false);
     expect(user.autoEnter).toBe(true);
+  });
+
+  it("reads from source and writes only to the dest database", async () => {
+    // The core isolation guarantee: legacy (source) data is never mutated;
+    // every migrated doc lands in the separate rebuild (dest) database.
+    const source: Store = new Map();
+    source.set("users/uid-1", { email: "henry.tran07@gmail.com", questionLimited: true });
+    source.set("users/uid-1/bests/1", { time: "00:08.45" });
+    source.set("leaderboards/1/entries/uid-1", {
+      uid: "uid-1",
+      email: "henry.tran07@gmail.com",
+      time: "00:08.45",
+    });
+    const sourceBefore = JSON.stringify(Array.from(source.entries()).sort());
+
+    const dest: Store = new Map();
+    const { deps } = makeDeps(source, dest);
+    const result = await migrateAll(deps, { dryRun: false });
+
+    expect(result.errors).toBe(0);
+
+    // Source (legacy prod) is byte-for-byte untouched.
+    expect(JSON.stringify(Array.from(source.entries()).sort())).toBe(sourceBefore);
+
+    // Dest received the migrated docs.
+    const destUser = dest.get("users/uid-1") as Record<string, unknown>;
+    expect(destUser.displayName).toBe("henry.tran07");
+    const destBest = dest.get("users/uid-1/bests/1") as Record<string, unknown>;
+    expect(destBest.bestMs).toBe(8450);
+    const destEntry = dest.get("leaderboards/1/entries/uid-1") as Record<string, unknown>;
+    expect(destEntry.bestMs).toBe(8450);
+    expect(destEntry.displayName).toBe("henry.tran07");
   });
 
   it("running migrateAll twice yields the same final state (idempotent)", async () => {

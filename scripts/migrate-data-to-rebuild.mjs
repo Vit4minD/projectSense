@@ -1,7 +1,11 @@
 #!/usr/bin/env node
 /**
- * One-shot migration runner: reshapes the live legacy Firestore data on
- * project `csmidterm-5f652` into the rebuild's schema.
+ * One-shot migration runner: copies the live legacy Firestore data on project
+ * `csmidterm-5f652` from the (default) database into the isolated `rebuild`
+ * database, reshaping it into the rebuild's schema. The source (default)
+ * database is only read — never written — so legacy `main` stays untouched.
+ * Override the destination with MIGRATION_DEST_DATABASE_ID (defaults to
+ * "rebuild").
  *
  * Run with a TS-aware Node loader so `lib/server/migration.ts` is importable:
  *
@@ -64,7 +68,12 @@ if (!getApps().length) {
   }
 }
 
-const db = getFirestore();
+// Two handles off the same admin app: read from the legacy (default) database,
+// write into the isolated rebuild database. Override the dest id if needed.
+const DEST_DATABASE_ID = process.env.MIGRATION_DEST_DATABASE_ID || "rebuild";
+const app = getApps()[0];
+const sourceDb = getFirestore(app);
+const destDb = getFirestore(app, DEST_DATABASE_ID);
 
 // Dynamic import so the TS loader (tsx / --experimental-strip-types) only
 // has to handle this single specifier; if the loader isn't active, fail
@@ -86,8 +95,7 @@ try {
 
 // The Admin SDK's Firestore matches the runner's MigrationFirestore surface
 // structurally (collection().get() returns { docs }, doc().ref, etc.), so we
-// pass `db` through without adapter shims.
-const adminDb = db;
+// pass the handles through without adapter shims.
 
 const log = {
   log: (msg) => console.log(msg),
@@ -107,7 +115,7 @@ const start = Date.now();
 let result;
 try {
   result = await migrateAll(
-    { adminDb, log, now },
+    { sourceDb, destDb, log, now },
     { dryRun: DRY_RUN, verbose: VERBOSE },
   );
 } catch (e) {

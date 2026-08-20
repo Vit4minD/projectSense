@@ -283,10 +283,28 @@ export type MigrationLogger = {
 };
 
 export type MigrateAllDeps = {
-  adminDb: MigrationFirestore;
+  /** Legacy source database — iterated and read only; never written. */
+  sourceDb: MigrationFirestore;
+  /** Destination (rebuild) database — every migrated doc is written here. */
+  destDb: MigrationFirestore;
   log: MigrationLogger;
   now: () => Date | unknown;
 };
+
+/**
+ * Best-effort read of a dest doc's data. Returns undefined when the doc is
+ * absent (or the read fails) so callers can treat it as "not yet migrated".
+ */
+async function readDoc(
+  ref: MigrationDocRef,
+): Promise<Record<string, unknown> | undefined> {
+  try {
+    const snap = await ref.get();
+    return snap.exists ? snap.data() : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 export type MigrateAllOptions = {
   /** When true, count what would change but don't write. Default: true. */
@@ -338,7 +356,7 @@ export async function migrateAll(
   // ---- Pass 1: users/{uid} and their bests/{trickId}
   let userDocs: MigrationDocSnap[] = [];
   try {
-    const usersSnap = await deps.adminDb.collection("users").get();
+    const usersSnap = await deps.sourceDb.collection("users").get();
     userDocs = usersSnap.docs;
   } catch (e) {
     deps.log.error(`${tag} failed to list users: ${(e as Error).message}`);
@@ -350,7 +368,14 @@ export async function migrateAll(
     const uid = userDoc.id;
     result.profilesTouched++;
     const legacyProfile = (userDoc.data() ?? {}) as LegacyUserProfile;
-    const migratedProfile = migrateUserProfile(legacyProfile, uid, deps.now());
+
+    // Read the dest doc so re-runs preserve dest-only fields (createdAt, any
+    // rebuild-side displayName/school edits) and stay idempotent. Legacy source
+    // fields win over dest for anything legacy actually stores.
+    const destUserRef = deps.destDb.collection("users").doc(uid);
+    const destUserData = await readDoc(destUserRef);
+    const base = { ...(destUserData ?? {}), ...legacyProfile } as LegacyUserProfile;
+    const migratedProfile = migrateUserProfile(base, uid, deps.now());
     profileCache.set(uid, migratedProfile);
 
     if (verbose) {
@@ -361,16 +386,16 @@ export async function migrateAll(
 
     if (!dryRun) {
       try {
-        // Use merge so we never clobber legacy fields and the operation stays
-        // idempotent even mid-batch.
-        await userDoc.ref.set(migratedProfile, { merge: true });
+        // Use merge so we never clobber existing dest fields and the operation
+        // stays idempotent even mid-batch.
+        await destUserRef.set(migratedProfile, { merge: true });
       } catch (e) {
         deps.log.error(`${tag} write users/${uid}: ${(e as Error).message}`);
         result.errors++;
       }
     }
 
-    // ---- bests subcollection for this user
+    // ---- bests subcollection for this user (read from source)
     let bestDocs: MigrationDocSnap[] = [];
     try {
       const bestsSnap = await userDoc.ref.collection("bests").get();
@@ -386,13 +411,23 @@ export async function migrateAll(
     for (const bestDoc of bestDocs) {
       result.bestsTouched++;
       const legacyBest = (bestDoc.data() ?? {}) as LegacyBest;
+      const destBestRef = deps.destDb
+        .collection("users")
+        .doc(uid)
+        .collection("bests")
+        .doc(bestDoc.id);
 
-      // Idempotency: if the doc already has bestMs as a number, it's already
+      // Idempotency: if the dest doc already has a numeric bestMs, it's already
       // migrated. Skip without counting an error.
-      if (typeof legacyBest.bestMs === "number" && Number.isFinite(legacyBest.bestMs)) {
+      const destBest = await readDoc(destBestRef);
+      if (
+        destBest &&
+        typeof destBest.bestMs === "number" &&
+        Number.isFinite(destBest.bestMs)
+      ) {
         if (verbose) {
           deps.log.log(
-            `${tag} users/${uid}/bests/${bestDoc.id} already migrated (bestMs=${legacyBest.bestMs})`,
+            `${tag} users/${uid}/bests/${bestDoc.id} already migrated (bestMs=${destBest.bestMs})`,
           );
         }
         continue;
@@ -415,7 +450,7 @@ export async function migrateAll(
 
       if (!dryRun) {
         try {
-          await bestDoc.ref.set(migrated, { merge: true });
+          await destBestRef.set(migrated, { merge: true });
         } catch (e) {
           deps.log.error(
             `${tag} write users/${uid}/bests/${bestDoc.id}: ${(e as Error).message}`,
@@ -432,7 +467,7 @@ export async function migrateAll(
   // the underlying Firestore impl doesn't support listDocuments.
   let trickRefs: MigrationDocRef[] = [];
   try {
-    const boardCol = deps.adminDb.collection("leaderboards");
+    const boardCol = deps.sourceDb.collection("leaderboards");
     if (typeof boardCol.listDocuments === "function") {
       trickRefs = await boardCol.listDocuments();
     } else {
@@ -467,13 +502,21 @@ export async function migrateAll(
           ? legacyEntry.uid
           : entryDoc.id;
 
-      // Idempotency: if the entry already has a numeric bestMs and a
+      const destEntryRef = deps.destDb
+        .collection("leaderboards")
+        .doc(trickId)
+        .collection("entries")
+        .doc(entryDoc.id);
+
+      // Idempotency: if the dest entry already has a numeric bestMs and a
       // displayName field, treat as migrated. We still count it in
       // entriesWritten (per the spec: the count is "entries processed").
+      const destEntry = await readDoc(destEntryRef);
       const alreadyMigrated =
-        typeof legacyEntry.bestMs === "number" &&
-        Number.isFinite(legacyEntry.bestMs) &&
-        typeof legacyEntry.displayName === "string";
+        !!destEntry &&
+        typeof destEntry.bestMs === "number" &&
+        Number.isFinite(destEntry.bestMs) &&
+        typeof destEntry.displayName === "string";
       if (alreadyMigrated) {
         if (verbose) {
           deps.log.log(
@@ -515,7 +558,7 @@ export async function migrateAll(
 
       if (!dryRun) {
         try {
-          await entryDoc.ref.set(migrated, { merge: true });
+          await destEntryRef.set(migrated, { merge: true });
         } catch (e) {
           deps.log.error(
             `${tag} write leaderboards/${trickId}/entries/${entryDoc.id}: ${(e as Error).message}`,
