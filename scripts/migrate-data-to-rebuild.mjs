@@ -5,7 +5,7 @@
  * database, reshaping it into the rebuild's schema. The source (default)
  * database is only read — never written — so legacy `main` stays untouched.
  * Override the destination with MIGRATION_DEST_DATABASE_ID (defaults to
- * "rebuild").
+ * "prodsense").
  *
  * Run with a TS-aware Node loader so `lib/server/migration.ts` is importable:
  *
@@ -70,7 +70,7 @@ if (!getApps().length) {
 
 // Two handles off the same admin app: read from the legacy (default) database,
 // write into the isolated rebuild database. Override the dest id if needed.
-const DEST_DATABASE_ID = process.env.MIGRATION_DEST_DATABASE_ID || "rebuild";
+const DEST_DATABASE_ID = process.env.MIGRATION_DEST_DATABASE_ID || "prodsense";
 const app = getApps()[0];
 const sourceDb = getFirestore(app);
 const destDb = getFirestore(app, DEST_DATABASE_ID);

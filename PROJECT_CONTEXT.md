@@ -108,12 +108,12 @@ risked mingling with live legacy data, and the one shared resource — security 
 hardened without breaking legacy multiplayer.
 
 **Decision — Option A (separate database), permanent.** Give the rebuild its own Firestore
-database (`rebuild`) and its own RTDB instance inside the same project (`csmidterm-5f652`), each
+database (`prodsense`) and its own RTDB instance inside the same project (`csmidterm-5f652`), each
 with its own copy of the hardened rules. Isolation happens at the DB *handle* level, so every
 collection/RTDB path literal and the rules *content* (and all 23 rules tests) stay identical —
 only which DB the handles resolve to and where rules deploy change. Auth is shared, so uids are
 unchanged and migration stays clean. Requires the Blaze plan (free-tier quotas carry over, ~$0).
-This is the rebuild's permanent home: migrate legacy → `rebuild`, validate, then wipe legacy.
+This is the rebuild's permanent home: migrate legacy → `prodsense`, validate, then wipe legacy.
 (Rejected Option B, path-prefixed collections in one DB — more code, `collectionGroup` gotchas.)
 
 **Code/config changes**:
@@ -123,9 +123,9 @@ This is the rebuild's permanent home: migrate legacy → `rebuild`, validate, th
   rebuild instance.
 - `lib/server/migration.ts` + `scripts/migrate-data-to-rebuild.mjs` — `migrateAll` now takes
   `{ sourceDb, destDb }`; it reads the legacy `(default)` DB and writes the reshaped docs into the
-  `rebuild` DB. Idempotency checks read the *dest* doc, so re-runs preserve dest-only fields
+  `prodsense` DB. Idempotency checks read the *dest* doc, so re-runs preserve dest-only fields
   (`createdAt`, rebuild-side edits). Added a test asserting the source store is never mutated.
-- `firebase.json` — multi-database/instance form targeting only the `rebuild` Firestore DB and the
+- `firebase.json` — multi-database/instance form targeting only the `prodsense` Firestore DB and the
   rebuild RTDB instance, so `firebase deploy` can never touch legacy `(default)` rules.
 - `.env.local.example`, `CUTOVER.md` — documented `NEXT_PUBLIC_FIRESTORE_DATABASE_ID`, the
   rebuild RTDB URL, the new "provision isolated DB" step, and that rules-deploy is now safe any
@@ -134,7 +134,7 @@ This is the rebuild's permanent home: migrate legacy → `rebuild`, validate, th
 **Gates**: `tsc --noEmit` clean; Vitest **185/185** across 19 files (incl. the new decoupling
 test). Rules content unchanged, so `test:rules` is unaffected.
 
-**Still manual (user, Task 5)**: enable Blaze; create the `rebuild` Firestore DB + RTDB instance;
+**Still manual (user, Task 5)**: enable Blaze; create the `prodsense` Firestore DB + RTDB instance;
 put the instance name in `firebase.json`; deploy rebuild rules; set the two Vercel env vars.
 
 ### 2026-08-19 — comprehensive responsive UI refinement

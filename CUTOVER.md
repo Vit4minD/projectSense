@@ -21,7 +21,7 @@ Public Firebase config (all envs):
   events, including the new page-view/game/multiplayer/settings events, silently no-op).
 - `NEXT_PUBLIC_SITE_URL` — the real production origin (defaults to
   `https://project-sense.vercel.app`); drives canonical URLs, sitemap, robots, and og tags.
-- `NEXT_PUBLIC_FIRESTORE_DATABASE_ID` = `rebuild` — routes all Firestore reads/writes to the
+- `NEXT_PUBLIC_FIRESTORE_DATABASE_ID` = `prodsense` — routes all Firestore reads/writes to the
   rebuild's **isolated** database (see step 1b). Without it the app hits the legacy `(default)`
   database and would mingle with `main`'s live data.
 - `NEXT_PUBLIC_FIREBASE_DATABASE_URL` — for the rebuild, set this to the **rebuild RTDB
@@ -40,8 +40,8 @@ deploy only to the rebuild's resources.
 1. **Enable Blaze** (console → Usage and billing → modify plan → Blaze; attach a billing
    account). Named Firestore databases and extra RTDB instances are Blaze-only; free-tier
    quotas still apply, so this workload stays ~$0.
-2. **Create the `rebuild` Firestore database** (console → Firestore → add database → database ID
-   `rebuild`, **same region** as the default DB).
+2. **Create the `prodsense` Firestore database** (console → Firestore → add database → database ID
+   `prodsense`, **same region** as the default DB). *(Done: created as `prodsense`, region `nam5`.)*
 3. **Create the rebuild RTDB instance** (console → Realtime Database → add database → note its
    instance **name** and **URL**).
 4. Put the instance **name** into `firebase.json` (replace `REPLACE_WITH_REBUILD_RTDB_INSTANCE`)
@@ -76,7 +76,7 @@ verify the surfaces that can't be automated here:
 NODE_OPTIONS=--use-system-ca corepack pnpm exec tsx --env-file=.env.local \
   scripts/migrate-data-to-rebuild.mjs --apply
 ```
-Reads the legacy `(default)` database and **writes into the `rebuild` database** (override with
+Reads the legacy `(default)` database and **writes into the `prodsense` database** (override with
 `MIGRATION_DEST_DATABASE_ID`). The source is only read — legacy `main` stays untouched, so this
 is safe to re-run any time to pull in drift. Idempotent — already-migrated docs are skipped.
 Run `--dry-run` first to preview counts.
@@ -108,7 +108,7 @@ the rebuild on the next deploy (auto on push, or trigger manually).
 - **(Optional)** Wire Sentry fully: `npx @sentry/wizard@latest -i nextjs`.
 
 ## 8. Wipe the legacy data (only once fully satisfied — permanent)
-The rebuild is a permanent move to the `rebuild` database, so after the cutover is validated in
+The rebuild is a permanent move to the `prodsense` database, so after the cutover is validated in
 production you can reclaim the legacy `(default)` database and default RTDB instance. This is
 irreversible — take an export first if you want a safety copy. Delete the legacy `(default)`
 Firestore data and retire the default RTDB instance in the console.
