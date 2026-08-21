@@ -66,9 +66,9 @@ export function RoomRace({ room, code }: RoomRaceProps) {
     inputRef.current?.focus();
   }, [mySolved]);
 
-  async function submit() {
+  async function submit(candidate: string = answer) {
     if (!user || !current || submittingRef.current || done) return;
-    if (!equals(answer, current.expected)) {
+    if (!equals(candidate, current.expected)) {
       setShake(true);
       setTimeout(() => setShake(false), 320);
       setAnswer("");
@@ -138,8 +138,19 @@ export function RoomRace({ room, code }: RoomRaceProps) {
     }
   }
 
+  function onChange(value: string) {
+    setAnswer(value);
+    // Auto-submit on a correct answer (no Enter needed) — mirrors the solo drill.
+    if (value && current && equals(value, current.expected)) {
+      void submit(value);
+    }
+  }
+
   function onKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === "Enter") {
+      // A correct answer auto-submits and clears the field on change, so ignore
+      // a habitual Enter on an empty input (it would otherwise shake a blank).
+      if (answer.trim() === "") return;
       e.preventDefault();
       submit();
     }
@@ -281,7 +292,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
               }}
               placeholder="—"
               value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
+              onChange={(e) => onChange(e.target.value)}
               onKeyDown={onKeyDown}
               autoFocus
               inputMode="numeric"
@@ -297,6 +308,7 @@ export function RoomRace({ room, code }: RoomRaceProps) {
                 alignItems: "center",
               }}
             >
+              <span>auto-enter on correct</span>
               <span>
                 <span className="kbd">↵</span> submit
               </span>
