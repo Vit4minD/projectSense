@@ -8,7 +8,7 @@
   ],
   "database": [
     {
-      "instance": "REPLACE_WITH_REBUILD_RTDB_INSTANCE",
+      "instance": "prodsense-d63e1",
       "rules": "database.rules.json"
     }
   ],
