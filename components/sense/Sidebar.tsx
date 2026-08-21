@@ -112,7 +112,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
         >
           <div className="avatar">{initials}</div>
           <div className="user-meta">
-            <strong>{user?.displayName || "Sense Player"}</strong>
+            <strong>{user?.email?.split("@")[0] || user?.displayName || "Sense Player"}</strong>
             <span>sign out</span>
           </div>
         </button>
@@ -165,10 +165,12 @@ export function MobileNav() {
 
 /** Read the persisted collapse state. Used by AppShell to lift state. */
 export function useCollapsedState(): [boolean, (next: boolean) => void] {
-  const [collapsed, setCollapsedState] = useState(false);
+  // Default to collapsed (nav closed). Only expand when the user has explicitly
+  // opened it before (persisted as "false").
+  const [collapsed, setCollapsedState] = useState(true);
   useEffect(() => {
     try {
-      setCollapsedState(localStorage.getItem(COLLAPSED_KEY) === "true");
+      setCollapsedState(localStorage.getItem(COLLAPSED_KEY) !== "false");
     } catch {
       // ignore
     }
