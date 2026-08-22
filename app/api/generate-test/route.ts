@@ -5,6 +5,10 @@ import { resolveGeminiKey } from "@/lib/server/geminiKey";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Gemini generates a 40-question structured paper (with one retry on shape
+// mismatch), which routinely exceeds Vercel's default 10s function limit and
+// 504s. Raise to the 60s ceiling so generation can complete.
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
   try {
