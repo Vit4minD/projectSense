@@ -608,7 +608,7 @@ html[data-mono-numerals="true"] .trick-card .example { font-family: var(--mono);
 .drill-problem {
   font-family: var(--serif);
   font-style: italic;
-  font-size: 240px;
+  font-size: 200px;
   line-height: 0.95;
   letter-spacing: -0.035em;
   text-align: center;
@@ -621,8 +621,7 @@ html[data-mono-numerals="true"] .drill-problem .op { font-family: var(--mono); p
 .drill-bottom {
   padding: 28px 40px 44px;
   display: flex; flex-direction: column; gap: 16px; align-items: center;
-  background: var(--bg-raised);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: transparent;
 }
 .drill-input {
   font-family: var(--serif); font-style: italic;
