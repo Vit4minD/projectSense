@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { LayoutGrid, List, Play, Search, Zap } from "lucide-react";
 import { TopBar } from "@/components/sense/TopBar";
@@ -101,6 +101,31 @@ export default function HomePage() {
       : tweaks.density === "list"
         ? "trick-grid list"
         : "trick-grid";
+
+  // Catalog = all filtered tricks except the featured one shown above.
+  const catalog = useMemo(
+    () => filtered.filter((t) => t.id !== featuredTrick.id),
+    [filtered, featuredTrick.id],
+  );
+  const hasMore = visibleCount < catalog.length;
+
+  // Infinite scroll: reveal 12 more whenever the sentinel nears the viewport.
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!hasMore) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((c) => Math.min(c + 12, catalog.length));
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasMore, catalog.length]);
 
   return (
     <div className="main">
@@ -261,10 +286,7 @@ export default function HomePage() {
         </h2>
       </div>
       <div className={gridClass}>
-        {filtered
-          .filter((t) => t.id !== featuredTrick.id)
-          .slice(0, visibleCount)
-          .map((t) => (
+        {catalog.slice(0, visibleCount).map((t) => (
           <TrickCard
             key={t.id}
             trick={t}
@@ -274,16 +296,8 @@ export default function HomePage() {
           />
         ))}
       </div>
-      {visibleCount < filtered.filter((t) => t.id !== featuredTrick.id).length && (
-        <div className="catalog-more">
-          <button
-            className="btn"
-            type="button"
-            onClick={() => setVisibleCount((count) => count + 12)}
-          >
-            Show 12 more
-          </button>
-        </div>
+      {hasMore && (
+        <div ref={sentinelRef} className="catalog-sentinel" aria-hidden style={{ height: 1 }} />
       )}
 
       <div className="section-head" style={{ marginTop: 40 }}>
