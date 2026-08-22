@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
 import { Modal } from "./Modal";
 import { useFeedback } from "@/hooks/useFeedback";
 
@@ -31,20 +30,14 @@ export function AnnouncementModal() {
   return (
     <Modal open={open} onClose={dismiss} label="What's new">
       <div className="modal-head">
-        <h3>
-          <Sparkles size={16} style={{ verticalAlign: "-2px", marginRight: 6 }} />
-          Welcome to the new Sense
-        </h3>
+        <h3>Welcome back 👋</h3>
         <button className="modal-close" onClick={dismiss} aria-label="Close">
           ×
         </button>
       </div>
       <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.5 }}>
-        Project Sense got a full rebuild — faster timed drills, real-time multiplayer races,
-        AI-generated full-length tests, mini-games, and a cleaner look throughout.
-      </p>
-      <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.5, marginTop: 8 }}>
-        It&apos;s been a while, so tell me what you think — bugs, ideas, anything.
+        I rebuilt Sense from the ground up — faster drills, live multiplayer, AI tests, and
+        mini-games. It&apos;s been a while, so I&apos;d love to hear what you think.
       </p>
       <div className="feedback-actions">
         <button className="btn ghost" type="button" onClick={dismiss}>
