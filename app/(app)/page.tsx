@@ -103,15 +103,8 @@ export default function HomePage() {
       <section className="hero home-hero">
         <div>
           <h1 className="hero-title">
-            Eighty problems.
-            <br />
-            Ten minutes.
-            <br />
-            <em>No scratch.</em>
+            Use your <em>head.</em>
           </h1>
-          <p className="hero-sub">
-            Grind the canonical UIL tricks, race your friends, and sit full-length AI-generated papers. Built for the pen-only mathlete.
-          </p>
           <div className="hero-cta">
             <button
               className="btn accent"
@@ -126,8 +119,8 @@ export default function HomePage() {
           </div>
         </div>
 
-        <div className="hero-visual home-hero-visual">
-          <span className="big-num">10</span>
+        <div className="hero-visual">
+          <Zap size={160} style={{ color: "var(--ink)" }} />
         </div>
       </section>
 

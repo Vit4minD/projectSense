@@ -78,7 +78,7 @@ export default function LeaderboardPage() {
           </p>
         </div>
         <div className="hero-visual">
-          <Trophy size={48} style={{ color: "var(--accent, #cf6a37)" }} />
+          <Trophy size={160} style={{ color: "var(--ink)" }} />
         </div>
       </section>
 
