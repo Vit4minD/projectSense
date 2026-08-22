@@ -5,11 +5,15 @@ allowBuilds:
   protobufjs: true
   sharp: true
   unrs-resolver: true
-# Force a patched uuid across the tree. The vulnerable <11.1.1 comes in
-# transitively via firebase-admin > @google-cloud/storage > gaxios (a path this
-# app does not use). uuid is backward-compatible, so overriding is safe.
+# Force a patched uuid across the tree. The floor <11.1.1 comes in transitively
+# via firebase-admin > @google-cloud/{firestore,storage} > gaxios, which does a
+# CJS `require("uuid")`. Cap to the 11.x line: it is the last dual-package
+# release (its exports map keeps a `require` -> dist/cjs entry). uuid@12+ is
+# ESM-only, and Vercel's function runtime has no require(esm) support, so an
+# unbounded `>=11.1.1` (which resolves to uuid@14) throws ERR_REQUIRE_ESM at
+# module load and 500s every server route. `^11.1.1` stays patched AND CJS.
 overrides:
-  uuid: '>=11.1.1'
+  uuid: '^11.1.1'
   # fast-uri <3.1.5 (host-confusion) comes in transitively via ajv (under
   # @hookform/resolvers and the sentry webpack plugin). Patch-level override.
   fast-uri: '>=3.1.5'
