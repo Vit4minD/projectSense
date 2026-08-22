@@ -16,7 +16,11 @@ import type {
   AITestQuestion,
 } from "@/lib/types";
 
-export const GEMINI_MODEL = "gemini-2.0-flash";
+// `gemini-2.0-flash` was retired by Google (404, "no longer available") on/before
+// 2026-08. `gemini-3.6-flash` is Google's recommended replacement and works with the
+// same structured-output config. If it is ever retired too, `gemini-flash-latest`
+// auto-tracks the current Flash model.
+export const GEMINI_MODEL = "gemini-3.6-flash";
 
 export type AITestErrCode =
   | "no-token"
