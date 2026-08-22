@@ -20,7 +20,7 @@ Last updated: 2026-08-21.
 >
 > **Housekeeping done:** deleted `NEXT_PUBLIC_GEMINI_API_KEY` from Vercel (server-only `GEMINI_API_KEY` remains; model pinned to `gemini-3.6-flash`).
 >
-> **⚠️ Still to do (needs a real browser — could not be automated here):** log in on the live site and confirm `/test` generates a 40-question paper and a 5/5 drill publishes to the leaderboard. **⚠️ Local `.env.local.example` hygiene:** the working-tree copy currently holds REAL secrets (service-account private key + Gemini key) — it is a **tracked** file in a **public** repo. It was NOT committed (HEAD/origin still has placeholders), but restore it (`git checkout -- .env.local.example`) or move those values into gitignored `.env.local`; never commit it. Service-account key was previously exposed in chat and **rotated**.
+> **Prod E2E verified (via a minted ID token for a throwaway uid, then deleted — no fake data written):** `/api/generate-test` → **200, real 40-question paper / 10 categories** (~32s); `/api/leaderboard` (authed, dummy drill) → handled **409 stale-or-fabricated** (proves `getAdminAuth`+`getAdminDb` Firestore path works); `/api/grade-test` executes (handled 400 on a blank payload). **Follow-on fix (commit `6658ac2`):** `/api/generate-test` was 504ing at Vercel's default 10s limit once the ESM 500 stopped masking it — added `export const maxDuration = 60` (Gemini's 40-Q generation + retry takes ~30s). Optional: a real human click-through of `/test` + a genuine 5/5 leaderboard publish in the browser. **⚠️ Local `.env.local` note:** its `FIREBASE_SERVICE_ACCOUNT_KEY` is pasted as multi-line pretty-printed JSON, which `--env-file`/dotenv can't parse (breaks migration/verify scripts that `JSON.parse` it) — collapse it to a single-line value if you need those scripts locally. Vercel's copy is fine. **⚠️ Local `.env.local.example` hygiene:** the working-tree copy currently holds REAL secrets (service-account private key + Gemini key) — it is a **tracked** file in a **public** repo. It was NOT committed (HEAD/origin still has placeholders), but restore it (`git checkout -- .env.local.example`) or move those values into gitignored `.env.local`; never commit it. Service-account key was previously exposed in chat and **rotated**.
 
 - **Cut over (2026-08-21):** `main` now holds the rebuild and serves production. The `entirelyNew` branch was deleted; the prior legacy `main` is preserved as tag `legacy-main` (rollback point). Feature-complete, hardened, gated green **locally** — but see the 🚨 production blocker above (server routes 500).
 - **Data isolation done (permanent):** the rebuild uses its own Firestore database **`prodsense`** and its own RTDB instance **`prodsense-d63e1`** in the same project (`csmidterm-5f652`, Blaze). Selected via `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` (client + admin) and the instance URL in `NEXT_PUBLIC_FIREBASE_DATABASE_URL`. `firebase.json` targets ONLY those two resources, so legacy `(default)` / `csmidterm-5f652-default-rtdb` are never touched.
@@ -155,8 +155,16 @@ packages, the second masked by the first:
 live curl of all four routes returns `{"ok":false,"code":"no-token"}` 401 (was empty 500);
 prod logs clean of `ERR_REQUIRE_ESM`. Also deleted `NEXT_PUBLIC_GEMINI_API_KEY` from Vercel.
 
-**Still open (needs a real browser):** signed-in E2E — `/test` generation + a 5/5 drill
-publishing to the leaderboard — could not be automated here.
+**Follow-on (commit `6658ac2`):** with the 500 gone, `/api/generate-test` then 504'd at
+Vercel's default 10s function limit (Gemini's 40-question generation + retry takes ~30s).
+Added `export const maxDuration = 60` to that route.
+
+**Prod E2E verified** (minted a Firebase ID token for a throwaway uid via the Admin SDK,
+called the live routes, then deleted the temp user — no app data written):
+`/api/generate-test` → 200 with a real 40-question / 10-category paper (~32s);
+`/api/leaderboard` (authed + dummy drill) → handled 409 `stale-or-fabricated`, which proves
+the `getAdminAuth`+`getAdminDb` Firestore path executes end-to-end. Only a real human
+click-through of `/test` and a genuine 5/5 leaderboard publish remain unautomated.
 
 ### 2026-08-21 — prodsense cutover prep, UI polish, feedback feature
 
