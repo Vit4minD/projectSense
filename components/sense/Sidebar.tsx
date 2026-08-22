@@ -10,8 +10,10 @@ import {
   Trophy,
   User,
   FileText,
+  MessageSquare,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useFeedback } from "@/hooks/useFeedback";
 import { signOut } from "@/lib/firebase/auth";
 
 const COLLAPSED_KEY = "sense:collapsed";
@@ -37,6 +39,7 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
+  const { setOpen: setFeedbackOpen } = useFeedback();
 
   const initials =
     user?.displayName
@@ -116,6 +119,15 @@ export function Sidebar({ collapsed, setCollapsed }: SidebarProps) {
             <span>sign out</span>
           </div>
         </button>
+        <button
+          type="button"
+          className="nav-item"
+          onClick={() => setFeedbackOpen(true)}
+          style={{ width: "100%" }}
+        >
+          <MessageSquare size={15} />
+          <span>Send feedback</span>
+        </button>
         <div style={{ fontSize: 10, color: "var(--muted)" }}>v2.0 · UIL ’26 season</div>
       </div>
     </aside>
@@ -126,6 +138,7 @@ export function MobileNav() {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
+  const { setOpen: setFeedbackOpen } = useFeedback();
   const initial = user?.displayName?.trim().charAt(0).toUpperCase() || "S";
 
   return (
@@ -138,6 +151,15 @@ export function MobileNav() {
         aria-current={pathname === "/profile" ? "page" : undefined}
       >
         {initial}
+      </button>
+      <button
+        type="button"
+        className="mobile-account"
+        onClick={() => setFeedbackOpen(true)}
+        aria-label="Send feedback"
+        style={{ right: 62, background: "var(--bg-raised)", color: "var(--ink)" }}
+      >
+        <MessageSquare size={18} />
       </button>
       <nav className="mobile-nav" aria-label="Primary navigation">
         {PRACTICE.map((item) => {

@@ -32,6 +32,14 @@ beforeEach(async () => {
   await testEnv.clearDatabase();
 });
 
+describe("firestore: feedback", () => {
+  it("denies client reads and writes", async () => {
+    const alice = testEnv.authenticatedContext("alice").firestore();
+    await assertFails(getDoc(doc(alice, "feedback/x")));
+    await assertFails(setDoc(doc(alice, "feedback/x"), { message: "hi" }));
+  });
+});
+
 describe("firestore: leaderboard entries", () => {
   it("denies an unauthenticated read", async () => {
     const unauth = testEnv.unauthenticatedContext();

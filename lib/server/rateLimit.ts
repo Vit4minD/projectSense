@@ -74,3 +74,8 @@ export const gradeTestLimiter = createInMemoryRateLimiter({
   limit: 60,
   windowMs: 60_000, // 60 grades / minute / user (lighter)
 });
+
+export const feedbackLimiter = createInMemoryRateLimiter({
+  limit: 5,
+  windowMs: 60_000, // 5 feedback submissions / minute / user
+});

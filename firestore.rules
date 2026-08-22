@@ -39,5 +39,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
       allow write: if false;
     }
+
+    // Feedback is written server-side via the Admin SDK (/api/feedback) and is
+    // never client-readable (may contain personal info).
+    match /feedback/{docId} {
+      allow read, write: if false;
+    }
   }
 }

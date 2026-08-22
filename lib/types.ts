@@ -19,6 +19,20 @@ export type Category = {
   label: string;
 };
 
+export type FeedbackCategory = "bug" | "idea" | "other";
+
+export type Feedback = {
+  uid: string;
+  email: string;
+  displayName: string;
+  category: FeedbackCategory;
+  message: string;
+  path: string;
+  appVersion: string;
+  userAgent: string;
+  createdAt: Timestamp;
+};
+
 export type Trick = {
   id: string;
   cat: CategoryKey;

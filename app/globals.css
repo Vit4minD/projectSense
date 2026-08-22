@@ -2924,3 +2924,28 @@ html[data-mono-numerals="true"] .td-example {
     font-size: 38px;
   }
 }
+
+/* ---- Modal + feedback ---- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0, 0, 0, 0.45);
+  display: grid; place-items: center; padding: 20px;
+  animation: fadeIn 0.15s ease;
+}
+.modal-card {
+  background: var(--bg-soft); color: var(--ink);
+  border: 1px solid var(--bg-2); border-radius: 16px;
+  width: 100%; max-width: 440px; padding: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.modal-head h3 { margin: 0; font-size: 18px; }
+.modal-close { border: none; background: transparent; color: var(--muted); cursor: pointer; font-size: 20px; line-height: 1; padding: 4px; }
+.feedback-cats { display: flex; gap: 8px; margin-bottom: 12px; }
+.feedback-cats button { flex: 1; padding: 8px; border-radius: 10px; border: 1px solid var(--bg-2); background: transparent; color: var(--ink); cursor: pointer; font-family: inherit; }
+.feedback-cats button.active { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+.feedback-textarea { width: 100%; min-height: 120px; resize: vertical; border-radius: 12px; border: 1px solid var(--bg-2); background: var(--bg); color: var(--ink); padding: 10px 12px; font-family: inherit; font-size: 14px; }
+.feedback-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+.feedback-status { margin-top: 10px; font-size: 13px; }
+.feedback-status.error { color: var(--negative); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
