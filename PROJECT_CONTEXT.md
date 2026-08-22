@@ -12,7 +12,18 @@ Last updated: 2026-08-21.
 ## 0. Pickup point for the next session
 
 **Where we are right now (2026-08-21 — isolated onto `prodsense`; feedback + UI polish shipped):**
-- **Cut over (2026-08-21):** `main` now holds the rebuild and serves production. The `entirelyNew` branch was deleted; the prior legacy `main` is preserved as tag `legacy-main` (rollback point). Feature-complete, hardened, gated green.
+> 🚨 **OPEN PRODUCTION BLOCKER (2026-08-21): all server API routes 500 in prod — `ERR_REQUIRE_ESM`.**
+> The site is cut over (`main` = rebuild, live on `https://project-sense.vercel.app`) and public pages + everything local work, **but every server route** (`/api/leaderboard`, `/api/generate-test`, `/api/grade-test`, `/api/feedback`) **returns HTTP 500** in production. So the AI test, leaderboard publish, feedback, and `/stats` are down for real users. **This is the only thing to fix.**
+>
+> **Root cause:** `firebase-admin@14.2.0` → `jwks-rsa@4.1.0` (wants `jose ^6.1.3`) → **`jose@6` is ESM-only**, `require()`d at runtime. Vercel log (prod alias): `require() of ES Module .../jose@6.2.9/.../jose/dist/webapi/index.js from .../jwks-rsa@4.1.0/.../utils.js not supported ... ERR_REQUIRE_ESM`. Triggered when routes build Admin SDK deps (`getAdminAuth`/`getAdminDb` in `lib/firebase/admin.ts`).
+>
+> **Tried and FAILED (committed on `main`):** (1) engines `node >=22.12.0` — Vercel already **Node 24.x**, error persists; (2) build with **`next build --webpack`** (was Turbopack) + `serverExternalPackages: ["firebase-admin"]` + `allowedDevOrigins` in `next.config.ts` — webpack build succeeds locally but prod still ERR_REQUIRE_ESM (trace moved from Turbopack `externalImport` to Vercel `opt/rust/nodejs.js` runtime require).
+>
+> **Candidate fixes:** (a) `pnpm patch jwks-rsa` to make `require('jose')` a dynamic `import()`; (b) **downgrade `firebase-admin` to ^12/^13** (jwks-rsa there uses jose v4/v5 CJS) — verify `verifyIdToken`/Firestore API; (c) pnpm `overrides` forcing CJS `jose` (risky); (d) replace `verifyIdToken` with Firebase Auth REST/certs.
+>
+> **Tools:** Vercel CLI is logged in (`vit4mind`) + project linked. Logs: `NODE_OPTIONS=--use-system-ca npx vercel logs https://project-sense.vercel.app | head -20`. ⚠️ **Vercel Deployment Protection (SSO) is ON** — direct/preview URLs 401 with `{"protection":...}`; **test only the public prod alias**. **Verify:** `curl -s -X POST https://project-sense.vercel.app/api/leaderboard -w "\n%{http_code}\n"` → broken = empty **500**, fixed = `{"ok":false,"code":"no-token"}` **401**. Also: delete leftover `NEXT_PUBLIC_GEMINI_API_KEY` on Vercel; service-account key was exposed in chat and **rotated**.
+
+- **Cut over (2026-08-21):** `main` now holds the rebuild and serves production. The `entirelyNew` branch was deleted; the prior legacy `main` is preserved as tag `legacy-main` (rollback point). Feature-complete, hardened, gated green **locally** — but see the 🚨 production blocker above (server routes 500).
 - **Data isolation done (permanent):** the rebuild uses its own Firestore database **`prodsense`** and its own RTDB instance **`prodsense-d63e1`** in the same project (`csmidterm-5f652`, Blaze). Selected via `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` (client + admin) and the instance URL in `NEXT_PUBLIC_FIREBASE_DATABASE_URL`. `firebase.json` targets ONLY those two resources, so legacy `(default)` / `csmidterm-5f652-default-rtdb` are never touched.
 - **Migration applied:** legacy `(default)` → `prodsense` copied (1,689 profiles / 3,226 bests / 3,162 leaderboard entries; source read-only). 12 impossible sub-1s leaderboard entries removed (`scripts/cleanup-fast-leaderboard-entries.mjs`).
 - **Hardened rules deployed** to `prodsense` + `prodsense-d63e1` (legacy rules unchanged). Because deploys are scoped to the isolated resources, the old "deploy rules only at the flip" hazard no longer applies — legacy multiplayer keeps working throughout.
@@ -135,7 +146,7 @@ Most recent first.
 
 **Remaining to go live**: add `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` to Vercel **Production**; manual preview QA; flip the Production Branch; then wipe legacy `(default)`.
 
-**AI test fix**: Google retired `gemini-2.0-flash` (404 "no longer available"); `GEMINI_MODEL` in `lib/server/aiTest.ts` is now `gemini-3.6-flash` (verified end-to-end generating a 40-question paper). **Go-live (done)**: `main` was replaced with the rebuild via force-push; `entirelyNew` deleted; the prior `main` kept as tag `legacy-main`. Rollback = `git reset --hard legacy-main` on `main` + force-push. README overhauled with emulator-captured screenshots (`e2e/screenshots.spec.ts` → `docs/screenshots/`); `next.config.ts` gained `allowedDevOrigins` so local Playwright hydrates.
+**AI test fix**: Google retired `gemini-2.0-flash` (404 "no longer available"); `GEMINI_MODEL` in `lib/server/aiTest.ts` is now `gemini-3.6-flash` (verified end-to-end generating a 40-question paper). **Go-live (done)**: `main` was replaced with the rebuild via force-push; `entirelyNew` deleted; the prior `main` kept as tag `legacy-main`. Rollback = `git reset --hard legacy-main` on `main` + force-push. README overhauled with emulator-captured screenshots (`e2e/screenshots.spec.ts` → `docs/screenshots/`); `next.config.ts` gained `allowedDevOrigins` so local Playwright hydrates. **OPEN BLOCKER after go-live:** all prod server API routes 500 with `ERR_REQUIRE_ESM` (firebase-admin → jwks-rsa → ESM-only jose@6). Attempted fixes (engines `node>=22.12`, `next build --webpack`, `serverExternalPackages`) did NOT resolve it — see the 🚨 block in §0 for the full diagnosis and candidate fixes.
 
 ### 2026-08-20 — isolate the rebuild onto its own database + RTDB instance
 
