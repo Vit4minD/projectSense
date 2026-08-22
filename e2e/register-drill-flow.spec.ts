@@ -27,7 +27,7 @@ test("register → drill → results → home shows the drill", async ({ page })
   await page.locator("button.login-submit-btn").click();
 
   // Land on home
-  await expect(page.getByRole("heading", { name: /Eighty problems/ })).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Pinned for you/ })).toBeVisible({
     timeout: 15_000,
   });
 

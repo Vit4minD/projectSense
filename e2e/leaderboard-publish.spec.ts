@@ -25,7 +25,7 @@ test("complete a 5/5 drill → leaderboard entry appears", async ({ page }) => {
   // "Create account" also matches the mode-toggle tab above the form.
   await page.locator("button.login-submit-btn").click();
 
-  await expect(page.getByRole("heading", { name: /Eighty problems/ })).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Pinned for you/ })).toBeVisible({
     timeout: 15_000,
   });
 

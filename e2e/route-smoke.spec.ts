@@ -49,7 +49,7 @@ async function register(page: Page): Promise<void> {
   await page.getByPlaceholder(/min 6/).fill("hunter2");
   await page.getByPlaceholder("St. Mark's").fill("Test School");
   await page.locator("button.login-submit-btn").click();
-  await expect(page.getByRole("heading", { name: /Eighty problems/ })).toBeVisible({
+  await expect(page.getByRole("heading", { name: /Pinned for you/ })).toBeVisible({
     timeout: 15_000,
   });
 }

@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Allow the local loopback origins the dev server/e2e run under. Without this,
+  // Next 16 blocks cross-origin dev resources (HMR/chunks) from 127.0.0.1, which
+  // prevents client hydration during Playwright runs. Dev-only; no prod effect.
+  allowedDevOrigins: ["127.0.0.1", "localhost"],
 };
 
 export default nextConfig;
