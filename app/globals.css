@@ -634,12 +634,15 @@ html[data-mono-numerals="true"] .drill-problem .op { font-family: var(--mono); p
   color: var(--ink);
   padding: 10px 0 4px;
   border-radius: 0;
-  border-bottom: 5px solid var(--accent);
-  transition: border-color 200ms ease, box-shadow 250ms ease;
+  border-bottom: 3px solid var(--ink);
+  transition: border-color 200ms ease;
 }
 .drill-input:focus {
-  border-color: var(--accent-2);
-  box-shadow: 0 4px 20px color-mix(in oklab, var(--accent-2) 15%, transparent);
+  border-color: var(--ink);
+}
+/* Suppress the global :focus-visible box outline — the underline is the only affordance. */
+.drill-input:focus-visible {
+  outline: none;
 }
 html[data-mono-numerals="true"] .drill-input { font-family: var(--mono); font-style: normal; font-weight: 600; }
 .drill-input::placeholder { color: color-mix(in oklab, var(--muted) 40%, transparent); }

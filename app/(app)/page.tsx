@@ -13,6 +13,21 @@ import { getAllBests, getRecentDrills, type SavedDrill } from "@/lib/firebase/dr
 import type { Best } from "@/lib/types";
 import { formatTime } from "@/lib/drill/utils";
 
+// Rotating hero titles — mental math, Number Sense, winning, speed. The last
+// word (`em`) gets the italic accent. Picked at random on each visit.
+const HERO_TITLES: { lead: string; em: string }[] = [
+  { lead: "Use your", em: "head." },
+  { lead: "Mental math,", em: "mastered." },
+  { lead: "Faster than a", em: "calculator." },
+  { lead: "Number Sense,", em: "sharpened." },
+  { lead: "Think fast. Win", em: "faster." },
+  { lead: "Outpace the", em: "clock." },
+  { lead: "No pencil. No", em: "problem." },
+  { lead: "Train your brain to", em: "win." },
+  { lead: "Speed is a", em: "skill." },
+  { lead: "Answer at the speed of", em: "thought." },
+];
+
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
@@ -22,6 +37,13 @@ export default function HomePage() {
   const [bests, setBests] = useState<Map<string, Best>>(new Map());
   const [recent, setRecent] = useState<SavedDrill[]>([]);
   const [visibleCount, setVisibleCount] = useState(12);
+  // Start at index 0 for a stable SSR render, then randomize on the client to
+  // avoid a hydration mismatch.
+  const [titleIdx, setTitleIdx] = useState(0);
+  useEffect(() => {
+    setTitleIdx(Math.floor(Math.random() * HERO_TITLES.length));
+  }, []);
+  const heroTitle = HERO_TITLES[titleIdx];
 
   useEffect(() => {
     if (!user) return;
@@ -103,7 +125,7 @@ export default function HomePage() {
       <section className="hero home-hero">
         <div>
           <h1 className="hero-title">
-            Use your <em>head.</em>
+            {heroTitle.lead} <em>{heroTitle.em}</em>
           </h1>
           <div className="hero-cta">
             <button
