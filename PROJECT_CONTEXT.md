@@ -11,17 +11,16 @@ Last updated: 2026-08-21.
 
 ## 0. Pickup point for the next session
 
-**Where we are right now (2026-08-21 — isolated onto `prodsense`; feedback + UI polish shipped):**
-> 🚨 **OPEN PRODUCTION BLOCKER (2026-08-21): all server API routes 500 in prod — `ERR_REQUIRE_ESM`.**
-> The site is cut over (`main` = rebuild, live on `https://project-sense.vercel.app`) and public pages + everything local work, **but every server route** (`/api/leaderboard`, `/api/generate-test`, `/api/grade-test`, `/api/feedback`) **returns HTTP 500** in production. So the AI test, leaderboard publish, feedback, and `/stats` are down for real users. **This is the only thing to fix.**
+**Where we are right now (2026-08-21 — production API blocker RESOLVED; site fully live):**
+> ✅ **RESOLVED (2026-08-21): the `ERR_REQUIRE_ESM` production blocker is fixed — all server API routes work in prod.** Verified live: `POST /api/{leaderboard,generate-test,grade-test,feedback}` on `https://project-sense.vercel.app` now return `{"ok":false,"code":"no-token"}` **401** (was empty **500**); Vercel logs are clean of `ERR_REQUIRE_ESM`. Commits `2d6ee61` + `14fed51` on `main`.
 >
-> **Root cause:** `firebase-admin@14.2.0` → `jwks-rsa@4.1.0` (wants `jose ^6.1.3`) → **`jose@6` is ESM-only**, `require()`d at runtime. Vercel log (prod alias): `require() of ES Module .../jose@6.2.9/.../jose/dist/webapi/index.js from .../jwks-rsa@4.1.0/.../utils.js not supported ... ERR_REQUIRE_ESM`. Triggered when routes build Admin SDK deps (`getAdminAuth`/`getAdminDb` in `lib/firebase/admin.ts`).
+> **Root cause (there were TWO ESM-only `require()`s, the second masked by the first):** Vercel's serverless **function runtime has no `require(esm)` support** (local Node 24 does, which is why it worked locally but 500'd in prod). Any ESM-only package `require()`d in the server bundle throws `ERR_REQUIRE_ESM` at module load. (1) `firebase-admin@14.2.0` → `jwks-rsa@4.1.0` → **`jose@6` (ESM-only)**, required by `firebase-admin/lib/utils/jwt.js`. (2) After fixing #1, a second surfaced: the `pnpm-workspace.yaml` override `uuid: '>=11.1.1'` resolved to **`uuid@14` (ESM-only)**, `require()`d by `gaxios@6.7.1` on the Firestore/google-auth path (`getAdminDb`).
 >
-> **Tried and FAILED (committed on `main`):** (1) engines `node >=22.12.0` — Vercel already **Node 24.x**, error persists; (2) build with **`next build --webpack`** (was Turbopack) + `serverExternalPackages: ["firebase-admin"]` + `allowedDevOrigins` in `next.config.ts` — webpack build succeeds locally but prod still ERR_REQUIRE_ESM (trace moved from Turbopack `externalImport` to Vercel `opt/rust/nodejs.js` runtime require).
+> **The fix (both onto CJS):** (a) **downgraded `firebase-admin` → `^13`** (13.10.0) — pairs with `jwks-rsa@3` → `jose@4` (CJS); `verifyIdToken`/named-Firestore/transactions APIs unchanged. (b) **capped the uuid override to `^11.1.1`** — uuid@11.1.1 is the last dual-package release (keeps a `require` → `dist/cjs` export); uuid@12+ is ESM-only. Verified locally by loading `firebase-admin/{app,auth,firestore}` under `node --no-experimental-require-module` (mimics Vercel). Gates green: typecheck · 190 unit · 24 rules · lint 0 errors · build · `pnpm audit --prod` clean. Prior failed attempts (engines `node>=22.12`, `next build --webpack`, `serverExternalPackages`) were kept but are now belt-and-suspenders, not load-bearing.
 >
-> **Candidate fixes:** (a) `pnpm patch jwks-rsa` to make `require('jose')` a dynamic `import()`; (b) **downgrade `firebase-admin` to ^12/^13** (jwks-rsa there uses jose v4/v5 CJS) — verify `verifyIdToken`/Firestore API; (c) pnpm `overrides` forcing CJS `jose` (risky); (d) replace `verifyIdToken` with Firebase Auth REST/certs.
+> **Housekeeping done:** deleted `NEXT_PUBLIC_GEMINI_API_KEY` from Vercel (server-only `GEMINI_API_KEY` remains; model pinned to `gemini-3.6-flash`).
 >
-> **Tools:** Vercel CLI is logged in (`vit4mind`) + project linked. Logs: `NODE_OPTIONS=--use-system-ca npx vercel logs https://project-sense.vercel.app | head -20`. ⚠️ **Vercel Deployment Protection (SSO) is ON** — direct/preview URLs 401 with `{"protection":...}`; **test only the public prod alias**. **Verify:** `curl -s -X POST https://project-sense.vercel.app/api/leaderboard -w "\n%{http_code}\n"` → broken = empty **500**, fixed = `{"ok":false,"code":"no-token"}` **401**. Also: delete leftover `NEXT_PUBLIC_GEMINI_API_KEY` on Vercel; service-account key was exposed in chat and **rotated**.
+> **⚠️ Still to do (needs a real browser — could not be automated here):** log in on the live site and confirm `/test` generates a 40-question paper and a 5/5 drill publishes to the leaderboard. **⚠️ Local `.env.local.example` hygiene:** the working-tree copy currently holds REAL secrets (service-account private key + Gemini key) — it is a **tracked** file in a **public** repo. It was NOT committed (HEAD/origin still has placeholders), but restore it (`git checkout -- .env.local.example`) or move those values into gitignored `.env.local`; never commit it. Service-account key was previously exposed in chat and **rotated**.
 
 - **Cut over (2026-08-21):** `main` now holds the rebuild and serves production. The `entirelyNew` branch was deleted; the prior legacy `main` is preserved as tag `legacy-main` (rollback point). Feature-complete, hardened, gated green **locally** — but see the 🚨 production blocker above (server routes 500).
 - **Data isolation done (permanent):** the rebuild uses its own Firestore database **`prodsense`** and its own RTDB instance **`prodsense-d63e1`** in the same project (`csmidterm-5f652`, Blaze). Selected via `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` (client + admin) and the instance URL in `NEXT_PUBLIC_FIREBASE_DATABASE_URL`. `firebase.json` targets ONLY those two resources, so legacy `(default)` / `csmidterm-5f652-default-rtdb` are never touched.
@@ -129,6 +128,35 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-08-21 — FIX: production `ERR_REQUIRE_ESM` on all API routes
+
+**Branch/commits**: `main` — `2d6ee61` (firebase-admin → ^13) + `14fed51` (uuid override → ^11.1.1).
+
+The one open production blocker (every server API route 500'd in prod) is fixed. The
+underlying cause was **Vercel's function runtime lacking `require(esm)` support** — so any
+ESM-only package `require()`d in the server bundle threw `ERR_REQUIRE_ESM` at module load,
+even though local Node 24 (which supports `require(esm)`) ran fine. There were **two** such
+packages, the second masked by the first:
+
+1. `firebase-admin@14` → `jwks-rsa@4.1.0` → `jose@6` (ESM-only), `require()`d in
+   `firebase-admin/lib/utils/jwt.js` (loaded by `getAdminAuth`). **Fix:** downgrade
+   `firebase-admin` to `^13` (13.10.0) → `jwks-rsa@3` → `jose@4` (CJS). APIs used
+   (`verifyIdToken`, `getFirestore(app, dbId)`, transactions, `FieldValue`) unchanged 13↔14.
+2. After #1, `gaxios@6.7.1` (Firestore/google-auth path via `getAdminDb`) does
+   `require("uuid")`, but the `pnpm-workspace.yaml` override `uuid: '>=11.1.1'` had resolved
+   to `uuid@14` (ESM-only). **Fix:** cap to `uuid: '^11.1.1'` — the last dual-package release
+   (its exports keep a `require` → `dist/cjs` entry); uuid@12+ dropped CJS.
+
+**Verification:** locally reproduced Vercel's runtime with
+`node --no-experimental-require-module -e "require('firebase-admin/{app,auth,firestore}')"`
+(loads clean). Gates: `tsc` clean · Vitest **190/190** · `test:rules` **24** · lint 0 errors ·
+`next build` ok · `pnpm audit --prod` clean. Deployed to prod (auto-deploy on push to `main`);
+live curl of all four routes returns `{"ok":false,"code":"no-token"}` 401 (was empty 500);
+prod logs clean of `ERR_REQUIRE_ESM`. Also deleted `NEXT_PUBLIC_GEMINI_API_KEY` from Vercel.
+
+**Still open (needs a real browser):** signed-in E2E — `/test` generation + a 5/5 drill
+publishing to the leaderboard — could not be automated here.
 
 ### 2026-08-21 — prodsense cutover prep, UI polish, feedback feature
 
