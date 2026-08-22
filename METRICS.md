@@ -1,6 +1,6 @@
 # Project Sense — Engineering Metrics
 
-Verified on **2026-08-18** against branch `entirelyNew` (commit `09539a8`) by running the
+Verified on **2026-08-21** against `main` (the rebuild, now in production) by running the
 commands noted beside each figure. Numbers marked **(post-launch)** only accrue once the
 app is deployed and receiving real traffic.
 
@@ -10,8 +10,8 @@ Database, deployed on Vercel.
 
 ## Scale & quality (verifiable today)
 
-- **184 automated unit tests across 19 suites**, green. `corepack pnpm test`
-- **23 Firebase security-rule assertions** run against the Firebase Local Emulator Suite
+- **190 automated unit tests across 20 suites**, green. `corepack pnpm test`
+- **24 Firebase security-rule assertions** run against the Firebase Local Emulator Suite
   (Firestore + RTDB). `corepack pnpm test:rules`
 - **Playwright end-to-end coverage** of the core register → drill → results → leaderboard
   flow plus a per-route smoke test that loads all 12 user-facing routes against a production

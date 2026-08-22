@@ -12,7 +12,7 @@ Last updated: 2026-08-21.
 ## 0. Pickup point for the next session
 
 **Where we are right now (2026-08-21 — isolated onto `prodsense`; feedback + UI polish shipped):**
-- Branch `entirelyNew`, pushed to `origin` (tree clean). Feature-complete and hardened. NOT yet cut over — production still serves legacy `main`.
+- **Cut over (2026-08-21):** `main` now holds the rebuild and serves production. The `entirelyNew` branch was deleted; the prior legacy `main` is preserved as tag `legacy-main` (rollback point). Feature-complete, hardened, gated green.
 - **Data isolation done (permanent):** the rebuild uses its own Firestore database **`prodsense`** and its own RTDB instance **`prodsense-d63e1`** in the same project (`csmidterm-5f652`, Blaze). Selected via `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` (client + admin) and the instance URL in `NEXT_PUBLIC_FIREBASE_DATABASE_URL`. `firebase.json` targets ONLY those two resources, so legacy `(default)` / `csmidterm-5f652-default-rtdb` are never touched.
 - **Migration applied:** legacy `(default)` → `prodsense` copied (1,689 profiles / 3,226 bests / 3,162 leaderboard entries; source read-only). 12 impossible sub-1s leaderboard entries removed (`scripts/cleanup-fast-leaderboard-entries.mjs`).
 - **Hardened rules deployed** to `prodsense` + `prodsense-d63e1` (legacy rules unchanged). Because deploys are scoped to the isolated resources, the old "deploy rules only at the flip" hazard no longer applies — legacy multiplayer keeps working throughout.
@@ -134,6 +134,8 @@ Most recent first.
 **Gates**: `tsc --noEmit` clean; Vitest **190/190** (20 files); `test:rules` **24**; ESLint 0 errors (15 warnings).
 
 **Remaining to go live**: add `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` to Vercel **Production**; manual preview QA; flip the Production Branch; then wipe legacy `(default)`.
+
+**AI test fix**: Google retired `gemini-2.0-flash` (404 "no longer available"); `GEMINI_MODEL` in `lib/server/aiTest.ts` is now `gemini-3.6-flash` (verified end-to-end generating a 40-question paper). **Go-live (done)**: `main` was replaced with the rebuild via force-push; `entirelyNew` deleted; the prior `main` kept as tag `legacy-main`. Rollback = `git reset --hard legacy-main` on `main` + force-push. README overhauled with emulator-captured screenshots (`e2e/screenshots.spec.ts` → `docs/screenshots/`); `next.config.ts` gained `allowedDevOrigins` so local Playwright hydrates.
 
 ### 2026-08-20 — isolate the rebuild onto its own database + RTDB instance
 
