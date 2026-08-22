@@ -23,7 +23,6 @@ export default function TwentyFourPage() {
     startGame,
     selectIndex,
     pickOperator,
-    combine,
     skip,
     resetMoves,
     restart,
@@ -50,9 +49,6 @@ export default function TwentyFourPage() {
       } else if (k === "/") {
         pickOperator("/");
         e.preventDefault();
-      } else if (k === "Enter") {
-        combine();
-        e.preventDefault();
       } else if (k === "Backspace") {
         resetMoves();
         e.preventDefault();
@@ -63,7 +59,7 @@ export default function TwentyFourPage() {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [state.status, state.hand.length, selectIndex, pickOperator, combine, resetMoves, skip]);
+  }, [state.status, state.hand.length, selectIndex, pickOperator, resetMoves, skip]);
 
   const secs = Math.ceil(state.secondsLeft);
   const mm = Math.floor(secs / 60).toString().padStart(2, "0");
@@ -81,9 +77,6 @@ export default function TwentyFourPage() {
           {mm}:{ss}
         </div>
         <div style={{ flex: 1 }} />
-        <button type="button" className="t24-restart-btn" onClick={resetMoves} title="Reset selection (Backspace)">
-          <RotateCcw size={14} /> Reset
-        </button>
         <button type="button" className="t24-skip-btn" onClick={skip} title="Skip hand (Esc)">
           <SkipForward size={14} /> Skip
         </button>
@@ -115,8 +108,14 @@ export default function TwentyFourPage() {
             {OP_LABEL[op]}
           </button>
         ))}
-        <button type="button" className="t24-combine" onClick={combine} title="Combine (Enter)">
-          =
+        <button
+          type="button"
+          className="t24-combine"
+          onClick={resetMoves}
+          title="Reset (Backspace)"
+          aria-label="Reset"
+        >
+          <RotateCcw size={20} />
         </button>
       </div>
 
@@ -129,7 +128,7 @@ export default function TwentyFourPage() {
               solve adds 5 seconds.
             </p>
             <p className="t24-modal-keys">
-              Keyboard: 1–4 select · +, −, *, / operator · Enter combine · Backspace reset · Esc skip
+              Keyboard: 1–4 select · +, −, *, / operator (auto-combines) · Backspace reset · Esc skip
             </p>
             <button type="button" className="t24-modal-btn primary" onClick={startGame}>
               Start

@@ -102,23 +102,6 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <div className="login-stats-strip">
-          {[
-            { val: "2,400+", label: "competitors" },
-            { val: "140", label: "schools" },
-            { val: "1.2M", label: "problems solved" },
-          ].map((s, i) => (
-            <div
-              key={i}
-              className="login-stat-pill"
-              style={{ animationDelay: `${0.6 + i * 0.12}s` }}
-            >
-              <span className="login-stat-val">{s.val}</span>
-              <span className="login-stat-lbl">{s.label}</span>
-            </div>
-          ))}
-        </div>
-
         <div
           style={{
             fontSize: 11,

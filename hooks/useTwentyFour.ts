@@ -84,6 +84,17 @@ export function useTwentyFour(): UseTwentyFour {
     });
   }, []);
 
+  // Auto-combine the moment two numbers and an operator are selected — no "=".
+  useEffect(() => {
+    if (
+      state.status === "running" &&
+      state.selected.length === 2 &&
+      state.operator !== null
+    ) {
+      combine();
+    }
+  }, [state.status, state.selected, state.operator, combine]);
+
   const skip = useCallback(() => {
     setState((prev) => skipHand(prev, makeRng(randomSeed())));
   }, []);
