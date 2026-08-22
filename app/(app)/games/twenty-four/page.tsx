@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Home, RotateCcw, SkipForward } from "lucide-react";
 import { TwentyFourBoard } from "@/components/sense/TwentyFourBoard";
 import { useTwentyFour } from "@/hooks/useTwentyFour";
+import { appShortcutsBlocked } from "@/lib/keyboard";
 import type { TwentyFourOperator } from "@/lib/types";
 
 const OPS: TwentyFourOperator[] = ["+", "-", "*", "/"];
@@ -31,7 +32,7 @@ export default function TwentyFourPage() {
   useEffect(() => {
     if (state.status !== "running") return;
     const handler = (e: KeyboardEvent) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (appShortcutsBlocked(e)) return;
       const k = e.key;
       if (k >= "1" && k <= "4") {
         const idx = parseInt(k, 10) - 1;

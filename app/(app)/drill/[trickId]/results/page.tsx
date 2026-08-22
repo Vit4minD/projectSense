@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { TRICKS, getTrickById } from "@/lib/data/tricks";
 import { getDrillById, type SavedDrill } from "@/lib/firebase/drills";
 import { formatShort, formatTime } from "@/lib/drill/utils";
+import { appShortcutsBlocked } from "@/lib/keyboard";
 
 export default function ResultsPage() {
   const params = useParams<{ trickId: string }>();
@@ -44,8 +45,7 @@ export default function ResultsPage() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const t = e.target as HTMLElement | null;
-      if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return;
+      if (appShortcutsBlocked(e)) return;
       if (e.key.toLowerCase() === "r" && trick) {
         e.preventDefault();
         router.push(`/drill/${trick.id}`);

@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { appShortcutsBlocked } from "@/lib/keyboard";
 
 const ROUTES: Record<string, string> = {
   h: "/",
@@ -22,8 +23,7 @@ export function useKeyboardNav() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
-      const target = e.target as HTMLElement | null;
-      if (target && /INPUT|TEXTAREA|SELECT/.test(target.tagName)) return;
+      if (appShortcutsBlocked(e)) return;
       const dest = ROUTES[e.key.toLowerCase()];
       if (dest) {
         e.preventDefault();

@@ -15,6 +15,9 @@ export function Modal({ open, onClose, label, children }: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const prev = document.activeElement as HTMLElement | null;
+    // Signal that a modal is open so global keyboard shortcuts (nav, drill/game
+    // keys) suppress themselves and never steal keystrokes from the dialog.
+    document.body.dataset.modalOpen = "true";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -27,6 +30,7 @@ export function Modal({ open, onClose, label, children }: ModalProps) {
     return () => {
       window.removeEventListener("keydown", onKey);
       clearTimeout(t);
+      delete document.body.dataset.modalOpen;
       prev?.focus?.();
     };
   }, [open, onClose]);

@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { saveDrillResult } from "@/lib/firebase/drills";
 import { trackEvent } from "@/lib/firebase/analytics";
 import { celebrateCorrect } from "@/lib/effects";
+import { appShortcutsBlocked } from "@/lib/keyboard";
 import type { GeneratedProblem, PerQuestion } from "@/lib/types";
 
 const QUESTIONS_PER_DRILL = 5;
@@ -55,6 +56,7 @@ export default function DrillPage() {
   // Esc to quit.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (appShortcutsBlocked(e)) return;
       if (e.key === "Escape") {
         e.preventDefault();
         router.push("/");
