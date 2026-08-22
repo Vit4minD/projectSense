@@ -36,8 +36,8 @@ export function AnnouncementModal() {
         </button>
       </div>
       <p style={{ color: "var(--muted)", fontSize: 14, lineHeight: 1.5 }}>
-        I rebuilt Sense from the ground up — faster drills, live multiplayer, AI tests, and
-        mini-games. It&apos;s been a while, so I&apos;d love to hear what you think.
+        hey long time no see! I revamped the website and fixed up some bugs. Feel free to give
+        some feedback and suggestions!
       </p>
       <div className="feedback-actions">
         <button className="btn ghost" type="button" onClick={dismiss}>
