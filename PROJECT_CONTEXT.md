@@ -5,11 +5,28 @@ A self-contained snapshot of the project. Replaces and consolidates the earlier
 `FIREBASE_RULES_MIGRATION_CONTEXT.md` dumps. Includes the full session log so a
 future agent (or you, returning cold) can resume without re-deriving anything.
 
-Last updated: 2026-08-20.
+Last updated: 2026-08-21.
 
 ---
 
 ## 0. Pickup point for the next session
+
+**Where we are right now (2026-08-21 — isolated onto `prodsense`; feedback + UI polish shipped):**
+- Branch `entirelyNew`, pushed to `origin` (tree clean). Feature-complete and hardened. NOT yet cut over — production still serves legacy `main`.
+- **Data isolation done (permanent):** the rebuild uses its own Firestore database **`prodsense`** and its own RTDB instance **`prodsense-d63e1`** in the same project (`csmidterm-5f652`, Blaze). Selected via `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` (client + admin) and the instance URL in `NEXT_PUBLIC_FIREBASE_DATABASE_URL`. `firebase.json` targets ONLY those two resources, so legacy `(default)` / `csmidterm-5f652-default-rtdb` are never touched.
+- **Migration applied:** legacy `(default)` → `prodsense` copied (1,689 profiles / 3,226 bests / 3,162 leaderboard entries; source read-only). 12 impossible sub-1s leaderboard entries removed (`scripts/cleanup-fast-leaderboard-entries.mjs`).
+- **Hardened rules deployed** to `prodsense` + `prodsense-d63e1` (legacy rules unchanged). Because deploys are scoped to the isolated resources, the old "deploy rules only at the flip" hazard no longer applies — legacy multiplayer keeps working throughout.
+- **Gemini key rotated + Vercel env set (Preview):** `GEMINI_API_KEY` (server-only), the 7 `NEXT_PUBLIC_FIREBASE_*`, `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense`, and the `prodsense-d63e1` RTDB URL.
+- **Shipped this session** (see §4 2026-08-21): user feedback widget + first-sign-in announcement popup (`feedback` collection, server-write only); randomized home hero titles + Zap orb (no description); sidebar collapsed by default + email-username sign-out chip; leaderboard trophy render fix; drill problem sized down + transparent answer area + plain black underline; home catalog infinite scroll.
+- Gates green: `pnpm typecheck` clean · `pnpm test` **190/190 (20 files)** · `pnpm test:rules` **24** · `pnpm lint` 0 errors (15 pre-existing warnings).
+
+**🔑 Remaining to go live (your hands):**
+1. Add **`NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` to the Vercel PRODUCTION env** (currently Preview only) — else prod falls back to legacy `(default)`.
+2. Manual QA on the Vercel preview: 2-window multiplayer (host-disconnect + private-room), `/test` real-Gemini generate+grade, mini-games, GA4 events, and the new feedback popup + submission landing in `prodsense/feedback`.
+3. Flip the Vercel Production Branch `main` → `entirelyNew`. Post-cutover: GA4 conversions/custom dimensions, resubmit sitemap.
+4. Once validated: **wipe legacy** `(default)` data + retire the default RTDB instance (irreversible — export first). Full runbook in `CUTOVER.md`.
+
+_The 2026-08-19 notes below are historical (kept for context); the status above supersedes them._
 
 **Where we are right now (2026-08-19 — responsive UI pass complete):**
 - Comprehensive desktop/mobile UI refinement landed in `07787c6` (`feat(ui): refine responsive app experience`). It covered every public and authenticated route, plus drill results and multiplayer lobby/race states. See the new 2026-08-19 entry in §4.
@@ -21,6 +38,8 @@ Last updated: 2026-08-20.
 - Legacy `main` deployment is still live on Vercel — intentional, the rebuild has **not** been cut over yet. Branches are now just `main` + `entirelyNew` (the `worktree-analytics` and `postGradUpdates-integration` branches were deleted).
 
 **The rebuild is feature-complete and hardened.** Remaining work is (a) the operational cutover (your hands — §18/§20: rotate the Gemini key, set Vercel env vars, deploy rules, flip the Production Branch) and (b) manual 2-window/real-Gemini browser QA of multiplayer, AI test, and the mini-games (couldn't be automated here). Verify against a Vercel preview after pushing.
+
+**🚨 Cutover ordering — SUPERSEDED (2026-08-21):** the data isolation onto `prodsense` / `prodsense-d63e1` means rules now deploy only to the rebuild's own resources, so this "deploy rules only at the flip" constraint no longer applies. Kept below for history.
 
 **🚨 Cutover ordering — deploy rules only at the branch flip:**
 `database.rules.json` was substantially hardened (participant-gated `rooms/{code}` reads, a names-free `roomIndex` for the public lobby, join/`solved`/room-field validation; Firestore leaderboard reads now require auth). Deploying these while legacy `main` is still live would break legacy multiplayer (it doesn't write a `host` field and reads `/rooms` directly). Run `firebase deploy --only firestore:rules,database` **immediately before** flipping the Vercel Production Branch — not earlier. See §18/§20.
@@ -99,6 +118,22 @@ The plan is for `entirelyNew` to eventually replace `main` as the production dep
 ## 4. Session log
 
 Most recent first.
+
+### 2026-08-21 — prodsense cutover prep, UI polish, feedback feature
+
+**Branch/commits**: `entirelyNew` (pushed).
+
+**Backend / isolation completed** (design in the 2026-08-20 entry): enabled Blaze; created Firestore DB `prodsense` (region `nam5`) and RTDB instance `prodsense-d63e1`; pointed `firebase.json` at only those; deployed the hardened rules there (legacy `(default)` / `csmidterm-5f652-default-rtdb` untouched). Ran `scripts/migrate-data-to-rebuild.mjs --apply`: copied legacy `(default)` → `prodsense` (1,689 profiles / 3,226 bests / 3,162 leaderboard entries; source read-only, ~23 min). Added `scripts/cleanup-fast-leaderboard-entries.mjs` and removed 12 impossible sub-1s leaderboard entries. Gemini key rotated; Vercel **Preview** env set (`NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense`, the `prodsense-d63e1` RTDB URL, server-only `GEMINI_API_KEY`).
+
+**UI polish**: sidebar defaults collapsed (expands only if previously opened); sign-out chip shows the email local-part; home hero shows a randomized title (mental-math / Number-Sense / speed set) with a `Zap` orb and no description; leaderboard hero trophy render fixed (was accent-on-accent → now `--ink`); drill problem `240px→200px`, answer area now transparent (no white panel), input is a plain black underline with the global `:focus-visible` box suppressed; home catalog uses an `IntersectionObserver` infinite scroll instead of "Show 12 more".
+
+**Feedback feature** (new): in-app "Send feedback" widget (sidebar footer + mobile) → `POST /api/feedback` (Bearer token verify, 5/min rate limit, Zod, control-char sanitize) → Admin-SDK write to `feedback/{autoId}` in `prodsense`; auto-captures uid / email / path / appVersion / userAgent; fires a `feedback_submitted` analytics event. One-time first-sign-in announcement popup gated by localStorage `sense:announce:v2`. Shared accessible `Modal` shell (`components/sense/Modal.tsx`). `feedback` rules are `read, write: if false` (Admin SDK bypasses; nothing client-readable). Read submissions in the Firebase console → Firestore → `prodsense` → `feedback`.
+
+**Files**: new `lib/server/feedback.ts`, `app/api/feedback/route.ts`, `lib/firebase/feedback.ts`, `hooks/useFeedback.tsx`, `components/sense/{Modal,FeedbackModal,AnnouncementModal}.tsx`, `scripts/cleanup-fast-leaderboard-entries.mjs`, `__tests__/feedback.server.test.ts`; edits to `lib/types.ts`, `lib/server/rateLimit.ts`, `lib/firebase/{client,admin}.ts`, `lib/server/migration.ts`, `scripts/migrate-data-to-rebuild.mjs`, `firebase.json`, `firestore.rules`, `rules-tests/security-rules.test.ts`, `components/sense/Sidebar.tsx`, `app/(app)/{layout,page}.tsx`, `app/(app)/leaderboard/page.tsx`, `app/globals.css`.
+
+**Gates**: `tsc --noEmit` clean; Vitest **190/190** (20 files); `test:rules` **24**; ESLint 0 errors (15 warnings).
+
+**Remaining to go live**: add `NEXT_PUBLIC_FIRESTORE_DATABASE_ID=prodsense` to Vercel **Production**; manual preview QA; flip the Production Branch; then wipe legacy `(default)`.
 
 ### 2026-08-20 — isolate the rebuild onto its own database + RTDB instance
 
