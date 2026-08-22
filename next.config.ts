@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
   // Next 16 blocks cross-origin dev resources (HMR/chunks) from 127.0.0.1, which
   // prevents client hydration during Playwright runs. Dev-only; no prod effect.
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  // Keep firebase-admin (and its ESM-only `jose` transitive) out of the server
+  // bundle — it's loaded via Node require at runtime, not bundled.
+  serverExternalPackages: ["firebase-admin"],
 };
 
 export default nextConfig;
